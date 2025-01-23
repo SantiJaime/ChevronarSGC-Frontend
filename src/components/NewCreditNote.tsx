@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Col, Dropdown, Form, Row, Table } from "react-bootstrap";
 import { toast } from "sonner";
 import { createCreditNoteSchema } from "../utils/validationSchemas";
@@ -15,8 +15,22 @@ const NewCreditNote = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [filteredItems, setFilteredItems] = useState<Client[]>([]);
+  const [productsTotal, setProductsTotal] = useState({
+    total: 0,
+    iva: 0,
+    precioSinIva: 0,
+  });
   const { clients } = useClients();
 
+  useEffect(() => {
+    const total = products.reduce(
+      (acc, product) => acc + product.productSubtotal,
+      0
+    );
+    const precioSinIva = total / 1.21;
+    const iva = precioSinIva * 0.21;
+    setProductsTotal({ total, iva, precioSinIva });
+  }, [products]);
   const handleInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const value = ev.target.value;
     setSearchTerm(value);
@@ -276,20 +290,13 @@ const NewCreditNote = () => {
               </Table>
               <div className="d-flex justify-content-end flex-column align-items-end">
                 <h5>
-                  Subtotal: $
-                  {products.reduce(
-                    (total, product) =>
-                      total + product.price * product.quantity,
-                    0
-                  )}
+                  IVA: ${productsTotal.iva.toFixed(2)}
+                </h5>
+                <h5>
+                  Precio s/ IVA: ${productsTotal.precioSinIva.toFixed(2)}
                 </h5>
                 <h4>
-                  Total: $
-                  {products.reduce(
-                    (total, product) =>
-                      total + product.price * product.quantity,
-                    0
-                  ) * 1.21}
+                  Total: ${productsTotal.total.toFixed(2)}
                 </h4>
               </div>
             </>

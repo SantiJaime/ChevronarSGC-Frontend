@@ -27,8 +27,8 @@ const NewInvoiceComp = () => {
       (acc, product) => acc + product.productSubtotal,
       0
     );
-    const iva = total * 0.21;
-    const precioSinIva = total - iva;
+    const precioSinIva = total / 1.21;
+    const iva = precioSinIva * 0.21;
     setProductsTotal({ total, iva, precioSinIva });
   }, [products]);
 
