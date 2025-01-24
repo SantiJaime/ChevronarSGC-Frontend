@@ -57,7 +57,7 @@ const NewInvoiceComp = () => {
     setShowDropdown(false);
   };
 
-  const newInvoice = (values: InvoiceData) => {
+  const newInvoice = (values: InvoiceData, resetForm: () => void) => {
     const error = validateInvoice(values, client, products);
     if (error) {
       toast.error(error);
@@ -78,6 +78,10 @@ const NewInvoiceComp = () => {
     const promise = createInvoice(payload, token)
       .then((res) => {
         open(res.result, "_blank");
+        resetForm();
+        setClient(null);
+        setSearchTerm("");
+        setProducts([]);
         return res;
       })
       .catch((err) => {
@@ -93,7 +97,7 @@ const NewInvoiceComp = () => {
   return (
     <Formik
       validationSchema={createInvoiceSchema}
-      onSubmit={(values) => newInvoice(values)}
+      onSubmit={(values, { resetForm }) => newInvoice(values, resetForm)}
       initialValues={{
         saleCond: "",
         salePoint: "",
@@ -236,15 +240,9 @@ const NewInvoiceComp = () => {
                 </tbody>
               </Table>
               <div className="d-flex justify-content-end flex-column align-items-end">
-                <h5>
-                  IVA: ${productsTotal.iva.toFixed(2)}
-                </h5>
-                <h5>
-                  Precio s/ IVA: ${productsTotal.precioSinIva.toFixed(2)}
-                </h5>
-                <h4>
-                  Total: ${productsTotal.total.toFixed(2)}
-                </h4>
+                <h5>IVA: ${productsTotal.iva.toFixed(2)}</h5>
+                <h5>Precio s/ IVA: ${productsTotal.precioSinIva.toFixed(2)}</h5>
+                <h4>Total: ${productsTotal.total.toFixed(2)}</h4>
               </div>
             </>
           )}

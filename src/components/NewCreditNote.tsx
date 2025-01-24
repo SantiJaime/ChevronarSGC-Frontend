@@ -56,7 +56,7 @@ const NewCreditNote = () => {
     setShowDropdown(false);
   };
 
-  const newCreditNote = (values: CreditNoteData) => {
+  const newCreditNote = (values: CreditNoteData, resetForm: () => void) => {
     const error = validateCreditNote(values, client, products);
     if (error) {
       toast.error(error);
@@ -77,6 +77,10 @@ const NewCreditNote = () => {
     const promise = createCreditNote(payload, token)
       .then((res) => {
         open(res.result, "_blank");
+        resetForm();
+        setClient(null);
+        setSearchTerm("");
+        setProducts([]);
         return res;
       })
       .catch((err) => {
@@ -92,7 +96,7 @@ const NewCreditNote = () => {
   return (
     <Formik
       validationSchema={createCreditNoteSchema}
-      onSubmit={(values) => newCreditNote(values)}
+      onSubmit={(values, { resetForm }) => newCreditNote(values, resetForm)}
       initialValues={{
         saleCond: "",
         salePoint: "",
