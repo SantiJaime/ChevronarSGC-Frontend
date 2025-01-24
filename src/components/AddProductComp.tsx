@@ -78,7 +78,7 @@ const AddProductComp: React.FC<Props> = ({ setProducts }) => {
                       <CurrencyDollar />
                     </InputGroup.Text>
                     <Form.Control
-                      placeholder="$100"
+                      placeholder="Ej: $100"
                       type="number"
                       name="price"
                       value={values.price}
@@ -97,7 +97,7 @@ const AddProductComp: React.FC<Props> = ({ setProducts }) => {
                       <Cart2 />
                     </InputGroup.Text>
                     <Form.Control
-                      placeholder="1"
+                      placeholder="Ej: 1"
                       type="number"
                       name="quantity"
                       value={values.quantity}
