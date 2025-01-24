@@ -14,6 +14,7 @@ const NewClientComp = () => {
     "IVA Responsable inscripto",
     "Iva No alcanzado",
     "Monotributista",
+    "Consumidor Final"
   ];
 
   const DOCUMENT_TYPES = ["DNI", "CUIT", "CUIL"];

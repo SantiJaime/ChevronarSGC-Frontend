@@ -4,7 +4,7 @@ export const getCities = async () => {
   const response = await fetch(`${URL}/cities`);
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
-    throw error.msg;
+    throw error;
   }
   const res = await response.json();
 
@@ -22,7 +22,7 @@ export const createCity = async (city: City, token: string) => {
   });
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
-    throw error.msg;
+    throw error;
   }
   const res = await response.json();
   return res;

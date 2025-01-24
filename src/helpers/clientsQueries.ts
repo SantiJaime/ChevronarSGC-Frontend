@@ -33,7 +33,7 @@ export const createClient = async (client: Client, token: string) => {
   });
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
-    throw error.msg;
+    throw error;
   }
   const res = await response.json();
   return res;
