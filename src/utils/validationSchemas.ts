@@ -31,6 +31,11 @@ export const createInvoiceSchema = yup.object().shape({
   salePoint: yup.string().required("El punto de venta es requerido"),
   invoiceType: yup.string().required("El tipo de factura es requerido"),
   creditCard: yup.string(),
+  debitCard: yup.string(),
+  paymentsQuantity: yup
+    .string()
+    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .optional(),
 });
 export const createCreditNoteSchema = yup.object().shape({
   saleCond: yup.string().required("La condición de venta es requerida"),
@@ -39,10 +44,15 @@ export const createCreditNoteSchema = yup.object().shape({
     .string()
     .required("El tipo de nota de crédito es requerido"),
   creditCard: yup.string(),
+  debitCard: yup.string(),
   assocInvoiceNumber: yup
     .string()
     .required("El número de factura asociada es requerido")
     .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)"),
+    paymentsQuantity: yup
+    .string()
+    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .optional(),
   date: yup
     .string()
     .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")

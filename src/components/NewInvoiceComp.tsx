@@ -103,6 +103,8 @@ const NewInvoiceComp = () => {
         salePoint: "",
         invoiceType: "",
         creditCard: "",
+        debitCard: "",
+        paymentsQuantity: "",
       }}
     >
       {({ values, errors, touched, handleChange, handleSubmit }) => (
@@ -145,6 +147,7 @@ const NewInvoiceComp = () => {
                 <option value={""}>Condición de venta no seleccionada</option>
                 <option value="Contado">Contado</option>
                 <option value="Crédito">Crédito</option>
+                <option value="Débito">Débito</option>
                 <option value="Transferencia">Transferencia</option>
                 <option value="Cheque">Cheque</option>
               </Form.Select>
@@ -191,7 +194,7 @@ const NewInvoiceComp = () => {
             </Form.Group>
           </Row>
           <Row>
-            {values.saleCond === "Crédito" && (
+            {values.saleCond === "Crédito" ? (
               <Form.Group as={Col} md="4" controlId="creditCardId">
                 <Form.Label>Tarjeta de crédito</Form.Label>
                 <Form.Select
@@ -208,6 +211,38 @@ const NewInvoiceComp = () => {
                   ))}
                 </Form.Select>
               </Form.Group>
+            ) : values.saleCond === "Débito" ? (
+              <Form.Group as={Col} md="4" controlId="debitCardId">
+                <Form.Label>Tarjeta de débito</Form.Label>
+                <Form.Select
+                  onChange={handleChange}
+                  value={values.debitCard}
+                  name="debitCard"
+                  isInvalid={touched.debitCard && !!errors.debitCard}
+                >
+                  <option value={""}>Tarjeta no seleccionada</option>
+                  <option value="Visa">Visa</option>
+                  <option value="Mastercard | Maestro">
+                    Mastercard | Maestro
+                  </option>
+                </Form.Select>
+              </Form.Group>
+            ) : (
+              ""
+            )}
+            {values.saleCond === "Crédito" || values.saleCond === "Débito" ? (
+              <Form.Group as={Col} md="4" controlId="paymentsQuantityId">
+                <Form.Label>Cantidad de cuotas</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Ej: 6"
+                  value={values.paymentsQuantity}
+                  onChange={handleChange}
+                  name="paymentsQuantity"
+                />
+              </Form.Group>
+            ) : (
+              ""
             )}
           </Row>
           <hr />

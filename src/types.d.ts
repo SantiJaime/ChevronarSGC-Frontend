@@ -13,6 +13,8 @@ interface InvoiceData {
   salePoint: string;
   invoiceType: string;
   creditCard: string;
+  debitCard: string;
+  paymentsQuantity: string;
 }
 interface Client {
   _id?: string;
@@ -48,6 +50,8 @@ interface CreditNoteData {
   creditCard?: string;
   assocInvoiceNumber: string;
   date: string;
+  debitCard?: string;
+  paymentsQuantity: string;
 }
 interface CreditNote extends CreditNoteData {
   client: Client;

@@ -102,8 +102,10 @@ const NewCreditNote = () => {
         salePoint: "",
         creditNoteType: "",
         creditCard: "",
+        debitCard: "",
         assocInvoiceNumber: "",
         date: "",
+        paymentsQuantity: "",
       }}
     >
       {({
@@ -153,6 +155,7 @@ const NewCreditNote = () => {
                 <option value={""}>Condición de venta no seleccionada</option>
                 <option value="Contado">Contado</option>
                 <option value="Crédito">Crédito</option>
+                <option value="Débito">Débito</option>
                 <option value="Transferencia">Transferencia</option>
                 <option value="Cheque">Cheque</option>
               </Form.Select>
@@ -200,8 +203,8 @@ const NewCreditNote = () => {
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
-          <Row>
-            {values.saleCond === "Crédito" && (
+          <Row className='mb-3'>
+            {values.saleCond === "Crédito" ? (
               <Form.Group as={Col} md="4" controlId="creditCardId">
                 <Form.Label>Tarjeta de crédito</Form.Label>
                 <Form.Select
@@ -218,6 +221,24 @@ const NewCreditNote = () => {
                   ))}
                 </Form.Select>
               </Form.Group>
+            ) : values.saleCond === "Débito" ? (
+              <Form.Group as={Col} md="4" controlId="debitCardId">
+                <Form.Label>Tarjeta de debito</Form.Label>
+                <Form.Select
+                  onChange={handleChange}
+                  value={values.debitCard}
+                  name="debitCard"
+                  isInvalid={touched.debitCard && !!errors.debitCard}
+                >
+                  <option value={""}>Tarjeta no seleccionada</option>
+                  <option value="Visa">Visa</option>
+                  <option value="Mastercard | Maestro">
+                    Mastercard | Maestro
+                  </option>
+                </Form.Select>
+              </Form.Group>
+            ) : (
+              ""
             )}
             <Form.Group as={Col} md="4" controlId="AssocInvoiceNumberId">
               <Form.Label>Número de comprobante asociado</Form.Label>
@@ -263,6 +284,22 @@ const NewCreditNote = () => {
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
+          <Row>
+            {values.saleCond === "Crédito" || values.saleCond === "Débito" ? (
+              <Form.Group as={Col} md="4" controlId="paymentsQuantityId">
+                <Form.Label>Cantidad de cuotas</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Ej: 6"
+                  value={values.paymentsQuantity}
+                  onChange={handleChange}
+                  name="paymentsQuantity"
+                />
+              </Form.Group>
+            ) : (
+              ""
+            )}
+          </Row>
           <hr />
           <div className="d-flex justify-content-between">
             <h4>Productos</h4>
@@ -293,15 +330,9 @@ const NewCreditNote = () => {
                 </tbody>
               </Table>
               <div className="d-flex justify-content-end flex-column align-items-end">
-                <h5>
-                  IVA: ${productsTotal.iva.toFixed(2)}
-                </h5>
-                <h5>
-                  Precio s/ IVA: ${productsTotal.precioSinIva.toFixed(2)}
-                </h5>
-                <h4>
-                  Total: ${productsTotal.total.toFixed(2)}
-                </h4>
+                <h5>IVA: ${productsTotal.iva.toFixed(2)}</h5>
+                <h5>Precio s/ IVA: ${productsTotal.precioSinIva.toFixed(2)}</h5>
+                <h4>Total: ${productsTotal.total.toFixed(2)}</h4>
               </div>
             </>
           )}
