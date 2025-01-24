@@ -1,4 +1,4 @@
-export const URL: string = import.meta.env.VITE_API_URL_LOCAL;
+export const URL: string = import.meta.env.VITE_API_URL_DEPLOY;
 
 export const CREDIT_CARDS = [
   "Naranja",
