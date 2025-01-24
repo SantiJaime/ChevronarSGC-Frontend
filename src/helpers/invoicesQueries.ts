@@ -14,7 +14,6 @@ export const createInvoice = async (payload: FullInvoice, token: string) => {
     throw error;
   }
   const res = await response.json();
-  console.log(res)
   return res;
 };
 

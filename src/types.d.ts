@@ -54,6 +54,6 @@ interface CreditNote extends CreditNoteData {
   products: Product[];
 }
 interface UserLogin {
-  email: string;
+  username: string;
   password: string;
 }

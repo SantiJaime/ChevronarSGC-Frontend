@@ -37,7 +37,7 @@ const Login = () => {
           validationSchema={loginSchema}
           onSubmit={(values) => login(values)}
           initialValues={{
-            email: "",
+            username: "",
             password: "",
           }}
         >
@@ -46,22 +46,22 @@ const Login = () => {
               onSubmit={handleSubmit}
               className="bg-dark p-3 rounded-4 text-light"
             >
-              <Form.Group className="mb-3" controlId="emailId">
+              <Form.Group className="mb-3" controlId="usernameId">
                 <Form.Label>Nombre de usuario</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
                     <PersonCircle />
                   </InputGroup.Text>
                   <Form.Control
-                    placeholder="name@example.com"
+                    placeholder="Ej: Martin"
                     type="text"
-                    name="email"
-                    value={values.email}
+                    name="username"
+                    value={values.username}
                     onChange={handleChange}
-                    isInvalid={touched.email && !!errors.email}
+                    isInvalid={touched.username && !!errors.username}
                   />
                   <Form.Control.Feedback type="invalid">
-                    {errors.email && touched.email && errors.email}
+                    {errors.username && touched.username && errors.username}
                   </Form.Control.Feedback>
                 </InputGroup>
               </Form.Group>

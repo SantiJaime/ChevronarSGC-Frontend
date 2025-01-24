@@ -23,25 +23,18 @@ export const getClients = async (token: string) => {
 };
 
 export const createClient = async (client: Client, token: string) => {
-  try {
-    const response = await fetch(`${URL}/clients`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(client),
-    });
-    if (!response.ok) {
-      const error: ErrorMessage = await response.json();
-      throw error.msg;
-    }
-    const res = await response.json();
-    return res;
-  } catch (error) {
-    console.log(error);
-    if (error instanceof Error) {
-      throw error;
-    }
+  const response = await fetch(`${URL}/clients`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(client),
+  });
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error.msg;
   }
+  const res = await response.json();
+  return res;
 };

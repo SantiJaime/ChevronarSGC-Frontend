@@ -20,7 +20,7 @@ const NewCityComp = () => {
         toast.success(res.msg);
         setCities((prevCities) => [...prevCities, res.city]);
       })
-      .catch((err) => toast.error(err));
+      .catch((err) => toast.error(err.msg));
   };
 
   return (
