@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button, Col, Dropdown, Form, Row, Table } from "react-bootstrap";
 import { toast } from "sonner";
 import { createCreditNoteSchema } from "../utils/validationSchemas";
-import { CREDIT_CARDS, SALE_POINTS } from "../constants/const";
+import { CREDIT_CARDS, SALE_CONDITIONS, SALE_POINTS } from "../constants/const";
 import { createCreditNote } from "../helpers/invoicesQueries";
 import { validateCreditNote } from "../utils/validationFunctions";
 import AddProductComp from "./AddProductComp";
@@ -153,11 +153,11 @@ const NewCreditNote = () => {
                 isInvalid={touched.saleCond && !!errors.saleCond}
               >
                 <option value={""}>Condición de venta no seleccionada</option>
-                <option value="Contado">Contado</option>
-                <option value="Crédito">Crédito</option>
-                <option value="Débito">Débito</option>
-                <option value="Transferencia">Transferencia</option>
-                <option value="Cheque">Cheque</option>
+                {SALE_CONDITIONS.map((cond) => (
+                  <option key={cond} value={cond}>
+                    {cond}
+                  </option>
+                ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
                 {errors.saleCond && touched.saleCond ? errors.saleCond : ""}

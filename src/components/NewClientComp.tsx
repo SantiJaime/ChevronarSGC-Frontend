@@ -14,7 +14,7 @@ const NewClientComp = () => {
     "IVA Responsable inscripto",
     "Iva No alcanzado",
     "Monotributista",
-    "Consumidor Final"
+    "Consumidor Final",
   ];
 
   const DOCUMENT_TYPES = ["DNI", "CUIT", "CUIL"];
@@ -32,13 +32,18 @@ const NewClientComp = () => {
         return res;
       })
       .catch((err) => {
+
+        if (err.error.includes("E11000")) {
+          err.error = "El documento ingresado ya se encuentra asociado a un cliente";
+          throw err;
+        }
         throw err;
       });
-      
+
     toast.promise(promise, {
       loading: "Creando cliente...",
       success: (data) => `${data.msg}`,
-      error: (err) => `${err.msg}`,
+      error: (err) => `${err.error}`,
     });
   };
 
