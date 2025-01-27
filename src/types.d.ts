@@ -12,9 +12,9 @@ interface InvoiceData {
   saleCond: string;
   salePoint: string;
   invoiceType: string;
-  creditCard: string;
-  debitCard: string;
-  paymentsQuantity: string;
+  creditCard?: string;
+  debitCard?: string;
+  paymentsQuantity?: string;
 }
 interface Client {
   _id?: string;
@@ -25,7 +25,7 @@ interface Client {
   city: string;
   ivaCond: string;
 }
-interface FullInvoice extends InvoiceData {
+interface NewInvoice extends InvoiceData {
   client: Client;
   products: Product[];
 }
@@ -60,4 +60,26 @@ interface CreditNote extends CreditNoteData {
 interface UserLogin {
   username: string;
   password: string;
+}
+interface FullInvoice extends NewInvoice {
+  _id: string;
+  date: string;
+  cae: number;
+  caeExpiringDate: string;
+  invoiceNumber: number;
+  assocInvoiceNumber?: number;
+  amounts: {
+    total: number;
+    iva: number;
+    precioSinIva: number;
+  };
+}
+
+interface InvoiceSearch {
+  fromDate: string;
+  toDate: string;
+  clientName: string;
+  clientDocument: string;
+  type: string;
+  invoiceNumber: string;
 }

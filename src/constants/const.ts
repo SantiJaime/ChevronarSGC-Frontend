@@ -11,6 +11,15 @@ export const CREDIT_CARDS = [
   "Sucredito",
   "Titanio",
 ];
+
+export const SALE_CONDITIONS = [
+  "Contado",
+  "Crédito",
+  "Débito",
+  "Transferencia",
+  "Cheque",
+];
+
 export const ARG_PROVINCES = [
   "Buenos Aires",
   "Catamarca",

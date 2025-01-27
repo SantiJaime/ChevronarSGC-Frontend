@@ -8,6 +8,7 @@ const AdminView = () => {
   const NAV_LINKS = [
     "Facturas",
     "Notas de crédito",
+    "Historial de facturas",
     "Presupuestos",
     "Menú de creación",
   ];
