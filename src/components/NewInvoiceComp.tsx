@@ -222,7 +222,7 @@ const NewInvoiceComp = () => {
                 >
                   <option value={""}>Tarjeta no seleccionada</option>
                   <option value="Visa">Visa</option>
-                  <option value="Débito">Débito</option>
+                  <option value="Cabal">Cabal</option>
                   <option value="Mastercard | Maestro">
                     Mastercard | Maestro
                   </option>
