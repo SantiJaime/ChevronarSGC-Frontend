@@ -1,4 +1,8 @@
-export const URL: string = import.meta.env.VITE_API_URL_DEPLOY;
+export const config = import.meta.env.VITE_NODE_ENV === "production";
+
+export const URL: string = config
+  ? import.meta.env.VITE_API_URL_DEPLOY
+  : import.meta.env.VITE_API_URL_LOCAL;
 
 export const CREDIT_CARDS = [
   "Naranja",
@@ -11,6 +15,15 @@ export const CREDIT_CARDS = [
   "Sucredito",
   "Titanio",
 ];
+
+export const SALE_CONDITIONS = [
+  "Contado",
+  "Crédito",
+  "Débito",
+  "Transferencia",
+  "Cheque",
+];
+
 export const ARG_PROVINCES = [
   "Buenos Aires",
   "Catamarca",

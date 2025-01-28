@@ -6,7 +6,7 @@ import { createInvoice } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProductComp from "./AddProductComp";
 import useClients from "../hooks/useClients";
-import { CREDIT_CARDS, SALE_POINTS } from "../constants/const";
+import { CREDIT_CARDS, SALE_CONDITIONS, SALE_POINTS } from "../constants/const";
 import { validateInvoice } from "../utils/validationFunctions";
 
 const NewInvoiceComp = () => {
@@ -64,14 +64,15 @@ const NewInvoiceComp = () => {
       return;
     }
 
-    const payload: FullInvoice = {
+    const payload: NewInvoice = {
       ...values,
       client: client as Client,
       products,
     };
+
     const token = sessionStorage.getItem("token");
     if (!token) {
-      toast.error("Token inexistente");
+      toast.error("Token inexistente. Inicia sesión nuevamente");
       return;
     }
 
@@ -145,11 +146,11 @@ const NewInvoiceComp = () => {
                 isInvalid={touched.saleCond && !!errors.saleCond}
               >
                 <option value={""}>Condición de venta no seleccionada</option>
-                <option value="Contado">Contado</option>
-                <option value="Crédito">Crédito</option>
-                <option value="Débito">Débito</option>
-                <option value="Transferencia">Transferencia</option>
-                <option value="Cheque">Cheque</option>
+                {SALE_CONDITIONS.map((cond) => (
+                  <option key={cond} value={cond}>
+                    {cond}
+                  </option>
+                ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
                 {errors.saleCond && touched.saleCond ? errors.saleCond : ""}

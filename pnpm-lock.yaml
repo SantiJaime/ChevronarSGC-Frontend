@@ -35,6 +35,9 @@ importers:
       sonner:
         specifier: ^1.7.1
         version: 1.7.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      sweetalert2:
+        specifier: ^11.15.10
+        version: 11.15.10
       yup:
         specifier: ^1.6.1
         version: 1.6.1
@@ -1073,6 +1076,9 @@ packages:
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
+
+  sweetalert2@11.15.10:
+    resolution: {integrity: sha512-Sjiwcd5mWiz8X0JFkHsso2EPVQHrLCjVv+xR6Ry2LKf4KY6kSi4U5pM0Tgmn1c7SMfkyDqPal2NWqwj6vck8bw==}
 
   tiny-case@1.0.3:
     resolution: {integrity: sha512-Eet/eeMhkO6TX8mnUteS9zgPbUMQa4I6Kkp5ORiBD5476/m+PIRiumP5tmh5ioJpH7k51Kehawy2UDfsnxxY8Q==}
@@ -2117,6 +2123,8 @@ snapshots:
   supports-color@7.2.0:
     dependencies:
       has-flag: 4.0.0
+
+  sweetalert2@11.15.10: {}
 
   tiny-case@1.0.3: {}
 

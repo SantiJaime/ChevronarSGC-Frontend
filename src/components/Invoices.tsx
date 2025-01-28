@@ -1,0 +1,359 @@
+import { Formik } from "formik";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import Table from "react-bootstrap/Table";
+import { FileEarmarkX, FileText, Printer, Search } from "react-bootstrap-icons";
+import { searchInvoiceSchema } from "../utils/validationSchemas";
+import { useState } from "react";
+import { cancelInvoice, getInvoices } from "../helpers/invoicesQueries";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
+
+const Invoices = () => {
+  const INVOICES_TYPES = [
+    {
+      name: "Todas",
+      value: "",
+    },
+    {
+      name: "Factura A",
+      value: "Factura-A",
+    },
+    {
+      name: "Factura B",
+      value: "Factura-B",
+    },
+    {
+      name: "Nota de crédito A",
+      value: "Nota de crédito-A",
+    },
+    {
+      name: "Nota de crédito B",
+      value: "Nota de crédito-B",
+    },
+  ];
+  const [invoices, setInvoices] = useState<FullInvoice[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleSearch = (values: InvoiceSearch) => {
+    setLoading(true);
+
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      toast.error("Token inexistente. Inicia sesión nuevamente");
+      return;
+    }
+    const promise = getInvoices(values, token)
+      .then((res) => {
+        setInvoices(res.invoices);
+        return res;
+      })
+      .catch((err) => {
+        setInvoices([]);
+        throw err;
+      })
+      .finally(() => setLoading(false));
+
+    toast.promise(promise, {
+      loading: "Buscando facturas...",
+      success: (res) => `${res.msg}`,
+      error: (err) => `${err.error}`,
+    });
+  };
+
+  const handleCancelInvoice = (values: FullInvoice) => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      toast.error("Token inexistente. Inicia sesión nuevamente");
+      return;
+    }
+
+    const payload: NewCreditNote = {
+      ...values,
+      client: {
+        ...values.client,
+        document: values.client.document.toString(),
+      },
+      assocInvoiceCaeExpiringDate: values.caeExpiringDate.toString(),
+      paymentsQuantity: values.paymentsQuantity.toString(),
+      assocInvoiceNumber: values.invoiceNumber.toString(),
+      assocInvoiceCae: values.cae.toString(),
+      assocInvoiceDate: values.date.toString(),
+    };
+    Swal.fire({
+      title: "¿Estás seguro de anular esta factura?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#05b000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, anular",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const promise = cancelInvoice(payload, token)
+          .then((res) => {
+            open(res.result, "_blank");
+
+            setInvoices((prevState) => {
+              const updatedInvoices = prevState.map((invoice) =>
+                invoice._id === values._id
+                  ? { ...invoice, cancelled: true }
+                  : invoice
+              );
+
+              return [...updatedInvoices, res.newCreditNote];
+            });
+
+            return res;
+          })
+          .catch((err) => {
+            throw err;
+          });
+
+        toast.promise(promise, {
+          loading: "Generando nota de crédito...",
+          success: (res) => `${res.msg}`,
+          error: (err) => `${err.error}`,
+        });
+      }
+    });
+  };
+
+  const handleClick = () => {
+    toast.info("Esta funcionalidad se encuentra en desarrollo");
+  };
+
+  return (
+    <Container>
+      <h2>Historial de facturas</h2>
+      <hr />
+      <Formik
+        validationSchema={searchInvoiceSchema}
+        onSubmit={(values) => handleSearch(values)}
+        initialValues={{
+          fromDate: "",
+          toDate: "",
+          clientName: "",
+          clientDocument: "",
+          type: "",
+          invoiceNumber: "",
+        }}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleSubmit,
+          setFieldValue,
+        }) => (
+          <Form noValidate onSubmit={handleSubmit}>
+            <Row>
+              <Form.Group as={Col} md={3} controlId="fromDateId">
+                <Form.Label>Desde</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="fromDate"
+                  value={values.fromDate}
+                  onChange={(ev) => {
+                    let value = ev.target.value.replace(/[^0-9]/g, "");
+
+                    if (value.length > 4)
+                      value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                    if (value.length > 7)
+                      value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
+
+                    setFieldValue("fromDate", value);
+                  }}
+                  placeholder="YYYY-MM-DD"
+                  isInvalid={touched.fromDate && !!errors.fromDate}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md={3} controlId="toDateId">
+                <Form.Label>Hasta</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="toDate"
+                  value={values.toDate}
+                  onChange={(ev) => {
+                    let value = ev.target.value.replace(/[^0-9]/g, "");
+
+                    if (value.length > 4)
+                      value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                    if (value.length > 7)
+                      value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
+
+                    setFieldValue("toDate", value);
+                  }}
+                  placeholder="YYYY-MM-DD"
+                  isInvalid={touched.toDate && !!errors.toDate}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.toDate && touched.toDate ? errors.toDate : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md={3} controlId="clientDocumentId">
+                <Form.Label>Documento del cliente (opcional)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="clientDocument"
+                  value={values.clientDocument}
+                  onChange={handleChange}
+                  placeholder="Ej: 12345678912"
+                  autoComplete="off"
+                  isInvalid={touched.clientDocument && !!errors.clientDocument}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.clientDocument && touched.clientDocument
+                    ? errors.clientDocument
+                    : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md={3} controlId="clientNameId">
+                <Form.Label>Nombre del cliente (opcional)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="clientName"
+                  value={values.clientName}
+                  onChange={handleChange}
+                  placeholder="Ej: Juan Pérez"
+                  autoComplete="off"
+                  isInvalid={touched.clientName && !!errors.clientName}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.clientName && touched.clientName
+                    ? errors.clientName
+                    : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            <Row className="mt-3">
+              <Form.Group as={Col} md={3} controlId="invoiceNumberId">
+                <Form.Label>Número de factura (opcional)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="invoiceNumber"
+                  value={values.invoiceNumber}
+                  onChange={handleChange}
+                  placeholder="Ej: 20"
+                  autoComplete="off"
+                  isInvalid={touched.invoiceNumber && !!errors.invoiceNumber}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.invoiceNumber && touched.invoiceNumber
+                    ? errors.invoiceNumber
+                    : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md={3} controlId="typeId">
+                <Form.Label>Tipo de factura (opcional)</Form.Label>
+                <Form.Select
+                  name="type"
+                  value={values.type}
+                  onChange={handleChange}
+                  isInvalid={touched.type && !!errors.type}
+                >
+                  {INVOICES_TYPES.map((type) => (
+                    <option value={type.value} key={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.type && touched.type ? errors.type : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            <div className="d-flex justify-content-end mt-2">
+              <Button
+                type="submit"
+                variant="dark"
+                className="d-flex align-items-center gap-1"
+              >
+                <Search />
+                <span>Buscar</span>
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Formik>
+      <hr />
+      {loading ? (
+        <div className="d-flex flex-column align-items-center justify-content-center">
+          <Spinner animation="border" variant="dark" />
+          <h4>Cargando...</h4>
+        </div>
+      ) : invoices.length === 0 ? (
+        <h4 className="text-center">No se encontraron facturas</h4>
+      ) : (
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Nro. de factura - Tipo</th>
+              <th>Importes</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoices.map((invoice) => (
+              <tr key={invoice._id}>
+                <td>
+                  {invoice.client.name} | {invoice.client.document}
+                </td>
+                <td>
+                  Factura Nº {invoice.invoiceNumber} | {invoice.invoiceType}
+                </td>
+                <td>
+                  <strong>Total: </strong>${invoice.amounts.total} |
+                  <strong> IVA: </strong>${invoice.amounts.iva} |
+                  <strong> Precio sin IVA: </strong>$
+                  {invoice.amounts.precioSinIva}
+                </td>
+                <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>
+                <td>
+                  <div className="d-flex justify-content-center gap-1">
+                    <Button
+                      className="d-flex align-items-center gap-1"
+                      onClick={handleClick}
+                    >
+                      <FileText />
+                      <span>Ver detalles</span>
+                    </Button>
+                    <Button
+                      variant="success"
+                      className="d-flex align-items-center gap-1"
+                      onClick={handleClick}
+                    >
+                      <Printer />
+                      <span>Imprimir</span>
+                    </Button>
+                    {!invoice.cancelled &&
+                    invoice.invoiceType.includes("Factura") ? (
+                      <Button
+                        variant="danger"
+                        className="d-flex align-items-center gap-1"
+                        onClick={() => handleCancelInvoice(invoice)}
+                      >
+                        <FileEarmarkX />
+                        <span>Anular</span>
+                      </Button>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+    </Container>
+  );
+};
+
+export default Invoices;

@@ -2,7 +2,8 @@ import { Container } from "react-bootstrap";
 import NewClientComp from "./NewClientComp";
 import NewInvoiceComp from "./NewInvoiceComp";
 import NewCityComp from "./NewCityComp";
-import NewCreditNote from './NewCreditNote';
+import NewCreditNote from "./NewCreditNote";
+import Invoices from "./Invoices";
 interface Props {
   activeTab: string;
 }
@@ -13,7 +14,7 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
       {activeTab === "Facturas" ? (
         <NewInvoiceComp />
       ) : activeTab === "Notas de crédito" ? (
-        <NewCreditNote/>
+        <NewCreditNote />
       ) : activeTab === "Presupuestos" ? (
         <h1>Presupuestos</h1>
       ) : activeTab === "Menú de creación" ? (
@@ -22,6 +23,8 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
           <hr />
           <NewCityComp />
         </>
+      ) : activeTab === "Historial de facturas" ? (
+        <Invoices />
       ) : (
         ""
       )}
