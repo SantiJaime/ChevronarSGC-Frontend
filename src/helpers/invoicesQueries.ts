@@ -52,3 +52,20 @@ export const createCreditNote = async (payload: CreditNote, token: string) => {
   const res = await response.json();
   return res;
 };
+
+export const cancelInvoice = async (payload: NewCreditNote, token: string) => {
+  const response = await fetch(`${URL}/invoices/new-credit-note`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  const res = await response.json();
+  return res;
+};
