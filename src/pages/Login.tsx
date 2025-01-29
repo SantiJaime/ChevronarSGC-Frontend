@@ -22,7 +22,7 @@ const Login = () => {
     toast.promise(promise, {
       loading: "Iniciando sesión...",
       success: (data) => `${data.msg}`,
-      error: (err) => `${err.msg}`,
+      error: (err) => `${err.error}`,
     });
   };
 
