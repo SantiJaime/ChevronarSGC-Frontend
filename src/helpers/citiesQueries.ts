@@ -2,7 +2,7 @@ import { URL } from "../constants/const";
 import { refreshAccessToken } from "./authQueries";
 
 interface CreateCityResponse {
-  cities: City[];
+  city: City;
   msg: string;
 }
 
