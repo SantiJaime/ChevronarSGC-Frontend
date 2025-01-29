@@ -1,4 +1,10 @@
 import { URL } from "../constants/const";
+import { refreshAccessToken } from "./authQueries";
+
+interface CreateCityResponse {
+  city: City;
+  msg: string;
+}
 
 export const getCities = async () => {
   const response = await fetch(`${URL}/cities`);
@@ -11,19 +17,22 @@ export const getCities = async () => {
   return res;
 };
 
-export const createCity = async (city: City, token: string) => {
+export const createCity = async (city: City): Promise<CreateCityResponse> => {
   const response = await fetch(`${URL}/cities`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(city),
+    credentials: "include",
   });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return createCity(city);
+  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
   }
-  const res = await response.json();
-  return res;
+  return await response.json();
 };

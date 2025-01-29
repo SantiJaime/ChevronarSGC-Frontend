@@ -3,19 +3,14 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import { createCitySchema } from "../utils/validationSchemas";
 import { toast } from "sonner";
 import { createCity } from "../helpers/citiesQueries";
-import { ARG_PROVINCES } from '../constants/const';
+import { ARG_PROVINCES } from "../constants/const";
 import useCities from "../hooks/useCities";
 
 const NewCityComp = () => {
   const { setCities } = useCities();
 
   const newCity = (values: City) => {
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      toast.error("Token inexistente");
-      return;
-    }
-    createCity(values, token)
+    createCity(values)
       .then((res) => {
         toast.success(res.msg);
         setCities((prevCities) => [...prevCities, res.city]);
