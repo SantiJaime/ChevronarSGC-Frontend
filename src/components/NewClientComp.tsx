@@ -20,23 +20,19 @@ const NewClientComp = () => {
   const DOCUMENT_TYPES = ["DNI", "CUIT", "CUIL"];
 
   const newClient = (values: Client) => {
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      toast.error("Token inexistente");
-      return;
-    }
+    // const token = sessionStorage.getItem("token");
+    // if (!token) {
+    //   toast.error("Token inexistente");
+    //   return;
+    // }
 
-    const promise = createClient(values, token)
+    const promise = createClient(values)
       .then((res) => {
         setClients((prevClients) => [...prevClients, res.client]);
         return res;
       })
       .catch((err) => {
-
-        if (err.error.includes("E11000")) {
-          err.error = "El documento ingresado ya se encuentra asociado a un cliente";
-          throw err;
-        }
+        console.log(err);
         throw err;
       });
 

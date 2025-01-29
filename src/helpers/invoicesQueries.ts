@@ -1,71 +1,86 @@
 import { URL } from "../constants/const";
+import { refreshAccessToken } from "./authQueries";
 
-export const getInvoices = async (payload: InvoiceSearch, token: string) => {
+interface GetInvoicesResponse {
+  invoices: FullInvoice[];
+  msg: string;
+}
+
+interface CreateInvoiceResponse {
+  result: string;
+  msg: string;
+}
+
+interface CancelInvoiceResponse {
+  result: string;
+  msg: string;
+  newCreditNote: FullInvoice;
+}
+
+export const getInvoices = async (
+  payload: InvoiceSearch
+): Promise<GetInvoicesResponse> => {
   const response = await fetch(
     `${URL}/invoices?fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&type=${payload.type}&invoiceNumber=${payload.invoiceNumber}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
     }
   );
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return getInvoices(payload);
+  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
   }
-  const res = await response.json();
-  return res;
+  return await response.json();
 };
 
-export const createInvoice = async (payload: NewInvoice, token: string) => {
+export const createInvoice = async (
+  payload: NewInvoice
+): Promise<CreateInvoiceResponse> => {
   const response = await fetch(`${URL}/invoices/new-invoice`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return createInvoice(payload);
+  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
   }
-  const res = await response.json();
-  return res;
+  return await response.json();
 };
 
-export const createCreditNote = async (payload: CreditNote, token: string) => {
+export const cancelInvoice = async (
+  payload: NewCreditNote
+): Promise<CancelInvoiceResponse> => {
   const response = await fetch(`${URL}/invoices/new-credit-note`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return cancelInvoice(payload);
+  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
   }
-  const res = await response.json();
-  return res;
-};
-
-export const cancelInvoice = async (payload: NewCreditNote, token: string) => {
-  const response = await fetch(`${URL}/invoices/new-credit-note`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  const res = await response.json();
-  return res;
+  return await response.json();
 };

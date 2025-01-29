@@ -11,7 +11,7 @@ const Login = () => {
   const login = (values: UserLogin) => {
     const promise = loginUser(values)
       .then((res) => {
-        sessionStorage.setItem("token", res.token);
+        sessionStorage.setItem("session", JSON.stringify(true));
         navigate("/admin");
         return res;
       })
