@@ -36,13 +36,7 @@ const Invoices = () => {
 
   const handleSearch = (values: InvoiceSearch) => {
     setLoading(true);
-
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      toast.error("Token inexistente. Inicia sesión nuevamente");
-      return;
-    }
-    const promise = getInvoices(values, token)
+    const promise = getInvoices(values)
       .then((res) => {
         setInvoices(res.invoices);
         return res;
@@ -61,12 +55,6 @@ const Invoices = () => {
   };
 
   const handleCancelInvoice = (values: FullInvoice) => {
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      toast.error("Token inexistente. Inicia sesión nuevamente");
-      return;
-    }
-
     const payload: NewCreditNote = {
       ...values,
       client: {
@@ -90,7 +78,7 @@ const Invoices = () => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        const promise = cancelInvoice(payload, token)
+        const promise = cancelInvoice(payload)
           .then((res) => {
             open(res.result, "_blank");
 
