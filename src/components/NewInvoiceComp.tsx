@@ -86,6 +86,7 @@ const NewInvoiceComp = () => {
         return res;
       })
       .catch((err) => {
+        console.log(error)
         throw err;
       });
 
