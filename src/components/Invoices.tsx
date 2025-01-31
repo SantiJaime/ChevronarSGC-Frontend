@@ -4,7 +4,7 @@ import Table from "react-bootstrap/Table";
 import { FileEarmarkX, FileText, Printer, Search } from "react-bootstrap-icons";
 import { searchInvoiceSchema } from "../utils/validationSchemas";
 import { useState } from "react";
-import { cancelInvoice, getInvoices } from "../helpers/invoicesQueries";
+import { cancelInvoice, getInvoices, printInvoice } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 
@@ -110,6 +110,21 @@ const Invoices = () => {
   const handleClick = () => {
     toast.info("Esta funcionalidad se encuentra en desarrollo");
   };
+
+  const handlePrint = (invoiceData: FullInvoice) => {
+   const promise = printInvoice(invoiceData).then((res) => {
+      open(res.result, "_blank");
+      return res;
+    }).catch((err) => {
+      throw err;
+    });
+
+    toast.promise(promise, {
+      loading: "Generando PDF...",
+      success: (res) => `${res.msg}`,
+      error: (err) => `${err.error}`,
+    });
+  }
 
   return (
     <Container>
@@ -315,7 +330,7 @@ const Invoices = () => {
                     <Button
                       variant="success"
                       className="d-flex align-items-center gap-1"
-                      onClick={handleClick}
+                      onClick={() => handlePrint(invoice)}
                     >
                       <Printer />
                       <span>Imprimir</span>

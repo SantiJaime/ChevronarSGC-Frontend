@@ -17,6 +17,11 @@ interface CancelInvoiceResponse {
   newCreditNote: FullInvoice;
 }
 
+interface PrintInvoiceResponse {
+  result: string;
+  msg: string;
+}
+
 export const getInvoices = async (
   payload: InvoiceSearch
 ): Promise<GetInvoicesResponse> => {
@@ -82,6 +87,26 @@ export const cancelInvoice = async (
   if (response.status === 401) {
     await refreshAccessToken();
     return cancelInvoice(payload);
+  }
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+};
+
+export const printInvoice = async (invoice: FullInvoice): Promise<PrintInvoiceResponse> => {
+  const response = await fetch(`${URL}/invoices/print-invoice`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(invoice),
+    credentials: "include",
+  });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return printInvoice(invoice);
   }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
