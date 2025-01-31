@@ -2,7 +2,7 @@ import { useState } from "react";
 import Nav from "react-bootstrap/Nav";
 import TabsComp from "../components/TabsComp";
 import ClientProvider from "../context/providers/ClientProvider";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { DoorOpen } from "react-bootstrap-icons";
 import { logoutUser } from "../helpers/authQueries";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ const AdminView = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("Facturas");
-
+  const [loading, setLoading] = useState(false);
   const NAV_LINKS = [
     "Facturas",
     "Historial de facturas",
@@ -19,9 +19,11 @@ const AdminView = () => {
   ];
 
   const handleLogout = () => {
+    setLoading(true);
     logoutUser()
       .then(() => {
         navigate("/");
+        setLoading(false);
       })
       .catch((err) => console.error(err));
   };
@@ -35,8 +37,17 @@ const AdminView = () => {
             variant="info"
             onClick={handleLogout}
           >
-            <DoorOpen />
-            <span>Cerrar sesión</span>
+            {loading ? (
+              <>
+                <Spinner size='sm'/>
+                <span>Cerrando sesión...</span>
+              </>
+            ) : (
+              <>
+                <DoorOpen />
+                <span>Cerrar sesión</span>
+              </>
+            )}
           </Button>
         </div>
         <Nav fill variant="tabs" defaultActiveKey={activeTab}>

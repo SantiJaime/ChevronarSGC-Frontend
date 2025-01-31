@@ -4,6 +4,16 @@ import { refreshAccessToken } from "./authQueries";
 interface GetInvoicesResponse {
   invoices: FullInvoice[];
   msg: string;
+  infoPagination: {
+    page: number;
+    limit: number;
+    totalDocs: number;
+    totalPages: number;
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
+    prevPage: number | null;
+    nextPage: number | null;
+  };
 }
 
 interface CreateInvoiceResponse {
@@ -23,10 +33,10 @@ interface PrintInvoiceResponse {
 }
 
 export const getInvoices = async (
-  payload: InvoiceSearch
+  payload: InvoiceSearch, page: number
 ): Promise<GetInvoicesResponse> => {
   const response = await fetch(
-    `${URL}/invoices?fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&type=${payload.type}&invoiceNumber=${payload.invoiceNumber}`,
+    `${URL}/invoices?page=${page}&fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&type=${payload.type}&invoiceNumber=${payload.invoiceNumber}`,
     {
       method: "GET",
       headers: {
@@ -37,7 +47,7 @@ export const getInvoices = async (
   );
   if (response.status === 401) {
     await refreshAccessToken();
-    return getInvoices(payload);
+    return getInvoices(payload, page);
   }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
@@ -95,7 +105,9 @@ export const cancelInvoice = async (
   return await response.json();
 };
 
-export const printInvoice = async (invoice: FullInvoice): Promise<PrintInvoiceResponse> => {
+export const printInvoice = async (
+  invoice: FullInvoice
+): Promise<PrintInvoiceResponse> => {
   const response = await fetch(`${URL}/invoices/print-invoice`, {
     method: "POST",
     headers: {
