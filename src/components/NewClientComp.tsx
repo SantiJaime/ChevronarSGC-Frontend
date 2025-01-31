@@ -20,12 +20,6 @@ const NewClientComp = () => {
   const DOCUMENT_TYPES = ["DNI", "CUIT", "CUIL"];
 
   const newClient = (values: Client) => {
-    // const token = sessionStorage.getItem("token");
-    // if (!token) {
-    //   toast.error("Token inexistente");
-    //   return;
-    // }
-
     const promise = createClient(values)
       .then((res) => {
         setClients((prevClients) => [...prevClients, res.client]);

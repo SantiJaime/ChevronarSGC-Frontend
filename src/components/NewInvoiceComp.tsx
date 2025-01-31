@@ -70,12 +70,6 @@ const NewInvoiceComp = () => {
       products,
     };
 
-    // const token = sessionStorage.getItem("token");
-    // if (!token) {
-    //   toast.error("Token inexistente. Inicia sesión nuevamente");
-    //   return;
-    // }
-
     const promise = createInvoice(payload)
       .then((res) => {
         open(res.result, "_blank");
@@ -86,7 +80,6 @@ const NewInvoiceComp = () => {
         return res;
       })
       .catch((err) => {
-        console.log(error)
         throw err;
       });
 

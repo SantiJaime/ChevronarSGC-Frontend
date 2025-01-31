@@ -44,23 +44,28 @@ export const getInvoices = async (
 export const createInvoice = async (
   payload: NewInvoice
 ): Promise<CreateInvoiceResponse> => {
-  const response = await fetch(`${URL}/invoices/new-invoice`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    credentials: "include",
-  });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return createInvoice(payload);
-  }
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
+  try {
+    const response = await fetch(`${URL}/invoices/new-invoice`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      credentials: "include",
+    });
+    if (response.status === 401) {
+      await refreshAccessToken();
+      return createInvoice(payload);
+    }
+    if (!response.ok) {
+      const error: ErrorMessage = await response.json();
+      throw error;
+    }
+    return await response.json();
+  } catch (error) {
+    console.log(error);
     throw error;
   }
-  return await response.json();
 };
 
 export const cancelInvoice = async (
