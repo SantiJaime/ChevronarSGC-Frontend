@@ -81,8 +81,10 @@ interface InvoiceSearch {
   toDate: string;
   clientName: string;
   clientDocument: string;
-  type: string;
+  invoiceType: string;
   invoiceNumber: string;
+  salePoint: string;
+  total: string;
 }
 
 interface NewCreditNote {

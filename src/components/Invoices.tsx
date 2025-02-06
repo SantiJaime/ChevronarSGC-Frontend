@@ -1,12 +1,24 @@
-import { Formik } from "formik";
+import { useFormik } from "formik";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
-import { FileEarmarkX, FileText, Printer, Search } from "react-bootstrap-icons";
+import {
+  ArrowLeftCircleFill,
+  ArrowRightCircleFill,
+  FileEarmarkX,
+  FileText,
+  Printer,
+  Search,
+} from "react-bootstrap-icons";
 import { searchInvoiceSchema } from "../utils/validationSchemas";
 import { useState } from "react";
-import { cancelInvoice, getInvoices } from "../helpers/invoicesQueries";
+import {
+  cancelInvoice,
+  getInvoices,
+  printInvoice,
+} from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { SALE_POINTS } from "../constants/const";
 
 const Invoices = () => {
   const INVOICES_TYPES = [
@@ -24,34 +36,63 @@ const Invoices = () => {
     },
     {
       name: "Nota de crédito A",
-      value: "Nota de crédito-A",
+      value: "Nota de Crédito-A",
     },
     {
       name: "Nota de crédito B",
-      value: "Nota de crédito-B",
+      value: "Nota de Crédito-B",
     },
   ];
+  const formik = useFormik({
+    initialValues: {
+      fromDate: "",
+      toDate: "",
+      clientName: "",
+      clientDocument: "",
+      invoiceType: "",
+      invoiceNumber: "",
+      salePoint: "",
+      total: "",
+    },
+    validationSchema: searchInvoiceSchema,
+    onSubmit: () => handleSearch(),
+  });
+
+  const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
+    formik;
+
   const [invoices, setInvoices] = useState<FullInvoice[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = (values: InvoiceSearch) => {
+  const handleSearch = () => {
     setLoading(true);
-    const promise = getInvoices(values)
+    getInvoices(values, page)
       .then((res) => {
         setInvoices(res.invoices);
-        return res;
+        setTotalPages(res.infoPagination.totalPages);
+        toast.success(res.msg);
       })
       .catch((err) => {
         setInvoices([]);
-        throw err;
+        toast.error(err.error);
       })
       .finally(() => setLoading(false));
+  };
 
-    toast.promise(promise, {
-      loading: "Buscando facturas...",
-      success: (res) => `${res.msg}`,
-      error: (err) => `${err.error}`,
-    });
+  const goToNextPage = () => {
+    if (page < totalPages) {
+      setPage((prevPage) => prevPage + 1);
+      handleSearch();
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (page > 1) {
+      setPage((prevPage) => prevPage - 1);
+      handleSearch();
+    }
   };
 
   const handleCancelInvoice = (values: FullInvoice) => {
@@ -111,163 +152,193 @@ const Invoices = () => {
     toast.info("Esta funcionalidad se encuentra en desarrollo");
   };
 
+  const handlePrint = (invoiceData: FullInvoice) => {
+    const promise = printInvoice(invoiceData)
+      .then((res) => {
+        open(res.result, "_blank");
+        return res;
+      })
+      .catch((err) => {
+        throw err;
+      });
+
+    toast.promise(promise, {
+      loading: "Generando PDF...",
+      success: (res) => `${res.msg}`,
+      error: (err) => `${err.error}`,
+    });
+  };
+
   return (
     <Container>
       <h2>Historial de facturas</h2>
       <hr />
-      <Formik
-        validationSchema={searchInvoiceSchema}
-        onSubmit={(values) => handleSearch(values)}
-        initialValues={{
-          fromDate: "",
-          toDate: "",
-          clientName: "",
-          clientDocument: "",
-          type: "",
-          invoiceNumber: "",
-        }}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleSubmit,
-          setFieldValue,
-        }) => (
-          <Form noValidate onSubmit={handleSubmit}>
-            <Row>
-              <Form.Group as={Col} md={3} controlId="fromDateId">
-                <Form.Label>Desde</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="fromDate"
-                  value={values.fromDate}
-                  onChange={(ev) => {
-                    let value = ev.target.value.replace(/[^0-9]/g, "");
 
-                    if (value.length > 4)
-                      value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                    if (value.length > 7)
-                      value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
+      <Form noValidate onSubmit={handleSubmit}>
+        <Row>
+          <Form.Group as={Col} md={3} controlId="fromDateId">
+            <Form.Label>Desde</Form.Label>
+            <Form.Control
+              type="text"
+              name="fromDate"
+              value={values.fromDate}
+              onChange={(ev) => {
+                let value = ev.target.value.replace(/[^0-9]/g, "");
 
-                    setFieldValue("fromDate", value);
-                  }}
-                  placeholder="YYYY-MM-DD"
-                  isInvalid={touched.fromDate && !!errors.fromDate}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md={3} controlId="toDateId">
-                <Form.Label>Hasta</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="toDate"
-                  value={values.toDate}
-                  onChange={(ev) => {
-                    let value = ev.target.value.replace(/[^0-9]/g, "");
+                if (value.length > 4)
+                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7)
+                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
 
-                    if (value.length > 4)
-                      value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                    if (value.length > 7)
-                      value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
+                setFieldValue("fromDate", value);
+              }}
+              placeholder="YYYY-MM-DD"
+              isInvalid={touched.fromDate && !!errors.fromDate}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md={3} controlId="toDateId">
+            <Form.Label>Hasta</Form.Label>
+            <Form.Control
+              type="text"
+              name="toDate"
+              value={values.toDate}
+              onChange={(ev) => {
+                let value = ev.target.value.replace(/[^0-9]/g, "");
 
-                    setFieldValue("toDate", value);
-                  }}
-                  placeholder="YYYY-MM-DD"
-                  isInvalid={touched.toDate && !!errors.toDate}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.toDate && touched.toDate ? errors.toDate : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md={3} controlId="clientDocumentId">
-                <Form.Label>Documento del cliente (opcional)</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="clientDocument"
-                  value={values.clientDocument}
-                  onChange={handleChange}
-                  placeholder="Ej: 12345678912"
-                  autoComplete="off"
-                  isInvalid={touched.clientDocument && !!errors.clientDocument}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.clientDocument && touched.clientDocument
-                    ? errors.clientDocument
-                    : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md={3} controlId="clientNameId">
-                <Form.Label>Nombre del cliente (opcional)</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="clientName"
-                  value={values.clientName}
-                  onChange={handleChange}
-                  placeholder="Ej: Juan Pérez"
-                  autoComplete="off"
-                  isInvalid={touched.clientName && !!errors.clientName}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.clientName && touched.clientName
-                    ? errors.clientName
-                    : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <Row className="mt-3">
-              <Form.Group as={Col} md={3} controlId="invoiceNumberId">
-                <Form.Label>Número de factura (opcional)</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="invoiceNumber"
-                  value={values.invoiceNumber}
-                  onChange={handleChange}
-                  placeholder="Ej: 20"
-                  autoComplete="off"
-                  isInvalid={touched.invoiceNumber && !!errors.invoiceNumber}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.invoiceNumber && touched.invoiceNumber
-                    ? errors.invoiceNumber
-                    : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md={3} controlId="typeId">
-                <Form.Label>Tipo de factura (opcional)</Form.Label>
-                <Form.Select
-                  name="type"
-                  value={values.type}
-                  onChange={handleChange}
-                  isInvalid={touched.type && !!errors.type}
-                >
-                  {INVOICES_TYPES.map((type) => (
-                    <option value={type.value} key={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
-                </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {errors.type && touched.type ? errors.type : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <div className="d-flex justify-content-end mt-2">
-              <Button
-                type="submit"
-                variant="dark"
-                className="d-flex align-items-center gap-1"
-              >
-                <Search />
-                <span>Buscar</span>
-              </Button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+                if (value.length > 4)
+                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7)
+                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
+
+                setFieldValue("toDate", value);
+              }}
+              placeholder="YYYY-MM-DD"
+              isInvalid={touched.toDate && !!errors.toDate}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.toDate && touched.toDate ? errors.toDate : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md={3} controlId="salePointId">
+            <Form.Label>Punto de venta</Form.Label>
+            <Form.Select
+              name="salePoint"
+              value={values.salePoint}
+              onChange={handleChange}
+              isInvalid={touched.salePoint && !!errors.salePoint}
+            >
+              <option value="">Punto de venta no seleccionado</option>
+              {SALE_POINTS.map((point) => (
+                <option value={point.value} key={point.name}>
+                  {point.name}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.salePoint && touched.salePoint ? errors.salePoint : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md={3} controlId="clientDocumentId">
+            <Form.Label>Documento del cliente (opcional)</Form.Label>
+            <Form.Control
+              type="text"
+              name="clientDocument"
+              value={values.clientDocument}
+              onChange={handleChange}
+              placeholder="Ej: 12345678912"
+              autoComplete="off"
+              isInvalid={touched.clientDocument && !!errors.clientDocument}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.clientDocument && touched.clientDocument
+                ? errors.clientDocument
+                : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+        </Row>
+        <Row className="mt-3">
+          <Form.Group as={Col} md={3} controlId="clientNameId">
+            <Form.Label>Nombre del cliente (opcional)</Form.Label>
+            <Form.Control
+              type="text"
+              name="clientName"
+              value={values.clientName}
+              onChange={handleChange}
+              placeholder="Ej: Juan Pérez"
+              autoComplete="off"
+              isInvalid={touched.clientName && !!errors.clientName}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.clientName && touched.clientName ? errors.clientName : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md={3} controlId="invoiceNumberId">
+            <Form.Label>Número de factura (opcional)</Form.Label>
+            <Form.Control
+              type="text"
+              name="invoiceNumber"
+              value={values.invoiceNumber}
+              onChange={handleChange}
+              placeholder="Ej: 20"
+              autoComplete="off"
+              isInvalid={touched.invoiceNumber && !!errors.invoiceNumber}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.invoiceNumber && touched.invoiceNumber
+                ? errors.invoiceNumber
+                : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md={3} controlId="invoiceTypeId">
+            <Form.Label>Tipo de factura (opcional)</Form.Label>
+            <Form.Select
+              name="invoiceType"
+              value={values.invoiceType}
+              onChange={handleChange}
+              isInvalid={touched.invoiceType && !!errors.invoiceType}
+            >
+              {INVOICES_TYPES.map((type) => (
+                <option value={type.value} key={type.name}>
+                  {type.name}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.invoiceType && touched.invoiceType
+                ? errors.invoiceType
+                : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md={3} controlId="clientNameId">
+            <Form.Label>Valor total de la factura (opcional)</Form.Label>
+            <Form.Control
+              type="text"
+              name="total"
+              value={values.total}
+              onChange={handleChange}
+              placeholder="Ej: $100"
+              autoComplete="off"
+              isInvalid={touched.total && !!errors.total}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.total && touched.total ? errors.total : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+        </Row>
+        <div className="d-flex justify-content-end mt-3">
+          <Button
+            type="submit"
+            variant="dark"
+            className="d-flex align-items-center gap-1"
+          >
+            <Search />
+            <span>Buscar</span>
+          </Button>
+        </div>
+      </Form>
       <hr />
       {loading ? (
         <div className="d-flex flex-column align-items-center justify-content-center">
@@ -277,68 +348,95 @@ const Invoices = () => {
       ) : invoices.length === 0 ? (
         <h4 className="text-center">No se encontraron facturas</h4>
       ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Cliente</th>
-              <th>Nro. de factura - Tipo</th>
-              <th>Importes</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoices.map((invoice) => (
-              <tr key={invoice._id}>
-                <td>
-                  {invoice.client.name} | {invoice.client.document}
-                </td>
-                <td>
-                  Factura Nº {invoice.invoiceNumber} | {invoice.invoiceType}
-                </td>
-                <td>
-                  <strong>Total: </strong>${invoice.amounts.total} |
-                  <strong> IVA: </strong>${invoice.amounts.iva} |
-                  <strong> Precio sin IVA: </strong>$
-                  {invoice.amounts.precioSinIva}
-                </td>
-                <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>
-                <td>
-                  <div className="d-flex justify-content-center gap-1">
-                    <Button
-                      className="d-flex align-items-center gap-1"
-                      onClick={handleClick}
-                    >
-                      <FileText />
-                      <span>Ver detalles</span>
-                    </Button>
-                    <Button
-                      variant="success"
-                      className="d-flex align-items-center gap-1"
-                      onClick={handleClick}
-                    >
-                      <Printer />
-                      <span>Imprimir</span>
-                    </Button>
-                    {!invoice.cancelled &&
-                    invoice.invoiceType.includes("Factura") ? (
-                      <Button
-                        variant="danger"
-                        className="d-flex align-items-center gap-1"
-                        onClick={() => handleCancelInvoice(invoice)}
-                      >
-                        <FileEarmarkX />
-                        <span>Anular</span>
-                      </Button>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </td>
+        <>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Nro. de factura - Tipo</th>
+                <th>Importes</th>
+                <th>Punto de venta</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {invoices.map((invoice) => (
+                <tr key={invoice._id}>
+                  <td>
+                    {invoice.client.name} | {invoice.client.document}
+                  </td>
+                  <td>
+                    Factura Nº {invoice.invoiceNumber} | {invoice.invoiceType}
+                  </td>
+                  <td>
+                    <strong>Total: </strong>${invoice.amounts.total} |
+                    <strong> IVA: </strong>${invoice.amounts.iva} |
+                    <strong> Precio sin IVA: </strong>$
+                    {invoice.amounts.precioSinIva}
+                  </td>
+                  <td>{invoice.salePoint === "00011" ? "Av San Martín 112" : "Av. Colón 315"}</td>
+                  <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>
+                  <td>
+                    <div className="d-flex justify-content-center gap-1">
+                      <Button
+                        className="d-flex align-items-center gap-1"
+                        onClick={handleClick}
+                      >
+                        <FileText />
+                        <span>Ver detalles</span>
+                      </Button>
+                      <Button
+                        variant="success"
+                        className="d-flex align-items-center gap-1"
+                        onClick={() => handlePrint(invoice)}
+                      >
+                        <Printer />
+                        <span>Imprimir</span>
+                      </Button>
+                      {!invoice.cancelled &&
+                      invoice.invoiceType.includes("Factura") ? (
+                        <Button
+                          variant="danger"
+                          className="d-flex align-items-center gap-1"
+                          onClick={() => handleCancelInvoice(invoice)}
+                        >
+                          <FileEarmarkX />
+                          <span>Anular</span>
+                        </Button>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <div className="d-flex justify-content-center align-items-center gap-2 mb-3">
+            <Button
+              onClick={goToPreviousPage}
+              disabled={page === 1}
+              variant="dark"
+              className="d-flex align-items-center gap-1"
+            >
+              <ArrowLeftCircleFill />
+              <span>Anterior</span>
+            </Button>
+            <span>
+              Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+            </span>
+            <Button
+              onClick={goToNextPage}
+              disabled={page === totalPages}
+              variant="dark"
+              className="d-flex align-items-center gap-1"
+            >
+              <span>Siguiente</span>
+              <ArrowRightCircleFill />
+            </Button>
+          </div>
+        </>
       )}
     </Container>
   );

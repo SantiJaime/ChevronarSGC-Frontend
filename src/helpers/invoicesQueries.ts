@@ -4,6 +4,16 @@ import { refreshAccessToken } from "./authQueries";
 interface GetInvoicesResponse {
   invoices: FullInvoice[];
   msg: string;
+  infoPagination: {
+    page: number;
+    limit: number;
+    totalDocs: number;
+    totalPages: number;
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
+    prevPage: number | null;
+    nextPage: number | null;
+  };
 }
 
 interface CreateInvoiceResponse {
@@ -17,11 +27,17 @@ interface CancelInvoiceResponse {
   newCreditNote: FullInvoice;
 }
 
+interface PrintInvoiceResponse {
+  result: string;
+  msg: string;
+}
+
 export const getInvoices = async (
-  payload: InvoiceSearch
+  payload: InvoiceSearch, page: number
 ): Promise<GetInvoicesResponse> => {
+
   const response = await fetch(
-    `${URL}/invoices?fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&type=${payload.type}&invoiceNumber=${payload.invoiceNumber}`,
+    `${URL}/invoices?page=${page}&fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&invoiceType=${payload.invoiceType}&invoiceNumber=${payload.invoiceNumber}&salePoint=${payload.salePoint}&total=${payload.total}`,
     {
       method: "GET",
       headers: {
@@ -32,7 +48,7 @@ export const getInvoices = async (
   );
   if (response.status === 401) {
     await refreshAccessToken();
-    return getInvoices(payload);
+    return getInvoices(payload, page);
   }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
@@ -44,23 +60,28 @@ export const getInvoices = async (
 export const createInvoice = async (
   payload: NewInvoice
 ): Promise<CreateInvoiceResponse> => {
-  const response = await fetch(`${URL}/invoices/new-invoice`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-    credentials: "include",
-  });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return createInvoice(payload);
-  }
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
+  try {
+    const response = await fetch(`${URL}/invoices/new-invoice`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      credentials: "include",
+    });
+    if (response.status === 401) {
+      await refreshAccessToken();
+      return createInvoice(payload);
+    }
+    if (!response.ok) {
+      const error: ErrorMessage = await response.json();
+      throw error;
+    }
+    return await response.json();
+  } catch (error) {
+    console.log(error);
     throw error;
   }
-  return await response.json();
 };
 
 export const cancelInvoice = async (
@@ -77,6 +98,28 @@ export const cancelInvoice = async (
   if (response.status === 401) {
     await refreshAccessToken();
     return cancelInvoice(payload);
+  }
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+};
+
+export const printInvoice = async (
+  invoice: FullInvoice
+): Promise<PrintInvoiceResponse> => {
+  const response = await fetch(`${URL}/invoices/print-invoice`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(invoice),
+    credentials: "include",
+  });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return printInvoice(invoice);
   }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
