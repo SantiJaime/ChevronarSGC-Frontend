@@ -35,8 +35,9 @@ interface PrintInvoiceResponse {
 export const getInvoices = async (
   payload: InvoiceSearch, page: number
 ): Promise<GetInvoicesResponse> => {
+
   const response = await fetch(
-    `${URL}/invoices?page=${page}&fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&type=${payload.type}&invoiceNumber=${payload.invoiceNumber}`,
+    `${URL}/invoices?page=${page}&fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&invoiceType=${payload.invoiceType}&invoiceNumber=${payload.invoiceNumber}&salePoint=${payload.salePoint}&total=${payload.total}`,
     {
       method: "GET",
       headers: {
