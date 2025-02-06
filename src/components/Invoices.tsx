@@ -1,7 +1,14 @@
 import { useFormik } from "formik";
 import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
-import { FileEarmarkX, FileText, Printer, Search } from "react-bootstrap-icons";
+import {
+  ArrowLeftCircleFill,
+  ArrowRightCircleFill,
+  FileEarmarkX,
+  FileText,
+  Printer,
+  Search,
+} from "react-bootstrap-icons";
 import { searchInvoiceSchema } from "../utils/validationSchemas";
 import { useState } from "react";
 import {
@@ -11,6 +18,7 @@ import {
 } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { SALE_POINTS } from "../constants/const";
 
 const Invoices = () => {
   const INVOICES_TYPES = [
@@ -28,11 +36,11 @@ const Invoices = () => {
     },
     {
       name: "Nota de crédito A",
-      value: "Nota de crédito-A",
+      value: "Nota de Crédito-A",
     },
     {
       name: "Nota de crédito B",
-      value: "Nota de crédito-B",
+      value: "Nota de Crédito-B",
     },
   ];
   const formik = useFormik({
@@ -41,13 +49,13 @@ const Invoices = () => {
       toDate: "",
       clientName: "",
       clientDocument: "",
-      type: "",
+      invoiceType: "",
       invoiceNumber: "",
+      salePoint: "",
+      total: "",
     },
     validationSchema: searchInvoiceSchema,
-    onSubmit: () => {
-      return handleSearch();
-    },
+    onSubmit: () => handleSearch(),
   });
 
   const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
@@ -214,6 +222,25 @@ const Invoices = () => {
               {errors.toDate && touched.toDate ? errors.toDate : ""}
             </Form.Control.Feedback>
           </Form.Group>
+          <Form.Group as={Col} md={3} controlId="salePointId">
+            <Form.Label>Punto de venta</Form.Label>
+            <Form.Select
+              name="salePoint"
+              value={values.salePoint}
+              onChange={handleChange}
+              isInvalid={touched.salePoint && !!errors.salePoint}
+            >
+              <option value="">Punto de venta no seleccionado</option>
+              {SALE_POINTS.map((point) => (
+                <option value={point.value} key={point.name}>
+                  {point.name}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.salePoint && touched.salePoint ? errors.salePoint : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
           <Form.Group as={Col} md={3} controlId="clientDocumentId">
             <Form.Label>Documento del cliente (opcional)</Form.Label>
             <Form.Control
@@ -231,6 +258,8 @@ const Invoices = () => {
                 : ""}
             </Form.Control.Feedback>
           </Form.Group>
+        </Row>
+        <Row className="mt-3">
           <Form.Group as={Col} md={3} controlId="clientNameId">
             <Form.Label>Nombre del cliente (opcional)</Form.Label>
             <Form.Control
@@ -246,8 +275,6 @@ const Invoices = () => {
               {errors.clientName && touched.clientName ? errors.clientName : ""}
             </Form.Control.Feedback>
           </Form.Group>
-        </Row>
-        <Row className="mt-3">
           <Form.Group as={Col} md={3} controlId="invoiceNumberId">
             <Form.Label>Número de factura (opcional)</Form.Label>
             <Form.Control
@@ -265,13 +292,13 @@ const Invoices = () => {
                 : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="typeId">
+          <Form.Group as={Col} md={3} controlId="invoiceTypeId">
             <Form.Label>Tipo de factura (opcional)</Form.Label>
             <Form.Select
-              name="type"
-              value={values.type}
+              name="invoiceType"
+              value={values.invoiceType}
               onChange={handleChange}
-              isInvalid={touched.type && !!errors.type}
+              isInvalid={touched.invoiceType && !!errors.invoiceType}
             >
               {INVOICES_TYPES.map((type) => (
                 <option value={type.value} key={type.name}>
@@ -280,11 +307,28 @@ const Invoices = () => {
               ))}
             </Form.Select>
             <Form.Control.Feedback type="invalid">
-              {errors.type && touched.type ? errors.type : ""}
+              {errors.invoiceType && touched.invoiceType
+                ? errors.invoiceType
+                : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md={3} controlId="clientNameId">
+            <Form.Label>Valor total de la factura (opcional)</Form.Label>
+            <Form.Control
+              type="text"
+              name="total"
+              value={values.total}
+              onChange={handleChange}
+              placeholder="Ej: $100"
+              autoComplete="off"
+              isInvalid={touched.total && !!errors.total}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.total && touched.total ? errors.total : ""}
             </Form.Control.Feedback>
           </Form.Group>
         </Row>
-        <div className="d-flex justify-content-end mt-2">
+        <div className="d-flex justify-content-end mt-3">
           <Button
             type="submit"
             variant="dark"
@@ -311,6 +355,7 @@ const Invoices = () => {
                 <th>Cliente</th>
                 <th>Nro. de factura - Tipo</th>
                 <th>Importes</th>
+                <th>Punto de venta</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -330,6 +375,7 @@ const Invoices = () => {
                     <strong> Precio sin IVA: </strong>$
                     {invoice.amounts.precioSinIva}
                   </td>
+                  <td>{invoice.salePoint === "00011" ? "Av San Martín 112" : "Av. Colón 315"}</td>
                   <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-1">
@@ -367,21 +413,27 @@ const Invoices = () => {
               ))}
             </tbody>
           </Table>
-          <div>
+          <div className="d-flex justify-content-center align-items-center gap-2 mb-3">
             <Button
               onClick={goToPreviousPage}
               disabled={page === 1}
+              variant="dark"
+              className="d-flex align-items-center gap-1"
             >
-              Anterior
+              <ArrowLeftCircleFill />
+              <span>Anterior</span>
             </Button>
             <span>
-              Página {page} de {totalPages}
+              Página <strong>{page}</strong> de <strong>{totalPages}</strong>
             </span>
             <Button
               onClick={goToNextPage}
-              disabled={page === totalPages ? true : false}
+              disabled={page === totalPages}
+              variant="dark"
+              className="d-flex align-items-center gap-1"
             >
-              Siguiente
+              <span>Siguiente</span>
+              <ArrowRightCircleFill />
             </Button>
           </div>
         </>

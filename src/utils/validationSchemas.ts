@@ -201,5 +201,13 @@ export const searchInvoiceSchema = yup.object().shape({
       "El documento debe ser un número (sin letras ni símbolos)"
     )
     .optional(),
-  type: yup.string().optional(),
+  invoiceType: yup.string().optional(),
+  salePoint: yup.string().required("El punto de venta es requerido"),
+  total: yup
+    .string()
+    .matches(
+      /^\d+$/,
+      "El valor total de la factura debe ser un número (sin letras ni símbolos)"
+    )
+    .optional(),
 });
