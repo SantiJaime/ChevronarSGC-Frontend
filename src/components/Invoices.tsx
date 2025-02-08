@@ -66,13 +66,12 @@ const Invoices = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
+  const handleSearch = (paramPage?: number) => {
     setLoading(true);
-    getInvoices(values, page)
+    getInvoices(values, paramPage || page)
       .then((res) => {
         setInvoices(res.invoices);
         setTotalPages(res.infoPagination.totalPages);
-        toast.success(res.msg);
       })
       .catch((err) => {
         setInvoices([]);
@@ -84,14 +83,14 @@ const Invoices = () => {
   const goToNextPage = () => {
     if (page < totalPages) {
       setPage((prevPage) => prevPage + 1);
-      handleSearch();
+      handleSearch(page + 1);
     }
   };
 
   const goToPreviousPage = () => {
     if (page > 1) {
       setPage((prevPage) => prevPage - 1);
-      handleSearch();
+      handleSearch(page - 1);
     }
   };
 
@@ -312,7 +311,7 @@ const Invoices = () => {
                 : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="clientNameId">
+          <Form.Group as={Col} md={3} controlId="invoiceTotalId">
             <Form.Label>Valor total de la factura (opcional)</Form.Label>
             <Form.Control
               type="text"
@@ -375,7 +374,11 @@ const Invoices = () => {
                     <strong> Precio sin IVA: </strong>$
                     {invoice.amounts.precioSinIva}
                   </td>
-                  <td>{invoice.salePoint === "00011" ? "Av San Martín 112" : "Av. Colón 315"}</td>
+                  <td>
+                    {invoice.salePoint === "00011"
+                      ? "Av San Martín 112"
+                      : "Av. Colón 315"}
+                  </td>
                   <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-1">
