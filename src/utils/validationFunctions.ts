@@ -21,7 +21,11 @@ export const validateInvoice = (
   ) {
     return "Debe ingresar la cantidad de cuotas para generar la factura";
   }
-  if (values.saleCond === "Contado") {
+  if (
+    values.saleCond === "Contado" ||
+    values.saleCond === "Transferencia" ||
+    values.saleCond === "Cheque"
+  ) {
     values.paymentsQuantity = "1";
     values.creditCard = "";
     values.debitCard = "";
@@ -52,7 +56,11 @@ export const validateCreditNote = (
   ) {
     return "Debe ingresar la cantidad de cuotas para generar la factura";
   }
-  if (values.saleCond === "Contado") {
+  if (
+    values.saleCond === "Contado" ||
+    values.saleCond === "Transferencia" ||
+    values.saleCond === "Cheque"
+  ) {
     values.paymentsQuantity = "1";
     values.creditCard = "";
     values.debitCard = "";
