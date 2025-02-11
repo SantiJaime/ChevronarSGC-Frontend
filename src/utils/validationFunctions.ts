@@ -22,7 +22,7 @@ export const validateInvoice = (
   ) {
     return "Debe ingresar la cantidad de cuotas para generar la factura";
   }
-  if (paymentsLeftValue !== 0)
+  if (values.saleCond === "Múltiples métodos de pago" && paymentsLeftValue !== 0)
     return "El valor total de la factura es mayor a la suma del valor de los métodos de pago ingresados";
   if (
     values.saleCond === "Contado" ||
