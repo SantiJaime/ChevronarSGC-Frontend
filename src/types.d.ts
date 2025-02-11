@@ -28,6 +28,7 @@ interface Client {
 interface NewInvoice extends InvoiceData {
   client: Client;
   products: Product[];
+  payments: PaymentMethods[];
 }
 interface ClientContextType {
   clients: Client[];
@@ -112,4 +113,13 @@ interface NewCreditNote {
   creditCard?: string;
   debitCard?: string;
   paymentsQuantity: string;
+}
+
+interface PaymentMethods {
+  id: string;
+  method: string;
+  creditCard?: string;
+  debitCard?: string;
+  paymentsQuantity: string;
+  valueToPay: string;
 }

@@ -16,12 +16,19 @@ export const CREDIT_CARDS = [
   "Titanio",
 ];
 
+export const DEBIT_CARDS = [
+  "Visa",
+  "Mastercard | Maestro",
+  "Cabal",
+]
+
 export const SALE_CONDITIONS = [
   "Contado",
   "Crédito",
   "Débito",
   "Transferencia",
   "Cheque",
+  "Múltiples métodos de pago"
 ];
 
 export const ARG_PROVINCES = [
