@@ -6,8 +6,15 @@ import { createInvoice } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProductComp from "./AddProductComp";
 import useClients from "../hooks/useClients";
-import { CREDIT_CARDS, SALE_CONDITIONS, SALE_POINTS } from "../constants/const";
+import {
+  CREDIT_CARDS,
+  DEBIT_CARDS,
+  SALE_CONDITIONS,
+  SALE_POINTS,
+} from "../constants/const";
 import { validateInvoice } from "../utils/validationFunctions";
+import AddPaymentMethod from "./AddPaymentMethod";
+import { Trash3Fill } from "react-bootstrap-icons";
 
 const NewInvoiceComp = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -20,16 +27,22 @@ const NewInvoiceComp = () => {
     iva: 0,
     precioSinIva: 0,
   });
+  const [paymentsLeftValue, setPaymentsLeftValue] = useState(
+    productsTotal.total
+  );
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
   const { clients } = useClients();
 
   useEffect(() => {
     const total = products.reduce(
-      (acc, product) => acc + product.productSubtotal,
+      (total, product) => total + product.productSubtotal,
       0
     );
     const precioSinIva = total / 1.21;
     const iva = precioSinIva * 0.21;
+
     setProductsTotal({ total, iva, precioSinIva });
+    setPaymentsLeftValue(total);
   }, [products]);
 
   const handleInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +71,7 @@ const NewInvoiceComp = () => {
   };
 
   const newInvoice = (values: InvoiceData, resetForm: () => void) => {
-    const error = validateInvoice(values, client, products);
+    const error = validateInvoice(values, client, products, paymentsLeftValue);
     if (error) {
       toast.error(error);
       return;
@@ -68,6 +81,7 @@ const NewInvoiceComp = () => {
       ...values,
       client: client as Client,
       products,
+      payments: paymentMethods ? paymentMethods : [],
     };
 
     const promise = createInvoice(payload)
@@ -77,6 +91,8 @@ const NewInvoiceComp = () => {
         setClient(null);
         setSearchTerm("");
         setProducts([]);
+        setPaymentsLeftValue(0);
+        setPaymentMethods([]);
         return res;
       })
       .catch((err) => {
@@ -89,6 +105,19 @@ const NewInvoiceComp = () => {
       error: (err) => `${err.error}`,
     });
   };
+
+  const handleDeletePaymentMethod = (id: string) => {
+    const newPaymentMethods = paymentMethods.filter(
+      (paymentMethod) => paymentMethod.id !== id
+    );
+    const updatedTotal = newPaymentMethods.reduce(
+      (total, paymentMethod) => total + Number(paymentMethod.valueToPay),
+      0
+    );
+    setPaymentsLeftValue(productsTotal.total - updatedTotal);
+    setPaymentMethods(newPaymentMethods);
+  };
+
   return (
     <Formik
       validationSchema={createInvoiceSchema}
@@ -99,7 +128,7 @@ const NewInvoiceComp = () => {
         invoiceType: "",
         creditCard: "",
         debitCard: "",
-        paymentsQuantity: "",
+        paymentsQuantity: "1",
       }}
     >
       {({ values, errors, touched, handleChange, handleSubmit }) => (
@@ -216,11 +245,11 @@ const NewInvoiceComp = () => {
                   isInvalid={touched.debitCard && !!errors.debitCard}
                 >
                   <option value={""}>Tarjeta no seleccionada</option>
-                  <option value="Visa">Visa</option>
-                  <option value="Cabal">Cabal</option>
-                  <option value="Mastercard | Maestro">
-                    Mastercard | Maestro
-                  </option>
+                  {DEBIT_CARDS.map((card) => (
+                    <option key={card} value={card}>
+                      {card}
+                    </option>
+                  ))}
                 </Form.Select>
               </Form.Group>
             ) : (
@@ -241,6 +270,55 @@ const NewInvoiceComp = () => {
               ""
             )}
           </Row>
+          {values.saleCond === "Múltiples métodos de pago" &&
+          products.length > 0 ? (
+            <Row>
+              <Col md="4">
+                <AddPaymentMethod
+                  setPaymentMethods={setPaymentMethods}
+                  setPaymentsLeftValue={setPaymentsLeftValue}
+                  paymentsLeftValue={paymentsLeftValue}
+                />
+              </Col>
+            </Row>
+          ) : (
+            ""
+          )}
+          {paymentMethods.length > 0 && (
+            <Table striped bordered hover responsive className="mt-3">
+              <thead>
+                <tr>
+                  <th>Método de pago</th>
+                  <th>Valor a pagar</th>
+                  <th>Tarjeta de crédito</th>
+                  <th>Tarjeta de débito</th>
+                  <th>Cantidad de cuotas</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paymentMethods.map((method) => (
+                  <tr key={method.id}>
+                    <td>{method.method}</td>
+                    <td>${method.valueToPay}</td>
+                    <td>{method.creditCard || "-"}</td>
+                    <td>{method.debitCard || "-"}</td>
+                    <td>{method.paymentsQuantity}</td>
+                    <td className="d-flex justify-content-center">
+                      <Button
+                        className="d-flex align-items-center gap-1"
+                        variant="danger"
+                        onClick={() => handleDeletePaymentMethod(method.id)}
+                      >
+                        <Trash3Fill />
+                        <span>Eliminar</span>
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
           <hr />
           <div className="d-flex justify-content-between">
             <h4>Productos</h4>
@@ -277,7 +355,7 @@ const NewInvoiceComp = () => {
               </div>
             </>
           )}
-          <div className="d-flex justify-content-end">
+          <div className="d-flex justify-content-end mb-4">
             <Button type="submit">Generar factura</Button>
           </div>
         </Form>

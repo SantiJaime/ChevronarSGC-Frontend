@@ -211,3 +211,17 @@ export const searchInvoiceSchema = yup.object().shape({
     )
     .optional(),
 });
+
+export const addPaymentMethodSchema = yup.object().shape({
+  method: yup.string().required("El método de pago es requerido"),
+  creditCard: yup.string().optional(),
+  debitCard: yup.string().optional(),
+  paymentsQuantity: yup
+    .string()
+    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .required("La cantidad de cuotas es requerida"),
+  valueToPay: yup
+    .string()
+    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .required("El valor a pagar es requerido"),
+});
