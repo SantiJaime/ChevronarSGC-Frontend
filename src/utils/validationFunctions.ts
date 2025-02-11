@@ -1,7 +1,8 @@
 export const validateInvoice = (
   values: InvoiceData,
   client: Client | null,
-  products: Product[]
+  products: Product[],
+  paymentsLeftValue: number,
 ) => {
   if (!client) {
     return "Debe seleccionar un cliente para generar la factura";
@@ -21,6 +22,8 @@ export const validateInvoice = (
   ) {
     return "Debe ingresar la cantidad de cuotas para generar la factura";
   }
+  if (paymentsLeftValue !== 0)
+    return "El valor total de la factura es mayor a la suma del valor de los métodos de pago ingresados";
   if (
     values.saleCond === "Contado" ||
     values.saleCond === "Transferencia" ||
