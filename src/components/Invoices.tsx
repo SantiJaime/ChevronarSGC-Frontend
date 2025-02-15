@@ -1,11 +1,10 @@
 import { useFormik } from "formik";
-import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Form, Row, Spinner } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
 import {
   ArrowLeftCircleFill,
   ArrowRightCircleFill,
   FileEarmarkX,
-  FileText,
   Printer,
   Search,
 } from "react-bootstrap-icons";
@@ -19,6 +18,7 @@ import {
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import { SALE_POINTS } from "../constants/const";
+import InvoiceDetails from "./InvoiceDetails";
 
 const Invoices = () => {
   const INVOICES_TYPES = [
@@ -147,10 +147,6 @@ const Invoices = () => {
     });
   };
 
-  const handleClick = () => {
-    toast.info("Esta funcionalidad se encuentra en desarrollo");
-  };
-
   const handlePrint = (invoiceData: FullInvoice) => {
     const promise = printInvoice(invoiceData)
       .then((res) => {
@@ -169,7 +165,7 @@ const Invoices = () => {
   };
 
   return (
-    <Container>
+    <div>
       <h2>Historial de facturas</h2>
       <hr />
 
@@ -382,13 +378,7 @@ const Invoices = () => {
                   <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-1">
-                      <Button
-                        className="d-flex align-items-center gap-1"
-                        onClick={handleClick}
-                      >
-                        <FileText />
-                        <span>Ver detalles</span>
-                      </Button>
+                      <InvoiceDetails invoice={invoice} />
                       <Button
                         variant="success"
                         className="d-flex align-items-center gap-1"
@@ -397,8 +387,7 @@ const Invoices = () => {
                         <Printer />
                         <span>Imprimir</span>
                       </Button>
-                      {!invoice.cancelled &&
-                      invoice.invoiceType.includes("Factura") ? (
+                      {!invoice.cancelled && !invoice.assocInvoiceNumber ? (
                         <Button
                           variant="danger"
                           className="d-flex align-items-center gap-1"
@@ -441,7 +430,7 @@ const Invoices = () => {
           </div>
         </>
       )}
-    </Container>
+    </div>
   );
 };
 
