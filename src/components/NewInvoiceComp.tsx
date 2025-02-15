@@ -15,6 +15,8 @@ import {
 import { validateInvoice } from "../utils/validationFunctions";
 import AddPaymentMethod from "./AddPaymentMethod";
 import { Trash3Fill } from "react-bootstrap-icons";
+import EditProductComp from "./EditProductComp";
+import Swal from "sweetalert2";
 
 const NewInvoiceComp = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -116,6 +118,26 @@ const NewInvoiceComp = () => {
     );
     setPaymentsLeftValue(productsTotal.total - updatedTotal);
     setPaymentMethods(newPaymentMethods);
+  };
+
+  const handleDelete = (productName: string) => {
+    Swal.fire({
+      title: "¿Estás seguro de eliminar este producto?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#05b000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newProducts = products.filter(
+          (product) => product.productName !== productName
+        );
+        setProducts(newProducts);
+      }
+    });
   };
 
   return (
@@ -335,15 +357,31 @@ const NewInvoiceComp = () => {
                     <th>Precio unitario</th>
                     <th>Cantidad</th>
                     <th>Subtotal</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
+                  {products.map((product, index) => (
                     <tr key={product.productName}>
                       <td>{product.productName}</td>
                       <td>${product.price}</td>
                       <td>{product.quantity}</td>
                       <td>${product.price * product.quantity}</td>
+                      <td className="d-flex justify-content-center gap-2">
+                        <EditProductComp
+                          product={product}
+                          setProducts={setProducts}
+                          index={index}
+                        />
+                        <Button
+                          className="d-flex align-items-center gap-1"
+                          variant="danger"
+                          onClick={() => handleDelete(product.productName)}
+                        >
+                          <Trash3Fill />
+                          <span>Eliminar</span>
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
