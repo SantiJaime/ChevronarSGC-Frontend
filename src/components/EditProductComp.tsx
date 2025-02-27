@@ -4,41 +4,52 @@ import Modal from "react-bootstrap/Modal";
 import { Formik } from "formik";
 import Form from "react-bootstrap/Form";
 import { InputGroup } from "react-bootstrap";
-import { Cart2, CurrencyDollar, Tag } from "react-bootstrap-icons";
+import { Cart2, CurrencyDollar, PencilFill, Tag } from "react-bootstrap-icons";
 import { addProductSchema } from "../utils/validationSchemas";
 
 interface Props {
+  product: Product;
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  index: number;
 }
 
-const AddProductComp: React.FC<Props> = ({ setProducts }) => {
+const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const addProduct = (product: Product) => {
-    setProducts((prevProducts) => [...prevProducts, product]);
+  const editProduct = (editedProduct: Product) => {
+    setProducts((prevProducts) => {
+      const newProducts = [...prevProducts];
+      newProducts[index] = editedProduct;
+      return newProducts;
+    });
     handleClose();
   };
 
   return (
     <>
-      <Button variant="success" onClick={handleShow}>
-        Agregar producto
+      <Button
+        variant="info"
+        onClick={handleShow}
+        className="d-flex align-items-center gap-1"
+      >
+        <PencilFill />
+        <span>Editar</span>
       </Button>
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Agregar un producto</Modal.Title>
+          <Modal.Title>Editar este producto</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Formik
             validationSchema={addProductSchema}
             initialValues={{
-              productName: "",
-              price: "",
-              quantity: "",
+              productName: product.productName,
+              price: product.price,
+              quantity: product.quantity,
             }}
             onSubmit={(values) => {
               const submitValues = {
@@ -47,7 +58,7 @@ const AddProductComp: React.FC<Props> = ({ setProducts }) => {
                 price: Number(values.price),
                 productSubtotal: Number(values.quantity) * Number(values.price),
               };
-              addProduct(submitValues);
+              editProduct(submitValues);
             }}
           >
             {({ values, errors, touched, handleChange, handleSubmit }) => (
@@ -67,7 +78,9 @@ const AddProductComp: React.FC<Props> = ({ setProducts }) => {
                       isInvalid={touched.productName && !!errors.productName}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errors.productName && touched.productName && errors.productName}
+                      {errors.productName &&
+                        touched.productName &&
+                        errors.productName}
                     </Form.Control.Feedback>
                   </InputGroup>
                 </Form.Group>
@@ -111,7 +124,7 @@ const AddProductComp: React.FC<Props> = ({ setProducts }) => {
                 </Form.Group>
                 <div className="d-flex justify-content-end">
                   <Button variant="dark" type="submit">
-                    Agregar producto
+                    Guardar cambios
                   </Button>
                 </div>
               </Form>
@@ -123,4 +136,4 @@ const AddProductComp: React.FC<Props> = ({ setProducts }) => {
   );
 };
 
-export default AddProductComp;
+export default EditProductComp;
