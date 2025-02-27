@@ -11,9 +11,9 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
   return (
     <Container className="mt-5">
       {activeTab === "Facturas" ? (
-        <NewInvoiceComp />
+        <NewInvoiceComp type={"Invoice"} />
       ) : activeTab === "Presupuestos" ? (
-        <h1>Presupuestos</h1>
+        <NewInvoiceComp type={"Budget"} />
       ) : activeTab === "Menú de creación" ? (
         <>
           <NewClientComp />

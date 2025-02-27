@@ -2,7 +2,7 @@ import { Formik } from "formik";
 import { useEffect, useState } from "react";
 import { Button, Col, Dropdown, Form, Row, Table } from "react-bootstrap";
 import { createInvoiceSchema } from "../utils/validationSchemas";
-import { createInvoice } from "../helpers/invoicesQueries";
+import { createBudget, createInvoice } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProductComp from "./AddProductComp";
 import useClients from "../hooks/useClients";
@@ -18,7 +18,11 @@ import { Trash3Fill } from "react-bootstrap-icons";
 import EditProductComp from "./EditProductComp";
 import Swal from "sweetalert2";
 
-const NewInvoiceComp = () => {
+interface Props {
+  type: "Budget" | "Invoice";
+}
+
+const NewInvoiceComp: React.FC<Props> = ({ type }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [client, setClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -140,10 +144,50 @@ const NewInvoiceComp = () => {
     });
   };
 
+  const newBudget = (values: InvoiceData, resetForm: () => void) => {
+    const error = validateInvoice(values, client, products, paymentsLeftValue);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
+    const payload: NewInvoice = {
+      ...values,
+      client: client as Client,
+      products,
+      payments: paymentMethods ? paymentMethods : [],
+    };
+
+    const promise = createBudget(payload)
+      .then((res) => {
+        open(res.result, "_blank");
+        resetForm();
+        setClient(null);
+        setSearchTerm("");
+        setProducts([]);
+        setPaymentsLeftValue(0);
+        setPaymentMethods([]);
+        return res;
+      })
+      .catch((err) => {
+        throw err;
+      });
+
+    toast.promise(promise, {
+      loading: "Generando presupuesto...",
+      success: (data) => `${data.msg}`,
+      error: (err) => `${err.error}`,
+    });
+  };
+
   return (
     <Formik
       validationSchema={createInvoiceSchema}
-      onSubmit={(values, { resetForm }) => newInvoice(values, resetForm)}
+      onSubmit={(values, { resetForm }) =>
+        type === "Invoice"
+          ? newInvoice(values, resetForm)
+          : newBudget(values, resetForm)
+      }
       initialValues={{
         saleCond: "",
         salePoint: "",
@@ -394,7 +438,9 @@ const NewInvoiceComp = () => {
             </>
           )}
           <div className="d-flex justify-content-end mb-4">
-            <Button type="submit">Generar factura</Button>
+            <Button type="submit">
+              Generar {type === "Budget" ? "presupuesto" : "factura"}
+            </Button>
           </div>
         </Form>
       )}
