@@ -33,9 +33,9 @@ interface PrintInvoiceResponse {
 }
 
 export const getInvoices = async (
-  payload: InvoiceSearch, page: number
+  payload: InvoiceSearch,
+  page: number
 ): Promise<GetInvoicesResponse> => {
-
   const response = await fetch(
     `${URL}/invoices?page=${page}&fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&invoiceType=${payload.invoiceType}&invoiceNumber=${payload.invoiceNumber}&salePoint=${payload.salePoint}&total=${payload.total}`,
     {
@@ -55,6 +55,33 @@ export const getInvoices = async (
     throw error;
   }
   return await response.json();
+};
+
+export const createBudget = async (
+  payload: NewInvoice
+): Promise<CreateInvoiceResponse> => {
+  try {
+    const response = await fetch(`${URL}/invoices/new-budget`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      credentials: "include",
+    });
+    if (response.status === 401) {
+      await refreshAccessToken();
+      return createBudget(payload);
+    }
+    if (!response.ok) {
+      const error: ErrorMessage = await response.json();
+      throw error;
+    }
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
 
 export const createInvoice = async (
