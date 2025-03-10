@@ -1,6 +1,6 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
-import { Button, Col, Dropdown, Form, Row, Table } from "react-bootstrap";
+import { Button, Col, Dropdown, Form, Row, Spinner, Table } from "react-bootstrap";
 import { createInvoiceSchema } from "../utils/validationSchemas";
 import { createBudget, createInvoice } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ interface Props {
 }
 
 const NewInvoiceComp: React.FC<Props> = ({ type }) => {
+  const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [client, setClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,9 +88,10 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
       ...values,
       client: client as Client,
       products,
-      payments: paymentMethods ? paymentMethods : [],
+      payments: paymentMethods,
     };
 
+    setLoading(true);
     const promise = createInvoice(payload)
       .then((res) => {
         open(res.result, "_blank");
@@ -109,6 +111,7 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
       loading: "Generando factura...",
       success: (data) => `${data.msg}`,
       error: (err) => `${err.error}`,
+      finally: () => setLoading(false),
     });
   };
 
@@ -438,8 +441,17 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
             </>
           )}
           <div className="d-flex justify-content-end mb-4">
-            <Button type="submit">
-              Generar {type === "Budget" ? "presupuesto" : "factura"}
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <div className="d-flex justify-content-center align-items-center gap-2">
+                  <Spinner size="sm" />
+                  <span>Cargando...</span>
+                </div>
+              ) : (
+                <span>
+                  Generar {type === "Budget" ? "presupuesto" : "factura"}
+                </span>
+              )}
             </Button>
           </div>
         </Form>
