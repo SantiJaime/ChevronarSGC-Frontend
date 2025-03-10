@@ -28,7 +28,7 @@ interface Client {
 interface NewInvoice extends InvoiceData {
   client: Client;
   products: Product[];
-  payments: PaymentMethods[];
+  payments?: PaymentMethods[];
 }
 interface ClientContextType {
   clients: Client[];

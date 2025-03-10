@@ -1,14 +1,19 @@
 import { Formik } from "formik";
 import Form from "react-bootstrap/Form";
-import { Button, Container, Image, InputGroup } from "react-bootstrap";
+import { Button, Container, Image, InputGroup, Spinner } from "react-bootstrap";
 import { Key, PersonCircle } from "react-bootstrap-icons";
 import { loginSchema } from "../utils/validationSchemas";
 import { loginUser } from "../helpers/usersQueries";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useState } from "react";
 const Login = () => {
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
   const login = (values: UserLogin) => {
+    setLoading(true);
     const promise = loginUser(values)
       .then((res) => {
         sessionStorage.setItem("session", JSON.stringify(true));
@@ -23,6 +28,7 @@ const Login = () => {
       loading: "Iniciando sesión...",
       success: (data) => `${data.msg}`,
       error: (err) => `${err.error}`,
+      finally: () => setLoading(false),
     });
   };
 
@@ -85,8 +91,15 @@ const Login = () => {
                 </InputGroup>
               </Form.Group>
               <div className="d-flex justify-content-end">
-                <Button variant="light" type="submit">
-                  Iniciar sesión
+                <Button variant="light" type="submit" disabled={loading}>
+                  {loading ? (
+                    <div className='d-flex justify-content-center align-items-center gap-2'>
+                      <Spinner size="sm" />
+                      <span>Cargando...</span>
+                    </div>
+                  ) : (
+                    <span>Iniciar sesión</span>
+                  )}
                 </Button>
               </div>
             </Form>
