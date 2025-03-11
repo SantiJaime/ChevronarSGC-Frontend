@@ -89,6 +89,7 @@ export const createClientSchema = yup.object().shape({
     .string()
     .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
     .required("El documento es requerido")
+    .min(7, "El documento debe tener al menos 7 caracteres")
     .max(11, "El documento debe tener 11 caracteres"),
   name: yup
     .string()

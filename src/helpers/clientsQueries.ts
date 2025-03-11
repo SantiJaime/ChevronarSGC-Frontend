@@ -48,7 +48,8 @@ export const createClient = async (
 
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
-    if (error.error.includes("E11000")) {
+    
+    if (typeof error.error === "string" && error.error.includes("E11000")) {
       error.error =
         "El documento ingresado ya se encuentra asociado a un cliente";
     }
