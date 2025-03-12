@@ -80,12 +80,16 @@ interface FullInvoice extends NewInvoice {
 interface InvoiceSearch {
   fromDate: string;
   toDate: string;
-  clientName: string;
-  clientDocument: string;
-  invoiceType: string;
-  invoiceNumber: string;
+  clientName?: string;
+  clientDocument?: string;
+  invoiceType?: string;
+  invoiceNumber?: string;
   salePoint: string;
-  total: string;
+  total?: string;
+  saleCond?: string;
+  creditCard?: string;
+  debitCard?: string;
+  paymentsQuantity?: string;
 }
 
 interface NewCreditNote {

@@ -17,8 +17,14 @@ import {
 } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
-import { SALE_POINTS } from "../constants/const";
+import {
+  CREDIT_CARDS,
+  DEBIT_CARDS,
+  SALE_CONDITIONS,
+  SALE_POINTS,
+} from "../constants/const";
 import InvoiceDetails from "./InvoiceDetails";
+import { validateSearchInvoice } from '../utils/validationFunctions';
 
 const Invoices = () => {
   const INVOICES_TYPES = [
@@ -53,6 +59,10 @@ const Invoices = () => {
       invoiceNumber: "",
       salePoint: "",
       total: "",
+      saleCond: "",
+      paymentsQuantity: "",
+      creditCard: "",
+      debitCard: "",
     },
     validationSchema: searchInvoiceSchema,
     onSubmit: () => handleSearch(),
@@ -67,7 +77,9 @@ const Invoices = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSearch = (paramPage?: number) => {
+    validateSearchInvoice(values);
     setLoading(true);
+    
     getInvoices(values, paramPage || page)
       .then((res) => {
         setInvoices(res.invoices);
@@ -323,6 +335,106 @@ const Invoices = () => {
             </Form.Control.Feedback>
           </Form.Group>
         </Row>
+        <Row className="mt-3">
+          <Form.Group as={Col} md={4} controlId="saleConditionId">
+            <Form.Label>Condición de venta (opcional)</Form.Label>
+            <Form.Select
+              name="saleCond"
+              value={values.saleCond}
+              onChange={handleChange}
+              isInvalid={touched.saleCond && !!errors.saleCond}
+            >
+              <option value="">Condición de venta no seleccionada</option>
+              {SALE_CONDITIONS.map((cond) => (
+                <option value={cond} key={cond}>
+                  {cond}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.saleCond && touched.saleCond ? errors.saleCond : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
+          {values.saleCond === "Crédito" ? (
+            <>
+              <Form.Group as={Col} md={4} controlId="creditCardId">
+                <Form.Label>Tarjeta de crédito</Form.Label>
+                <Form.Select
+                  onChange={handleChange}
+                  value={values.creditCard}
+                  name="creditCard"
+                  isInvalid={touched.creditCard && !!errors.creditCard}
+                >
+                  <option value={""}>Tarjeta no seleccionada</option>
+                  {CREDIT_CARDS.map((card) => (
+                    <option key={card} value={card}>
+                      {card}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+              <Form.Group as={Col} md={4} controlId="paymentsQuantityId">
+                <Form.Label>Cantidad de cuotas (opcional)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="paymentsQuantity"
+                  value={values.paymentsQuantity}
+                  onChange={handleChange}
+                  placeholder="Ej: 3"
+                  autoComplete="off"
+                  isInvalid={
+                    touched.paymentsQuantity && !!errors.paymentsQuantity
+                  }
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.paymentsQuantity && touched.paymentsQuantity
+                    ? errors.paymentsQuantity
+                    : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </>
+          ) : values.saleCond === "Débito" ? (
+            <>
+              <Form.Group as={Col} md={4} controlId="debitCardId">
+                <Form.Label>Tarjeta de débito</Form.Label>
+                <Form.Select
+                  onChange={handleChange}
+                  value={values.debitCard}
+                  name="debitCard"
+                  isInvalid={touched.debitCard && !!errors.debitCard}
+                >
+                  <option value={""}>Tarjeta no seleccionada</option>
+                  {DEBIT_CARDS.map((card) => (
+                    <option key={card} value={card}>
+                      {card}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+              <Form.Group as={Col} md={4} controlId="paymentsQuantityId">
+                <Form.Label>Cantidad de cuotas (opcional)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="paymentsQuantity"
+                  value={values.paymentsQuantity}
+                  onChange={handleChange}
+                  placeholder="Ej: 3"
+                  autoComplete="off"
+                  isInvalid={
+                    touched.paymentsQuantity && !!errors.paymentsQuantity
+                  }
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.paymentsQuantity && touched.paymentsQuantity
+                    ? errors.paymentsQuantity
+                    : ""}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </>
+          ) : (
+            ""
+          )}
+        </Row>
         <div className="d-flex justify-content-end mt-3">
           <Button
             type="submit"
@@ -348,8 +460,8 @@ const Invoices = () => {
             <thead>
               <tr>
                 <th>Cliente</th>
-                <th>Nro. de factura - Tipo</th>
-                <th>Importes</th>
+                <th>Nro. de factura | Tipo</th>
+                <th>Importes | Condición de venta</th>
                 <th>Punto de venta</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -365,10 +477,18 @@ const Invoices = () => {
                     Factura Nº {invoice.invoiceNumber} | {invoice.invoiceType}
                   </td>
                   <td>
-                    <strong>Total: </strong>${invoice.amounts.total} |
-                    <strong> IVA: </strong>${invoice.amounts.iva} |
-                    <strong> Precio sin IVA: </strong>$
-                    {invoice.amounts.precioSinIva}
+                    <div>
+                      <div>
+                        <strong>Total: </strong>${invoice.amounts.total} |
+                        <strong> IVA: </strong>${invoice.amounts.iva} |
+                        <strong> Precio sin IVA: </strong>$
+                        {invoice.amounts.precioSinIva}
+                      </div>
+                      <strong>{invoice.saleCond}</strong>{" "}
+                      {(invoice.debitCard || invoice.creditCard) &&
+                        `- ${invoice.debitCard || invoice.creditCard}`}{" "}
+                      - {invoice.paymentsQuantity} pago(s)
+                    </div>
                   </td>
                   <td>
                     {invoice.salePoint === "00011"
