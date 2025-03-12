@@ -1,4 +1,4 @@
-import { URL } from "../constants/const";
+import { URL as URL_API } from "../constants/const";
 import { refreshAccessToken } from "./authQueries";
 
 interface GetInvoicesResponse {
@@ -36,16 +36,21 @@ export const getInvoices = async (
   payload: InvoiceSearch,
   page: number
 ): Promise<GetInvoicesResponse> => {
-  const response = await fetch(
-    `${URL}/invoices?page=${page}&fromDate=${payload.fromDate}&toDate=${payload.toDate}&clientName=${payload.clientName}&clientDocument=${payload.clientDocument}&invoiceType=${payload.invoiceType}&invoiceNumber=${payload.invoiceNumber}&salePoint=${payload.salePoint}&total=${payload.total}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    }
-  );
+  const url = new URL(`${URL_API}/invoices`);
+  const params = new URLSearchParams({
+    page: page.toString(),
+    ...Object.fromEntries(
+      Object.entries(payload).filter(([, value]) => value)
+    ),
+  });
+
+  const response = await fetch(`${url}?${params}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
   if (response.status === 401) {
     await refreshAccessToken();
     return getInvoices(payload, page);
@@ -61,7 +66,7 @@ export const createBudget = async (
   payload: NewInvoice
 ): Promise<CreateInvoiceResponse> => {
   try {
-    const response = await fetch(`${URL}/invoices/new-budget`, {
+    const response = await fetch(`${URL_API}/invoices/new-budget`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +93,7 @@ export const createInvoice = async (
   payload: NewInvoice
 ): Promise<CreateInvoiceResponse> => {
   try {
-    const response = await fetch(`${URL}/invoices/new-invoice`, {
+    const response = await fetch(`${URL_API}/invoices/new-invoice`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +119,7 @@ export const createInvoice = async (
 export const cancelInvoice = async (
   payload: NewCreditNote
 ): Promise<CancelInvoiceResponse> => {
-  const response = await fetch(`${URL}/invoices/new-credit-note`, {
+  const response = await fetch(`${URL_API}/invoices/new-credit-note`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -136,7 +141,7 @@ export const cancelInvoice = async (
 export const printInvoice = async (
   invoice: FullInvoice
 ): Promise<PrintInvoiceResponse> => {
-  const response = await fetch(`${URL}/invoices/print-invoice`, {
+  const response = await fetch(`${URL_API}/invoices/print-invoice`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

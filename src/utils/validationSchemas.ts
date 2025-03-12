@@ -211,6 +211,13 @@ export const searchInvoiceSchema = yup.object().shape({
       "El valor total de la factura debe ser un número (sin letras ni símbolos)"
     )
     .optional(),
+  saleCond: yup.string().optional(),
+  creditCard: yup.string().optional(),
+  debitCard: yup.string().optional(),
+  paymentsQuantity: yup
+    .string()
+    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .optional(),
 });
 
 export const addPaymentMethodSchema = yup.object().shape({
