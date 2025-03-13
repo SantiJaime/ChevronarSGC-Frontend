@@ -492,7 +492,7 @@ const Invoices = () => {
                   </td>
                   <td>
                     {invoice.salePoint === "00011"
-                      ? "Av San Martín 112"
+                      ? "Av. San Martín 112"
                       : "Av. Colón 315"}
                   </td>
                   <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>

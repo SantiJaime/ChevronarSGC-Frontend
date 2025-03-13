@@ -40,4 +40,10 @@ export const validateSearchInvoice = (values: InvoiceSearch) => {
     values.debitCard = "";
     values.paymentsQuantity = "1";
   }
+  if (values.saleCond === "Crédito") {
+    values.debitCard = "";
+  }
+  if (values.saleCond === "Débito") {
+    values.creditCard = "";
+  }
 };
