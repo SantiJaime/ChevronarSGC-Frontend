@@ -37,11 +37,10 @@ export const getInvoices = async (
   page: number
 ): Promise<GetInvoicesResponse> => {
   const url = new URL(`${URL_API}/invoices`);
-  const params = new URLSearchParams({
-    page: page.toString(),
-    ...Object.fromEntries(
-      Object.entries(payload).filter(([, value]) => value)
-    ),
+  const params = new URLSearchParams({ page: page.toString() });
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value) params.append(key, value);
   });
 
   const response = await fetch(`${url}?${params}`, {

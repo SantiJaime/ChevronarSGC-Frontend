@@ -38,7 +38,7 @@ export const validateSearchInvoice = (values: InvoiceSearch) => {
   if (values.saleCond !== "Crédito" && values.saleCond !== "Débito") {
     values.creditCard = "";
     values.debitCard = "";
-    values.paymentsQuantity = "1";
+    values.paymentsQuantity = "";
   }
   if (values.saleCond === "Crédito") {
     values.debitCard = "";
