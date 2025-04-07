@@ -20,7 +20,7 @@ const NewClientComp = () => {
   const DOCUMENT_TYPES = ["DNI", "CUIT", "CUIL"];
 
   const newClient = (values: Client) => {
-    const promise = createClient(values)
+    const promise = createClient({ ...values, name: values.name.trim() })
       .then((res) => {
         setClients((prevClients) => [...prevClients, res.client]);
         return res;
