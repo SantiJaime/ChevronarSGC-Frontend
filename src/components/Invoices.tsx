@@ -358,7 +358,7 @@ const Invoices = () => {
           {values.saleCond === "Crédito" ? (
             <>
               <Form.Group as={Col} md={4} controlId="creditCardId">
-                <Form.Label>Tarjeta de crédito</Form.Label>
+                <Form.Label>Tarjeta de crédito (opcional)</Form.Label>
                 <Form.Select
                   onChange={handleChange}
                   value={values.creditCard}
