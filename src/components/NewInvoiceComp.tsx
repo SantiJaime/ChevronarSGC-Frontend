@@ -1,6 +1,14 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
-import { Button, Col, Dropdown, Form, Row, Spinner, Table } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Dropdown,
+  Form,
+  Row,
+  Spinner,
+  Table,
+} from "react-bootstrap";
 import { createInvoiceSchema } from "../utils/validationSchemas";
 import { createBudget, createInvoice } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
@@ -56,7 +64,7 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
     const value = ev.target.value;
     setSearchTerm(value);
 
-    if (value.trim() === "") {
+    if (value.trim().length < 3) {
       setFilteredItems([]);
       setShowDropdown(false);
       return;
@@ -208,7 +216,7 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
               <Form.Label>Buscar cliente</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Escriba el CUIT o nombre del cliente"
+                placeholder="Escriba el CUIT o nombre del cliente (al menos 3 caracteres)"
                 value={searchTerm}
                 autoComplete="off"
                 onChange={handleInputChange}
