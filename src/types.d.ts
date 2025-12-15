@@ -16,6 +16,13 @@ interface InvoiceData {
   debitCard?: string;
   paymentsQuantity: string;
 }
+interface BudgetData {
+  saleCond: string;
+  salePoint: string;
+  creditCard?: string;
+  debitCard?: string;
+  paymentsQuantity: string;
+}
 interface Client {
   _id?: string;
   documentType: string;
@@ -26,6 +33,11 @@ interface Client {
   ivaCond: string;
 }
 interface NewInvoice extends InvoiceData {
+  client: Client;
+  products: Product[];
+  payments?: PaymentMethods[];
+}
+interface NewBudget extends BudgetData {
   client: Client;
   products: Product[];
   payments?: PaymentMethods[];
