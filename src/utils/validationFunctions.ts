@@ -3,7 +3,7 @@ export const validateInvoice = <T extends InvoiceData | BudgetData>(
   client: Client | null,
   products: Product[],
   paymentsLeftValue: number
-) => {
+): string | null => {
   if (!client) return "Debe seleccionar un cliente para generar la factura";
   if (products.length === 0)
     return "Debe agregar al menos un producto para generar una factura";
@@ -34,7 +34,7 @@ export const validateInvoice = <T extends InvoiceData | BudgetData>(
   return null;
 };
 
-export const validateSearchInvoice = (values: InvoiceSearch) => {
+export const validateSearchInvoice = <T extends InvoiceSearch | BudgetSearch> (values: T) => {
   if (values.saleCond !== "Crédito" && values.saleCond !== "Débito") {
     values.creditCard = "";
     values.debitCard = "";

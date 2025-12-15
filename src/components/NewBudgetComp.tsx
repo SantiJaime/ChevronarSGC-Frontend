@@ -21,7 +21,7 @@ import {
 } from "../constants/const";
 import { validateInvoice } from "../utils/validationFunctions";
 import AddPaymentMethod from "./AddPaymentMethod";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { CheckLg, Trash3Fill } from "react-bootstrap-icons";
 import EditProductComp from "./EditProductComp";
 import Swal from "sweetalert2";
 import { createBudgetSchema } from '../utils/validationSchemas';
@@ -144,7 +144,22 @@ const NewBudgetComp = () => {
 
     toast.promise(promise, {
       loading: "Generando presupuesto...",
-      success: (data) => `${data.msg}`,
+      success: (data) => (
+      <span>
+        <b>{data.msg}</b>
+        <br />
+        {"En caso de que el presupuesto no se abra, podés visualizarlo en el siguiente enlace: "}
+        <br /> 
+        <a 
+          href={data.result} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ fontWeight: 'bold', textDecoration: 'underline' }}
+        >
+          Ver presupuesto
+        </a>
+      </span>
+    ),
       error: (err) => `${err.error}`,
       finally: () => setLoading(false),
     });
@@ -384,14 +399,17 @@ const NewBudgetComp = () => {
             </>
           )}
           <div className="d-flex justify-content-end mb-4">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className='d-flex justify-content-center align-items-center gap-1'>
               {loading ? (
                 <div className="d-flex justify-content-center align-items-center gap-2">
                   <Spinner size="sm" />
                   <span>Cargando...</span>
                 </div>
               ) : (
-                <span>Generar presupuesto</span>
+                <>
+                  <CheckLg />
+                  <span>Generar presupuesto</span>
+                </>
               )}
             </Button>
           </div>

@@ -16,11 +16,7 @@ export const CREDIT_CARDS = [
   "Titanio",
 ];
 
-export const DEBIT_CARDS = [
-  "Visa",
-  "Mastercard | Maestro",
-  "Cabal",
-]
+export const DEBIT_CARDS = ["Visa", "Mastercard | Maestro", "Cabal"];
 
 export const SALE_CONDITIONS = [
   "Contado",
@@ -28,7 +24,7 @@ export const SALE_CONDITIONS = [
   "Débito",
   "Transferencia",
   "Cheque",
-  "Múltiples métodos de pago"
+  "Múltiples métodos de pago",
 ];
 
 export const ARG_PROVINCES = [
@@ -75,5 +71,12 @@ export const BUDGET_SALE_POINTS = [
   {
     name: "Av. Colón 315 - 00003",
     value: "00003",
-  }
-]
+  },
+];
+export const NAV_LINKS = [
+  "Facturas",
+  "Historial de facturas",
+  "Presupuestos",
+  "Historial de presupuestos",
+  "Menú de creación",
+] as const;

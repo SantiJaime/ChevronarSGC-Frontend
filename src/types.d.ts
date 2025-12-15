@@ -89,6 +89,17 @@ interface FullInvoice extends NewInvoice {
   cancelled: boolean;
 }
 
+interface FullBudget extends NewBudget {
+  _id: string;
+  date: string;
+  budgetNumber: number;
+  amounts: {
+    total: number;
+    iva: number;
+    precioSinIva: number;
+  };
+}
+
 interface InvoiceSearch {
   fromDate: string;
   toDate: string;
@@ -96,6 +107,19 @@ interface InvoiceSearch {
   clientDocument?: string;
   invoiceType?: string;
   invoiceNumber?: string;
+  salePoint: string;
+  total?: string;
+  saleCond?: string;
+  creditCard?: string;
+  debitCard?: string;
+  paymentsQuantity?: string;
+}
+interface BudgetSearch {
+  fromDate: string;
+  toDate: string;
+  clientName?: string;
+  clientDocument?: string;
+  budgetNumber?: string;
   salePoint: string;
   total?: string;
   saleCond?: string;

@@ -229,6 +229,106 @@ export const searchInvoiceSchema = yup.object().shape({
     .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
     .optional(),
 });
+export const searchBudgetSchema = yup.object().shape({
+  fromDate: yup
+    .string()
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
+    .test("is-valid-date", "La fecha debe ser a partir de 2025", (value) => {
+      if (!value) return false;
+      const [year] = value.split("-").map(Number);
+
+      return year >= 2025;
+    })
+    .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
+      if (!value) return false;
+
+      const [year, month, day] = value.split("-").map(Number);
+
+      const today = new Date();
+      const currentDay = today.getDate();
+      const currentMonth = today.getMonth() + 1;
+      const currentYear = today.getFullYear();
+
+      if (year > currentYear) return false;
+
+      if (year === currentYear && month > currentMonth) return false;
+
+      if (year === currentYear && month === currentMonth && day > currentDay)
+        return false;
+
+      const date = new Date(year, month - 1, day);
+      return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+      );
+    })
+    .required("La fecha es requerida"),
+  toDate: yup
+    .string()
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
+    .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
+      if (!value) return false;
+
+      const [year, month, day] = value.split("-").map(Number);
+
+      const today = new Date();
+      const currentDay = today.getDate();
+      const currentMonth = today.getMonth() + 1;
+      const currentYear = today.getFullYear();
+
+      if (year > currentYear) return false;
+
+      if (year === currentYear && month > currentMonth) return false;
+
+      if (year === currentYear && month === currentMonth && day > currentDay)
+        return false;
+
+      const date = new Date(year, month - 1, day);
+      return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+      );
+    })
+    .required("La fecha es requerida"),
+  budgetNumber: yup
+    .string()
+    .matches(
+      /^\d+$/,
+      "El número de presupuesto debe ser un número (sin letras ni símbolos)"
+    )
+    .optional(),
+  clientName: yup
+    .string()
+    .matches(
+      /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
+      "El nombre del cliente no puede contener números ni símbolos"
+    )
+    .optional(),
+  clientDocument: yup
+    .string()
+    .matches(
+      /^\d+$/,
+      "El documento debe ser un número (sin letras ni símbolos)"
+    )
+    .optional(),
+  salePoint: yup.string().required("El punto de venta es requerido"),
+  total: yup
+    .string()
+    .matches(
+      /^\d+$/,
+      "El valor total de la factura debe ser un número (sin letras ni símbolos)"
+    )
+    .optional(),
+  saleCond: yup.string().optional(),
+  creditCard: yup.string().optional(),
+  debitCard: yup.string().optional(),
+  paymentsQuantity: yup
+    .string()
+    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .optional(),
+});
 
 export const addPaymentMethodSchema = yup.object().shape({
   method: yup.string().required("El método de pago es requerido"),

@@ -10,7 +10,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { createInvoiceSchema } from "../utils/validationSchemas";
-import { createBudget, createInvoice } from "../helpers/invoicesQueries";
+import { createInvoice } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProductComp from "./AddProductComp";
 import useClients from "../hooks/useClients";
@@ -22,15 +22,11 @@ import {
 } from "../constants/const";
 import { validateInvoice } from "../utils/validationFunctions";
 import AddPaymentMethod from "./AddPaymentMethod";
-import { Trash3Fill } from "react-bootstrap-icons";
+import { CheckLg, Trash3Fill } from "react-bootstrap-icons";
 import EditProductComp from "./EditProductComp";
 import Swal from "sweetalert2";
 
-interface Props {
-  type: "Budget" | "Invoice";
-}
-
-const NewInvoiceComp: React.FC<Props> = ({ type }) => {
+const NewInvoiceComp = () => {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [client, setClient] = useState<Client | null>(null);
@@ -117,7 +113,21 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
 
     toast.promise(promise, {
       loading: "Generando factura...",
-      success: (data) => `${data.msg}`,
+      success: (data) => (
+      <span>
+        {data.msg}
+        {"En caso de que la factura no se abra, puedes visualizarla en el siguiente enlace: "}
+        <br /> 
+        <a 
+          href={data.result} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ fontWeight: 'bold', textDecoration: 'underline' }}
+        >
+          Ver factura
+        </a>
+      </span>
+    ),
       error: (err) => `${err.error}`,
       finally: () => setLoading(false),
     });
@@ -155,50 +165,10 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
     });
   };
 
-  const newBudget = (values: InvoiceData, resetForm: () => void) => {
-    const error = validateInvoice(values, client, products, paymentsLeftValue);
-    if (error) {
-      toast.error(error);
-      return;
-    }
-
-    const payload: NewInvoice = {
-      ...values,
-      client: client as Client,
-      products,
-      payments: paymentMethods ? paymentMethods : [],
-    };
-
-    const promise = createBudget(payload)
-      .then((res) => {
-        open(res.result, "_blank");
-        resetForm();
-        setClient(null);
-        setSearchTerm("");
-        setProducts([]);
-        setPaymentsLeftValue(0);
-        setPaymentMethods([]);
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
-
-    toast.promise(promise, {
-      loading: "Generando presupuesto...",
-      success: (data) => `${data.msg}`,
-      error: (err) => `${err.error}`,
-    });
-  };
-
   return (
     <Formik
       validationSchema={createInvoiceSchema}
-      onSubmit={(values, { resetForm }) =>
-        type === "Invoice"
-          ? newInvoice(values, resetForm)
-          : newBudget(values, resetForm)
-      }
+      onSubmit={(values, { resetForm }) => newInvoice(values, resetForm)}
       initialValues={{
         saleCond: "",
         salePoint: "",
@@ -449,16 +419,17 @@ const NewInvoiceComp: React.FC<Props> = ({ type }) => {
             </>
           )}
           <div className="d-flex justify-content-end mb-4">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className='d-flex justify-content-center align-items-center gap-1'>
               {loading ? (
                 <div className="d-flex justify-content-center align-items-center gap-2">
                   <Spinner size="sm" />
                   <span>Cargando...</span>
                 </div>
               ) : (
-                <span>
-                  Generar {type === "Budget" ? "presupuesto" : "factura"}
-                </span>
+                <>
+                  <CheckLg />
+                  <span>Generar factura</span>
+                </>
               )}
             </Button>
           </div>
