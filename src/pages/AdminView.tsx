@@ -6,17 +6,14 @@ import { Button, Spinner } from "react-bootstrap";
 import { DoorOpen } from "react-bootstrap-icons";
 import { logoutUser } from "../helpers/authQueries";
 import { useNavigate } from "react-router-dom";
+import { NAV_LINKS } from '../constants/const';
+
 const AdminView = () => {
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("Facturas");
+  type TabKey = typeof NAV_LINKS[number];
+  const [activeTab, setActiveTab] = useState<TabKey>("Facturas");
   const [loading, setLoading] = useState(false);
-  const NAV_LINKS = [
-    "Facturas",
-    "Historial de facturas",
-    "Presupuestos",
-    "Menú de creación",
-  ];
 
   const handleLogout = () => {
     setLoading(true);

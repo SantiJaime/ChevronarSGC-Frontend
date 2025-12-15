@@ -4,59 +4,35 @@ import Table from "react-bootstrap/Table";
 import {
   ArrowLeftCircleFill,
   ArrowRightCircleFill,
-  FileEarmarkX,
   Printer,
   Search,
+  Trash3Fill,
 } from "react-bootstrap-icons";
-import { searchInvoiceSchema } from "../utils/validationSchemas";
+import { searchBudgetSchema } from "../utils/validationSchemas";
 import { useState } from "react";
 import {
-  cancelInvoice,
-  getInvoices,
-  printInvoice,
+  deleteBudget,
+  getBudgets,
+  printBudget,
 } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
-import Swal from "sweetalert2";
 import {
+  BUDGET_SALE_POINTS,
   CREDIT_CARDS,
   DEBIT_CARDS,
   SALE_CONDITIONS,
-  SALE_POINTS,
 } from "../constants/const";
-import InvoiceDetails from "./InvoiceDetails";
-import { validateSearchInvoice } from '../utils/validationFunctions';
+import { validateSearchInvoice } from "../utils/validationFunctions";
+import Swal from "sweetalert2";
 
-const Invoices = () => {
-  const INVOICES_TYPES = [
-    {
-      name: "Todas",
-      value: "",
-    },
-    {
-      name: "Factura A",
-      value: "Factura-A",
-    },
-    {
-      name: "Factura B",
-      value: "Factura-B",
-    },
-    {
-      name: "Nota de crédito A",
-      value: "Nota de Crédito-A",
-    },
-    {
-      name: "Nota de crédito B",
-      value: "Nota de Crédito-B",
-    },
-  ];
+const Budgets = () => {
   const formik = useFormik({
     initialValues: {
       fromDate: "",
       toDate: "",
       clientName: "",
       clientDocument: "",
-      invoiceType: "",
-      invoiceNumber: "",
+      budgetNumber: "",
       salePoint: "",
       total: "",
       saleCond: "",
@@ -64,14 +40,14 @@ const Invoices = () => {
       creditCard: "",
       debitCard: "",
     },
-    validationSchema: searchInvoiceSchema,
+    validationSchema: searchBudgetSchema,
     onSubmit: () => handleSearch(),
   });
 
   const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
     formik;
 
-  const [invoices, setInvoices] = useState<FullInvoice[]>([]);
+  const [budgets, setBudgets] = useState<FullBudget[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -79,14 +55,14 @@ const Invoices = () => {
   const handleSearch = (paramPage?: number) => {
     validateSearchInvoice(values);
     setLoading(true);
-    
-    getInvoices(values, paramPage || page)
+
+    getBudgets(values, paramPage || page)
       .then((res) => {
-        setInvoices(res.invoices);
+        setBudgets(res.budgets);
         setTotalPages(res.infoPagination.totalPages);
       })
       .catch((err) => {
-        setInvoices([]);
+        setBudgets([]);
         toast.error(err.error);
       })
       .finally(() => setLoading(false));
@@ -106,61 +82,8 @@ const Invoices = () => {
     }
   };
 
-  const handleCancelInvoice = (values: FullInvoice) => {
-    const payload: NewCreditNote = {
-      ...values,
-      client: {
-        ...values.client,
-        document: values.client.document.toString(),
-      },
-      assocInvoiceCaeExpiringDate: values.caeExpiringDate.toString(),
-      paymentsQuantity: values.paymentsQuantity.toString(),
-      assocInvoiceNumber: values.invoiceNumber.toString(),
-      assocInvoiceCae: values.cae.toString(),
-      assocInvoiceDate: values.date.toString(),
-    };
-    Swal.fire({
-      title: "¿Estás seguro de anular esta factura?",
-      text: "Esta acción no se puede deshacer",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#05b000",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Si, anular",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const promise = cancelInvoice(payload)
-          .then((res) => {
-            open(res.result, "_blank");
-
-            setInvoices((prevState) => {
-              const updatedInvoices = prevState.map((invoice) =>
-                invoice._id === values._id
-                  ? { ...invoice, cancelled: true }
-                  : invoice
-              );
-
-              return [...updatedInvoices, res.newCreditNote];
-            });
-
-            return res;
-          })
-          .catch((err) => {
-            throw err;
-          });
-
-        toast.promise(promise, {
-          loading: "Generando nota de crédito...",
-          success: (res) => `${res.msg}`,
-          error: (err) => `${err.error}`,
-        });
-      }
-    });
-  };
-
-  const handlePrint = (invoiceData: FullInvoice) => {
-    const promise = printInvoice(invoiceData)
+  const handlePrint = (budgetData: FullBudget) => {
+    const promise = printBudget(budgetData)
       .then((res) => {
         open(res.result, "_blank");
         return res;
@@ -176,14 +99,46 @@ const Invoices = () => {
     });
   };
 
+  const handleDelete = async (id: string) => {
+    Swal.fire({
+      title: "¿Estás seguro de eliminar este presupuesto?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#05b000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const promise = deleteBudget(id)
+          .then((res) => {
+            setBudgets((prevBudgets) =>
+              prevBudgets.filter((budget) => budget._id !== id)
+            );
+            return res;
+          })
+          .catch((err) => {
+            throw err;
+          });
+
+        toast.promise(promise, {
+          loading: "Eliminando presupuesto...",
+          success: (res) => `${res.msg}`,
+          error: (err) => `${err.error}`,
+        });
+      }
+    });
+  };
+
   return (
     <div>
-      <h2>Historial de facturas</h2>
+      <h2>Historial de presupuestos</h2>
       <hr />
 
       <Form noValidate onSubmit={handleSubmit}>
         <Row>
-          <Form.Group as={Col} md={3} controlId="fromDateId">
+          <Form.Group as={Col} md={3} controlId="budgetFromDateId">
             <Form.Label>Desde *</Form.Label>
             <Form.Control
               type="text"
@@ -206,7 +161,7 @@ const Invoices = () => {
               {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="toDateId">
+          <Form.Group as={Col} md={3} controlId="budgetToDateId">
             <Form.Label>Hasta *</Form.Label>
             <Form.Control
               type="text"
@@ -229,7 +184,7 @@ const Invoices = () => {
               {errors.toDate && touched.toDate ? errors.toDate : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="salePointId">
+          <Form.Group as={Col} md={3} controlId="budgetSalePointId">
             <Form.Label>Punto de venta *</Form.Label>
             <Form.Select
               name="salePoint"
@@ -238,7 +193,7 @@ const Invoices = () => {
               isInvalid={touched.salePoint && !!errors.salePoint}
             >
               <option value="">Punto de venta no seleccionado</option>
-              {SALE_POINTS.map((point) => (
+              {BUDGET_SALE_POINTS.map((point) => (
                 <option value={point.value} key={point.name}>
                   {point.name}
                 </option>
@@ -248,8 +203,8 @@ const Invoices = () => {
               {errors.salePoint && touched.salePoint ? errors.salePoint : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="clientDocumentId">
-            <Form.Label>Documento del cliente (opcional)</Form.Label>
+          <Form.Group as={Col} md={3} controlId="budgetClientDocumentId">
+            <Form.Label>Documento del cliente</Form.Label>
             <Form.Control
               type="text"
               name="clientDocument"
@@ -267,8 +222,8 @@ const Invoices = () => {
           </Form.Group>
         </Row>
         <Row className="mt-3">
-          <Form.Group as={Col} md={3} controlId="clientNameId">
-            <Form.Label>Nombre del cliente (opcional)</Form.Label>
+          <Form.Group as={Col} md={3} controlId="budgetClientNameId">
+            <Form.Label>Nombre del cliente</Form.Label>
             <Form.Control
               type="text"
               name="clientName"
@@ -282,45 +237,25 @@ const Invoices = () => {
               {errors.clientName && touched.clientName ? errors.clientName : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="invoiceNumberId">
-            <Form.Label>Número de factura (opcional)</Form.Label>
+          <Form.Group as={Col} md={3} controlId="budgetNumberId">
+            <Form.Label>Número de presupuesto</Form.Label>
             <Form.Control
               type="text"
-              name="invoiceNumber"
-              value={values.invoiceNumber}
+              name="budgetNumber"
+              value={values.budgetNumber}
               onChange={handleChange}
               placeholder="Ej: 20"
               autoComplete="off"
-              isInvalid={touched.invoiceNumber && !!errors.invoiceNumber}
+              isInvalid={touched.budgetNumber && !!errors.budgetNumber}
             />
             <Form.Control.Feedback type="invalid">
-              {errors.invoiceNumber && touched.invoiceNumber
-                ? errors.invoiceNumber
+              {errors.budgetNumber && touched.budgetNumber
+                ? errors.budgetNumber
                 : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="invoiceTypeId">
-            <Form.Label>Tipo de factura (opcional)</Form.Label>
-            <Form.Select
-              name="invoiceType"
-              value={values.invoiceType}
-              onChange={handleChange}
-              isInvalid={touched.invoiceType && !!errors.invoiceType}
-            >
-              {INVOICES_TYPES.map((type) => (
-                <option value={type.value} key={type.name}>
-                  {type.name}
-                </option>
-              ))}
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-              {errors.invoiceType && touched.invoiceType
-                ? errors.invoiceType
-                : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="invoiceTotalId">
-            <Form.Label>Valor total de la factura (opcional)</Form.Label>
+          <Form.Group as={Col} md={3} controlId="budgetTotalId">
+            <Form.Label>Valor total del presupuesto</Form.Label>
             <Form.Control
               type="text"
               name="total"
@@ -336,8 +271,8 @@ const Invoices = () => {
           </Form.Group>
         </Row>
         <Row className="mt-3">
-          <Form.Group as={Col} md={4} controlId="saleConditionId">
-            <Form.Label>Condición de venta (opcional)</Form.Label>
+          <Form.Group as={Col} md={4} controlId="budgetSaleConditionId">
+            <Form.Label>Condición de venta</Form.Label>
             <Form.Select
               name="saleCond"
               value={values.saleCond}
@@ -357,8 +292,8 @@ const Invoices = () => {
           </Form.Group>
           {values.saleCond === "Crédito" ? (
             <>
-              <Form.Group as={Col} md={4} controlId="creditCardId">
-                <Form.Label>Tarjeta de crédito (opcional)</Form.Label>
+              <Form.Group as={Col} md={4} controlId="budgetCreditCardId">
+                <Form.Label>Tarjeta de crédito</Form.Label>
                 <Form.Select
                   onChange={handleChange}
                   value={values.creditCard}
@@ -373,8 +308,12 @@ const Invoices = () => {
                   ))}
                 </Form.Select>
               </Form.Group>
-              <Form.Group as={Col} md={4} controlId="paymentsQuantityId">
-                <Form.Label>Cantidad de cuotas (opcional)</Form.Label>
+              <Form.Group
+                as={Col}
+                md={4}
+                controlId="budgetCreditPaymentsQuantityId"
+              >
+                <Form.Label>Cantidad de cuotas</Form.Label>
                 <Form.Control
                   type="text"
                   name="paymentsQuantity"
@@ -395,7 +334,7 @@ const Invoices = () => {
             </>
           ) : values.saleCond === "Débito" ? (
             <>
-              <Form.Group as={Col} md={4} controlId="debitCardId">
+              <Form.Group as={Col} md={4} controlId="budgetDebitCardId">
                 <Form.Label>Tarjeta de débito</Form.Label>
                 <Form.Select
                   onChange={handleChange}
@@ -411,8 +350,12 @@ const Invoices = () => {
                   ))}
                 </Form.Select>
               </Form.Group>
-              <Form.Group as={Col} md={4} controlId="paymentsQuantityId">
-                <Form.Label>Cantidad de cuotas (opcional)</Form.Label>
+              <Form.Group
+                as={Col}
+                md={4}
+                controlId="budgetDebitPaymentsQuantityId"
+              >
+                <Form.Label>Cantidad de cuotas</Form.Label>
                 <Form.Control
                   type="text"
                   name="paymentsQuantity"
@@ -452,73 +395,64 @@ const Invoices = () => {
           <Spinner animation="border" variant="dark" />
           <h4>Cargando...</h4>
         </div>
-      ) : invoices.length === 0 ? (
-        <h4 className="text-center">No se encontraron facturas</h4>
+      ) : budgets.length === 0 ? (
+        <h4 className="text-center">No se encontraron presupuestos</h4>
       ) : (
         <>
           <Table striped bordered hover responsive>
             <thead>
               <tr>
                 <th>Cliente</th>
-                <th>Nro. de factura | Tipo</th>
+                <th>Nro. de presupuesto</th>
                 <th>Importes | Condición de venta</th>
                 <th>Punto de venta</th>
-                <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {invoices.map((invoice) => (
-                <tr key={invoice._id}>
+              {budgets.map((budget) => (
+                <tr key={budget._id}>
                   <td>
-                    {invoice.client.name} | {invoice.client.document}
+                    {budget.client.name} | {budget.client.document}
                   </td>
-                  <td>
-                    Factura Nº {invoice.invoiceNumber} | {invoice.invoiceType}
-                  </td>
+                  <td>Presupuesto Nº {budget.budgetNumber}</td>
                   <td>
                     <div>
                       <div>
-                        <strong>Total: </strong>${invoice.amounts.total} |
-                        <strong> IVA: </strong>${invoice.amounts.iva} |
+                        <strong>Total: </strong>${budget.amounts.total} |
+                        <strong> IVA: </strong>${budget.amounts.iva} |
                         <strong> Precio sin IVA: </strong>$
-                        {invoice.amounts.precioSinIva}
+                        {budget.amounts.precioSinIva}
                       </div>
-                      <strong>{invoice.saleCond}</strong>{" "}
-                      {(invoice.debitCard || invoice.creditCard) &&
-                        `- ${invoice.debitCard || invoice.creditCard}`}{" "}
-                      - {invoice.paymentsQuantity} pago(s)
+                      <strong>{budget.saleCond}</strong>{" "}
+                      {(budget.debitCard || budget.creditCard) &&
+                        `- ${budget.debitCard || budget.creditCard}`}{" "}
+                      - {budget.paymentsQuantity} pago(s)
                     </div>
                   </td>
                   <td>
-                    {invoice.salePoint === "00011"
+                    {budget.salePoint === "00002"
                       ? "Av. San Martín 112"
                       : "Av. Colón 315"}
                   </td>
-                  <td>{invoice.cancelled ? "Anulada" : "Autorizada"}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-1">
-                      <InvoiceDetails invoice={invoice} />
                       <Button
                         variant="success"
                         className="d-flex align-items-center gap-1"
-                        onClick={() => handlePrint(invoice)}
+                        onClick={() => handlePrint(budget)}
                       >
                         <Printer />
                         <span>Imprimir</span>
                       </Button>
-                      {!invoice.cancelled && !invoice.assocInvoiceNumber ? (
-                        <Button
-                          variant="danger"
-                          className="d-flex align-items-center gap-1"
-                          onClick={() => handleCancelInvoice(invoice)}
-                        >
-                          <FileEarmarkX />
-                          <span>Anular</span>
-                        </Button>
-                      ) : (
-                        ""
-                      )}
+                      <Button
+                        variant="danger"
+                        className="d-flex align-items-center gap-1"
+                        onClick={() => handleDelete(budget._id)}
+                      >
+                        <Trash3Fill />
+                        <span>Eliminar</span>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -554,4 +488,4 @@ const Invoices = () => {
   );
 };
 
-export default Invoices;
+export default Budgets;

@@ -16,6 +16,21 @@ interface GetInvoicesResponse {
   };
 }
 
+interface GetBudgetsResponse {
+  budgets: FullBudget[];
+  msg: string;
+  infoPagination: {
+    page: number;
+    limit: number;
+    totalDocs: number;
+    totalPages: number;
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
+    prevPage: number | null;
+    nextPage: number | null;
+  };
+}
+
 interface CreateInvoiceResponse {
   result: string;
   msg: string;
@@ -29,6 +44,10 @@ interface CancelInvoiceResponse {
 
 interface PrintInvoiceResponse {
   result: string;
+  msg: string;
+}
+
+interface DeleteBudgetResponse {
   msg: string;
 }
 
@@ -53,6 +72,35 @@ export const getInvoices = async (
   if (response.status === 401) {
     await refreshAccessToken();
     return getInvoices(payload, page);
+  }
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+};
+
+export const getBudgets = async (
+  payload: BudgetSearch,
+  page: number
+): Promise<GetBudgetsResponse> => {
+  const url = new URL(`${URL_API}/budgets`);
+  const params = new URLSearchParams({ page: page.toString() });
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value) params.append(key, value);
+  });
+
+  const response = await fetch(`${url}?${params}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return getBudgets(payload, page);
   }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
@@ -158,3 +206,43 @@ export const printInvoice = async (
   }
   return await response.json();
 };
+export const printBudget = async (
+  budget: FullBudget
+): Promise<PrintInvoiceResponse> => {
+  const response = await fetch(`${URL_API}/budgets/print`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(budget),
+    credentials: "include",
+  });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return printBudget(budget);
+  }
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+};
+
+export const deleteBudget = async (id: string): Promise<DeleteBudgetResponse> => {
+  const response = await fetch(`${URL_API}/budgets/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return deleteBudget(id);
+  }
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+}
