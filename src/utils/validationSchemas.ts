@@ -37,6 +37,16 @@ export const createInvoiceSchema = yup.object().shape({
     .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
     .optional(),
 });
+export const createBudgetSchema = yup.object().shape({
+  saleCond: yup.string().required("La condición de venta es requerida"),
+  salePoint: yup.string().required("El punto de venta es requerido"),
+  creditCard: yup.string(),
+  debitCard: yup.string(),
+  paymentsQuantity: yup
+    .string()
+    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .optional(),
+});
 export const createCreditNoteSchema = yup.object().shape({
   saleCond: yup.string().required("La condición de venta es requerida"),
   salePoint: yup.string().required("El punto de venta es requerido"),

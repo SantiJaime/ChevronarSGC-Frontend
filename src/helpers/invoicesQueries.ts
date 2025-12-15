@@ -62,10 +62,10 @@ export const getInvoices = async (
 };
 
 export const createBudget = async (
-  payload: NewInvoice
+  payload: NewBudget
 ): Promise<CreateInvoiceResponse> => {
   try {
-    const response = await fetch(`${URL_API}/invoices/new-budget`, {
+    const response = await fetch(`${URL_API}/budgets`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

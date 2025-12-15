@@ -66,3 +66,14 @@ export const SALE_POINTS = [
     value: "00012",
   },
 ];
+
+export const BUDGET_SALE_POINTS = [
+  {
+    name: "Av. San Martín 112 - 00002",
+    value: "00002",
+  },
+  {
+    name: "Av. Colón 315 - 00003",
+    value: "00003",
+  }
+]

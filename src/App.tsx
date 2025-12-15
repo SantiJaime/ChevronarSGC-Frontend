@@ -3,22 +3,9 @@ import Login from "./pages/Login";
 import AdminView from "./pages/AdminView";
 import "./css/App.css";
 import { Toaster } from "sonner";
-import { useEffect } from "react";
-import { logoutUser } from "./helpers/authQueries";
 import { PrivateRoutes, PublicRoutes } from "./components/PrivateRoutes";
 
 const App = () => {
-  useEffect(() => {
-    const handleBeforeUnload = async () => {
-      await logoutUser();
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
   return (
     <Router>
       <div className="App">

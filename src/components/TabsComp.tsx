@@ -3,6 +3,7 @@ import NewClientComp from "./NewClientComp";
 import NewInvoiceComp from "./NewInvoiceComp";
 import NewCityComp from "./NewCityComp";
 import Invoices from "./Invoices";
+import NewBudgetComp from './NewBudgetComp';
 interface Props {
   activeTab: string;
 }
@@ -13,7 +14,7 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
       {activeTab === "Facturas" ? (
         <NewInvoiceComp type={"Invoice"} />
       ) : activeTab === "Presupuestos" ? (
-        <NewInvoiceComp type={"Budget"} />
+        <NewBudgetComp/>
       ) : activeTab === "Menú de creación" ? (
         <>
           <NewClientComp />

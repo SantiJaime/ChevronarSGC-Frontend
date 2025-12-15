@@ -1,5 +1,5 @@
-export const validateInvoice = (
-  values: InvoiceData,
+export const validateInvoice = <T extends InvoiceData | BudgetData>(
+  values: T,
   client: Client | null,
   products: Product[],
   paymentsLeftValue: number
