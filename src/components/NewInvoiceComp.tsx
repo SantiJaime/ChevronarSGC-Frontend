@@ -114,20 +114,23 @@ const NewInvoiceComp = () => {
     toast.promise(promise, {
       loading: "Generando factura...",
       success: (data) => (
-      <span>
-        {data.msg}
-        {"En caso de que la factura no se abra, puedes visualizarla en el siguiente enlace: "}
-        <br /> 
-        <a 
-          href={data.result} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          style={{ fontWeight: 'bold', textDecoration: 'underline' }}
-        >
-          Ver factura
-        </a>
-      </span>
-    ),
+        <span>
+          <b>{data.msg}</b>
+          <br />
+          {
+            "En caso de que la factura no se abra, podés visualizarla en el siguiente enlace: "
+          }
+          <br />
+          <a
+            href={data.result}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: "bold", textDecoration: "underline" }}
+          >
+            Ver factura
+          </a>
+        </span>
+      ),
       error: (err) => `${err.error}`,
       finally: () => setLoading(false),
     });
@@ -419,7 +422,11 @@ const NewInvoiceComp = () => {
             </>
           )}
           <div className="d-flex justify-content-end mb-4">
-            <Button type="submit" disabled={loading} className='d-flex justify-content-center align-items-center gap-1'>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="d-flex justify-content-center align-items-center gap-1"
+            >
               {loading ? (
                 <div className="d-flex justify-content-center align-items-center gap-2">
                   <Spinner size="sm" />
