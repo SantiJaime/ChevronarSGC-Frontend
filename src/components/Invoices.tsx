@@ -249,7 +249,7 @@ const Invoices = () => {
             </Form.Control.Feedback>
           </Form.Group>
           <Form.Group as={Col} md={3} controlId="clientDocumentId">
-            <Form.Label>Documento del cliente (opcional)</Form.Label>
+            <Form.Label>Documento del cliente</Form.Label>
             <Form.Control
               type="text"
               name="clientDocument"
@@ -268,7 +268,7 @@ const Invoices = () => {
         </Row>
         <Row className="mt-3">
           <Form.Group as={Col} md={3} controlId="clientNameId">
-            <Form.Label>Nombre del cliente (opcional)</Form.Label>
+            <Form.Label>Nombre del cliente</Form.Label>
             <Form.Control
               type="text"
               name="clientName"
@@ -283,7 +283,7 @@ const Invoices = () => {
             </Form.Control.Feedback>
           </Form.Group>
           <Form.Group as={Col} md={3} controlId="invoiceNumberId">
-            <Form.Label>Número de factura (opcional)</Form.Label>
+            <Form.Label>Número de factura</Form.Label>
             <Form.Control
               type="text"
               name="invoiceNumber"
@@ -300,7 +300,7 @@ const Invoices = () => {
             </Form.Control.Feedback>
           </Form.Group>
           <Form.Group as={Col} md={3} controlId="invoiceTypeId">
-            <Form.Label>Tipo de factura (opcional)</Form.Label>
+            <Form.Label>Tipo de factura</Form.Label>
             <Form.Select
               name="invoiceType"
               value={values.invoiceType}
@@ -320,7 +320,7 @@ const Invoices = () => {
             </Form.Control.Feedback>
           </Form.Group>
           <Form.Group as={Col} md={3} controlId="invoiceTotalId">
-            <Form.Label>Valor total de la factura (opcional)</Form.Label>
+            <Form.Label>Valor total de la factura</Form.Label>
             <Form.Control
               type="text"
               name="total"
@@ -337,7 +337,7 @@ const Invoices = () => {
         </Row>
         <Row className="mt-3">
           <Form.Group as={Col} md={4} controlId="saleConditionId">
-            <Form.Label>Condición de venta (opcional)</Form.Label>
+            <Form.Label>Condición de venta</Form.Label>
             <Form.Select
               name="saleCond"
               value={values.saleCond}
@@ -358,7 +358,7 @@ const Invoices = () => {
           {values.saleCond === "Crédito" ? (
             <>
               <Form.Group as={Col} md={4} controlId="creditCardId">
-                <Form.Label>Tarjeta de crédito (opcional)</Form.Label>
+                <Form.Label>Tarjeta de crédito</Form.Label>
                 <Form.Select
                   onChange={handleChange}
                   value={values.creditCard}
@@ -374,7 +374,7 @@ const Invoices = () => {
                 </Form.Select>
               </Form.Group>
               <Form.Group as={Col} md={4} controlId="paymentsQuantityId">
-                <Form.Label>Cantidad de cuotas (opcional)</Form.Label>
+                <Form.Label>Cantidad de cuotas</Form.Label>
                 <Form.Control
                   type="text"
                   name="paymentsQuantity"
@@ -412,7 +412,7 @@ const Invoices = () => {
                 </Form.Select>
               </Form.Group>
               <Form.Group as={Col} md={4} controlId="paymentsQuantityId">
-                <Form.Label>Cantidad de cuotas (opcional)</Form.Label>
+                <Form.Label>Cantidad de cuotas</Form.Label>
                 <Form.Control
                   type="text"
                   name="paymentsQuantity"
