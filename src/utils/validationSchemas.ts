@@ -27,6 +27,7 @@ export const addProductSchema = yup.object().shape({
 });
 
 export const createInvoiceSchema = yup.object().shape({
+  cuitOption: yup.string().required("El CUIT de facturación es requerido"),
   saleCond: yup.string().required("La condición de venta es requerida"),
   salePoint: yup.string().required("El punto de venta es requerido"),
   invoiceType: yup.string().required("El tipo de factura es requerido"),
@@ -129,6 +130,7 @@ export const createCitySchema = yup.object().shape({
 });
 
 export const searchInvoiceSchema = yup.object().shape({
+  cuitOption: yup.string().required("El CUIT de facturación es requerido"),
   fromDate: yup
     .string()
     .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")

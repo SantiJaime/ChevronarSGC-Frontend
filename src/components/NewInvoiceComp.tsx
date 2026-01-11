@@ -16,6 +16,7 @@ import AddProductComp from "./AddProductComp";
 import useClients from "../hooks/useClients";
 import {
   CREDIT_CARDS,
+  CUIT_MAP,
   DEBIT_CARDS,
   SALE_CONDITIONS,
   SALE_POINTS,
@@ -178,6 +179,7 @@ const NewInvoiceComp = () => {
         invoiceType: "",
         creditCard: "",
         debitCard: "",
+        cuitOption: "",
         paymentsQuantity: "1",
       }}
     >
@@ -208,6 +210,27 @@ const NewInvoiceComp = () => {
                 ))}
               </Dropdown.Menu>
             )}
+          </Row>
+          <Row className="mb-3">
+            <Form.Group as={Col} md="4" controlId="cuitOptionId">
+              <Form.Label>CUIT de facturación</Form.Label>
+              <Form.Select
+                onChange={handleChange}
+                value={values.cuitOption}
+                name="cuitOption"
+                isInvalid={touched.cuitOption && !!errors.cuitOption}
+              >
+                <option value={""}>CUIT no seleccionado</option>
+                {CUIT_MAP.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.cuitOption && touched.cuitOption ? errors.cuitOption : ""}
+              </Form.Control.Feedback>
+            </Form.Group>
           </Row>
           <Row className="mb-3">
             <Form.Group as={Col} md="4" controlId="saleConditionId">

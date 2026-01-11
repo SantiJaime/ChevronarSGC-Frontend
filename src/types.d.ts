@@ -15,6 +15,7 @@ interface InvoiceData {
   creditCard?: string;
   debitCard?: string;
   paymentsQuantity: string;
+  cuitOption: string;
 }
 interface BudgetData {
   saleCond: string;
@@ -103,6 +104,7 @@ interface FullBudget extends NewBudget {
 interface InvoiceSearch {
   fromDate: string;
   toDate: string;
+  cuitOption: string;
   clientName?: string;
   clientDocument?: string;
   invoiceType?: string;
@@ -129,6 +131,7 @@ interface BudgetSearch {
 }
 
 interface NewCreditNote {
+  cuitOption: string;
   client: Client;
   products: Product[];
   saleCond: string;

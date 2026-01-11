@@ -80,3 +80,14 @@ export const NAV_LINKS = [
   "Historial de presupuestos",
   "Menú de creación",
 ] as const;
+
+export const CUIT_MAP = [
+  {
+    value: "0",
+    label: "Mohadile, Natalia Alejandra",
+  },
+  {
+    value: "1",
+    label: "Chevronar SRL - AÚN NO DISPONIBLE",
+  },
+];
