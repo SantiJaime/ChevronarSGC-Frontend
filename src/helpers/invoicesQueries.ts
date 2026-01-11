@@ -61,7 +61,6 @@ export const getInvoices = async (
   Object.entries(payload).forEach(([key, value]) => {
     if (value) params.append(key, value);
   });
-
   const response = await fetch(`${url}?${params}`, {
     method: "GET",
     headers: {
@@ -139,13 +138,14 @@ export const createBudget = async (
 export const createInvoice = async (
   payload: NewInvoice
 ): Promise<CreateInvoiceResponse> => {
+  const { cuitOption, ...rest } = payload;
   try {
-    const response = await fetch(`${URL_API}/invoices/new-invoice`, {
+    const response = await fetch(`${URL_API}/invoices/new-invoice?cuitOption=${cuitOption}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(rest),
       credentials: "include",
     });
     if (response.status === 401) {
@@ -166,12 +166,13 @@ export const createInvoice = async (
 export const cancelInvoice = async (
   payload: NewCreditNote
 ): Promise<CancelInvoiceResponse> => {
-  const response = await fetch(`${URL_API}/invoices/new-credit-note`, {
+  const { cuitOption, ...rest } = payload;
+  const response = await fetch(`${URL_API}/invoices/new-credit-note?cuitOption=${cuitOption}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(rest),
     credentials: "include",
   });
   if (response.status === 401) {

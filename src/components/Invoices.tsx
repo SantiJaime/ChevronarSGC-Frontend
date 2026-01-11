@@ -19,12 +19,13 @@ import { toast } from "sonner";
 import Swal from "sweetalert2";
 import {
   CREDIT_CARDS,
+  CUIT_MAP,
   DEBIT_CARDS,
   SALE_CONDITIONS,
   SALE_POINTS,
 } from "../constants/const";
 import InvoiceDetails from "./InvoiceDetails";
-import { validateSearchInvoice } from '../utils/validationFunctions';
+import { validateSearchInvoice } from "../utils/validationFunctions";
 
 const Invoices = () => {
   const INVOICES_TYPES = [
@@ -53,6 +54,7 @@ const Invoices = () => {
     initialValues: {
       fromDate: "",
       toDate: "",
+      cuitOption: "",
       clientName: "",
       clientDocument: "",
       invoiceType: "",
@@ -75,11 +77,12 @@ const Invoices = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingCancel, setLoadingCancel] = useState(false);
 
   const handleSearch = (paramPage?: number) => {
     validateSearchInvoice(values);
     setLoading(true);
-    
+
     getInvoices(values, paramPage || page)
       .then((res) => {
         setInvoices(res.invoices);
@@ -106,18 +109,19 @@ const Invoices = () => {
     }
   };
 
-  const handleCancelInvoice = (values: FullInvoice) => {
+  const handleCancelInvoice = (data: FullInvoice) => {
     const payload: NewCreditNote = {
-      ...values,
+      ...data,
       client: {
-        ...values.client,
-        document: values.client.document.toString(),
+        ...data.client,
+        document: data.client.document.toString(),
       },
-      assocInvoiceCaeExpiringDate: values.caeExpiringDate.toString(),
-      paymentsQuantity: values.paymentsQuantity.toString(),
-      assocInvoiceNumber: values.invoiceNumber.toString(),
-      assocInvoiceCae: values.cae.toString(),
-      assocInvoiceDate: values.date.toString(),
+      assocInvoiceCaeExpiringDate: data.caeExpiringDate.toString(),
+      paymentsQuantity: data.paymentsQuantity.toString(),
+      assocInvoiceNumber: data.invoiceNumber.toString(),
+      assocInvoiceCae: data.cae.toString(),
+      assocInvoiceDate: data.date.toString(),
+      cuitOption: values.cuitOption,
     };
     Swal.fire({
       title: "¿Estás seguro de anular esta factura?",
@@ -130,13 +134,14 @@ const Invoices = () => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
+        setLoadingCancel(true);
         const promise = cancelInvoice(payload)
           .then((res) => {
             open(res.result, "_blank");
 
             setInvoices((prevState) => {
               const updatedInvoices = prevState.map((invoice) =>
-                invoice._id === values._id
+                invoice._id === data._id
                   ? { ...invoice, cancelled: true }
                   : invoice
               );
@@ -152,8 +157,26 @@ const Invoices = () => {
 
         toast.promise(promise, {
           loading: "Generando nota de crédito...",
-          success: (res) => `${res.msg}`,
+          success: (data) => (
+            <span>
+              <b>{data.msg}</b>
+              <br />
+              {
+                "En caso de que la nota de crédito no se abra, podés visualizarla en el siguiente enlace: "
+              }
+              <br />
+              <a
+                href={data.result}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontWeight: "bold", textDecoration: "underline" }}
+              >
+                Ver nota de crédito
+              </a>
+            </span>
+          ),
           error: (err) => `${err.error}`,
+          finally: () => setLoadingCancel(false),
         });
       }
     });
@@ -180,7 +203,6 @@ const Invoices = () => {
     <div>
       <h2>Historial de facturas</h2>
       <hr />
-
       <Form noValidate onSubmit={handleSubmit}>
         <Row>
           <Form.Group as={Col} md={3} controlId="fromDateId">
@@ -229,6 +251,25 @@ const Invoices = () => {
               {errors.toDate && touched.toDate ? errors.toDate : ""}
             </Form.Control.Feedback>
           </Form.Group>
+          <Form.Group as={Col} md={3} controlId="cuitOptionId">
+            <Form.Label>CUIT de facturación *</Form.Label>
+            <Form.Select
+              name="cuitOption"
+              value={values.cuitOption}
+              onChange={handleChange}
+              isInvalid={touched.cuitOption && !!errors.cuitOption}
+            >
+              <option value="">CUIT no seleccionado</option>
+              {CUIT_MAP.map(({ value, label }) => (
+                <option value={value} key={value}>
+                  {label}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.cuitOption && touched.cuitOption ? errors.cuitOption : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
           <Form.Group as={Col} md={3} controlId="salePointId">
             <Form.Label>Punto de venta *</Form.Label>
             <Form.Select
@@ -248,6 +289,8 @@ const Invoices = () => {
               {errors.salePoint && touched.salePoint ? errors.salePoint : ""}
             </Form.Control.Feedback>
           </Form.Group>
+        </Row>
+        <Row className="mt-3">
           <Form.Group as={Col} md={3} controlId="clientDocumentId">
             <Form.Label>Documento del cliente</Form.Label>
             <Form.Control
@@ -265,8 +308,6 @@ const Invoices = () => {
                 : ""}
             </Form.Control.Feedback>
           </Form.Group>
-        </Row>
-        <Row className="mt-3">
           <Form.Group as={Col} md={3} controlId="clientNameId">
             <Form.Label>Nombre del cliente</Form.Label>
             <Form.Control
@@ -317,21 +358,6 @@ const Invoices = () => {
               {errors.invoiceType && touched.invoiceType
                 ? errors.invoiceType
                 : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="invoiceTotalId">
-            <Form.Label>Valor total de la factura</Form.Label>
-            <Form.Control
-              type="text"
-              name="total"
-              value={values.total}
-              onChange={handleChange}
-              placeholder="Ej: $100"
-              autoComplete="off"
-              isInvalid={touched.total && !!errors.total}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.total && touched.total ? errors.total : ""}
             </Form.Control.Feedback>
           </Form.Group>
         </Row>
@@ -510,11 +536,27 @@ const Invoices = () => {
                       {!invoice.cancelled && !invoice.assocInvoiceNumber ? (
                         <Button
                           variant="danger"
+                          disabled={loadingCancel}
                           className="d-flex align-items-center gap-1"
                           onClick={() => handleCancelInvoice(invoice)}
                         >
-                          <FileEarmarkX />
-                          <span>Anular</span>
+                          {loadingCancel ? (
+                            <>
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                              <span>Anulando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <FileEarmarkX />
+                              <span>Anular</span>
+                            </>
+                          )}
                         </Button>
                       ) : (
                         ""
