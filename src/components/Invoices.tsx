@@ -26,6 +26,7 @@ import {
 } from "../constants/const";
 import InvoiceDetails from "./InvoiceDetails";
 import { validateSearchInvoice } from "../utils/validationFunctions";
+import { formatPrice } from '../utils/utils';
 
 const Invoices = () => {
   const INVOICES_TYPES = [
@@ -505,10 +506,10 @@ const Invoices = () => {
                   <td>
                     <div>
                       <div>
-                        <strong>Total: </strong>${invoice.amounts.total} |
-                        <strong> IVA: </strong>${invoice.amounts.iva} |
+                        <strong>Total: </strong>${formatPrice(invoice.amounts.total)} |
+                        <strong> IVA: </strong>${formatPrice(invoice.amounts.iva)} |
                         <strong> Precio sin IVA: </strong>$
-                        {invoice.amounts.precioSinIva}
+                        {formatPrice(invoice.amounts.precioSinIva)}
                       </div>
                       <strong>{invoice.saleCond}</strong>{" "}
                       {(invoice.debitCard || invoice.creditCard) &&
