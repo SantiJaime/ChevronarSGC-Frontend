@@ -47,6 +47,12 @@ interface ClientContextType {
   clients: Client[];
   setClients: React.Dispatch<React.SetStateAction<Client[]>>;
 }
+interface SessionContextType {
+  session: boolean;
+  setSession: React.Dispatch<React.SetStateAction<boolean>>;
+  username: string | null,
+  setUsername: React.Dispatch<React.SetStateAction<string | null>>
+}
 interface City {
   _id?: string;
   province: string;
