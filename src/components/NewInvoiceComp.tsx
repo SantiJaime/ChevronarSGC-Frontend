@@ -26,6 +26,7 @@ import AddPaymentMethod from "./AddPaymentMethod";
 import { CheckLg, Trash3Fill } from "react-bootstrap-icons";
 import EditProductComp from "./EditProductComp";
 import Swal from "sweetalert2";
+import { formatPrice } from '../utils/utils';
 
 const NewInvoiceComp = () => {
   const [loading, setLoading] = useState(false);
@@ -415,9 +416,9 @@ const NewInvoiceComp = () => {
                   {products.map((product, index) => (
                     <tr key={product.productName}>
                       <td>{product.productName}</td>
-                      <td>${product.price}</td>
+                      <td>${formatPrice(product.price)}</td>
                       <td>{product.quantity}</td>
-                      <td>${product.price * product.quantity}</td>
+                      <td>${formatPrice(product.price * product.quantity)}</td>
                       <td className="d-flex justify-content-center gap-2">
                         <EditProductComp
                           product={product}
@@ -438,9 +439,9 @@ const NewInvoiceComp = () => {
                 </tbody>
               </Table>
               <div className="d-flex justify-content-end flex-column align-items-end">
-                <h5>IVA: ${productsTotal.iva.toFixed(2)}</h5>
-                <h5>Precio s/ IVA: ${productsTotal.precioSinIva.toFixed(2)}</h5>
-                <h4>Total: ${productsTotal.total.toFixed(2)}</h4>
+                <h5>IVA: ${formatPrice(productsTotal.iva)}</h5>
+                <h5>Precio s/ IVA: ${formatPrice(productsTotal.precioSinIva)}</h5>
+                <h4>Total: ${formatPrice(productsTotal.total)}</h4>
               </div>
             </>
           )}
