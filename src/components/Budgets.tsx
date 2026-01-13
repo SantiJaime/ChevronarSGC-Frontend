@@ -24,6 +24,7 @@ import {
 } from "../constants/const";
 import { validateSearchInvoice } from "../utils/validationFunctions";
 import Swal from "sweetalert2";
+import { formatPrice } from '../utils/utils';
 
 const Budgets = () => {
   const formik = useFormik({
@@ -254,21 +255,6 @@ const Budgets = () => {
                 : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="budgetTotalId">
-            <Form.Label>Valor total del presupuesto</Form.Label>
-            <Form.Control
-              type="text"
-              name="total"
-              value={values.total}
-              onChange={handleChange}
-              placeholder="Ej: $100"
-              autoComplete="off"
-              isInvalid={touched.total && !!errors.total}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.total && touched.total ? errors.total : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
         </Row>
         <Row className="mt-3">
           <Form.Group as={Col} md={4} controlId="budgetSaleConditionId">
@@ -419,10 +405,10 @@ const Budgets = () => {
                   <td>
                     <div>
                       <div>
-                        <strong>Total: </strong>${budget.amounts.total} |
-                        <strong> IVA: </strong>${budget.amounts.iva} |
+                        <strong>Total: </strong>${formatPrice(budget.amounts.total)} |
+                        <strong> IVA: </strong>${formatPrice(budget.amounts.iva)} |
                         <strong> Precio sin IVA: </strong>$
-                        {budget.amounts.precioSinIva}
+                        {formatPrice(budget.amounts.precioSinIva)}
                       </div>
                       <strong>{budget.saleCond}</strong>{" "}
                       {(budget.debitCard || budget.creditCard) &&

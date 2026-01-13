@@ -6,6 +6,8 @@ import Form from "react-bootstrap/Form";
 import { InputGroup } from "react-bootstrap";
 import { Cart2, CurrencyDollar, PencilFill, Tag } from "react-bootstrap-icons";
 import { addProductSchema } from "../utils/validationSchemas";
+import { NumericFormat } from 'react-number-format';
+import BootstrapInputAdapter from '../utils/numericFormatHelper';
 
 interface Props {
   product: Product;
@@ -61,7 +63,7 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
               editProduct(submitValues);
             }}
           >
-            {({ values, errors, touched, handleChange, handleSubmit }) => (
+            {({ values, errors, touched, handleChange, handleSubmit, setFieldValue }) => (
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="productNameId">
                   <Form.Label>Nombre</Form.Label>
@@ -90,13 +92,21 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
                     <InputGroup.Text>
                       <CurrencyDollar />
                     </InputGroup.Text>
-                    <Form.Control
-                      placeholder="Ej: $100"
-                      type="number"
+                    <NumericFormat
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      decimalScale={2}
+                      prefix="$"
                       name="price"
+                      placeholder="10.000"
                       value={values.price}
-                      onChange={handleChange}
-                      isInvalid={touched.price && !!errors.price}
+                      onValueChange={({ value }) =>
+                        setFieldValue("price", value)
+                      }
+                      className={`form-control ${
+                        touched.price && errors.price ? "is-invalid" : ""
+                      }`}
+                      customInput={BootstrapInputAdapter}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.price && touched.price && errors.price}
