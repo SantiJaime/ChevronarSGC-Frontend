@@ -74,12 +74,43 @@ export const BUDGET_SALE_POINTS = [
   },
 ];
 export const NAV_LINKS = [
-  "Facturas",
+  "Creación de facturas",
   "Historial de facturas",
-  "Presupuestos",
+  "Creación de presupuestos",
   "Historial de presupuestos",
-  "Menú de creación",
+  "Ciudades",
+  "Clientes"
 ] as const;
+
+export const NAV_LINKS_MENU_CREACION = [
+  "Clientes",
+  "Ciudades",
+] as const;
+
+export const NAV_LINKS_FACTURAS = [
+  "Creación de facturas",
+  "Historial de facturas",
+] as const;
+
+export const NAV_LINKS_PRESUPUESTOS = [
+  "Creación de presupuestos",
+  "Historial de presupuestos",
+] as const;
+
+export const NAV_LINKS_OBJECT = [
+  {
+    label: "Facturas",
+    path: "/facturas",
+  },
+  {
+    label: "Presupuestos",
+    path: "/presupuestos",
+  },
+  {
+    label: "Menú de creación",
+    path: "/menu-de-creacion",
+  },
+]
 
 export const CUIT_MAP = [
   {

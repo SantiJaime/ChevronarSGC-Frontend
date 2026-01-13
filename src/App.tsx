@@ -1,15 +1,19 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Login from "./pages/Login";
-import AdminView from "./pages/AdminView";
 import "./css/App.css";
 import { Toaster } from "sonner";
 import { PrivateRoutes, PublicRoutes } from "./components/PrivateRoutes";
+import Sidebar from "./components/Sidebar";
+import InvoicesView from "./pages/InvoicesView";
+import BudgetsView from "./pages/BudgetsView";
+import CreationMenuView from './pages/CreationMenuView';
 
 const App = () => {
   return (
     <Router>
       <div className="App">
-        <main>
+        <Sidebar />
+        <main className="App-main">
           <Toaster richColors />
           <Routes>
             <Route
@@ -21,10 +25,26 @@ const App = () => {
               }
             />
             <Route
-              path="/admin"
+              path="/facturas"
               element={
                 <PrivateRoutes>
-                  <AdminView />
+                  <InvoicesView />
+                </PrivateRoutes>
+              }
+            />
+            <Route
+              path="/presupuestos"
+              element={
+                <PrivateRoutes>
+                  <BudgetsView />
+                </PrivateRoutes>
+              }
+            />
+            <Route
+              path="/menu-de-creacion"
+              element={
+                <PrivateRoutes>
+                  <CreationMenuView />
                 </PrivateRoutes>
               }
             />

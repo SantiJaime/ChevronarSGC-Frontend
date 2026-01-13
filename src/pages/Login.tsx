@@ -3,21 +3,20 @@ import Form from "react-bootstrap/Form";
 import { Button, Container, Image, InputGroup, Spinner } from "react-bootstrap";
 import { Key, PersonCircle } from "react-bootstrap-icons";
 import { loginSchema } from "../utils/validationSchemas";
-import { loginUser } from "../helpers/usersQueries";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
+import useSession from "../hooks/useSession";
 const Login = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-
+  const { handleLogin } = useSession();
   const login = (values: UserLogin) => {
     setLoading(true);
-    const promise = loginUser(values)
+    const promise = handleLogin(values)
       .then((res) => {
-        sessionStorage.setItem("session", JSON.stringify(true));
-        navigate("/admin");
+        navigate("/facturas");
         return res;
       })
       .catch((err) => {
@@ -93,7 +92,7 @@ const Login = () => {
               <div className="d-flex justify-content-end">
                 <Button variant="light" type="submit" disabled={loading}>
                   {loading ? (
-                    <div className='d-flex justify-content-center align-items-center gap-2'>
+                    <div className="d-flex justify-content-center align-items-center gap-2">
                       <Spinner size="sm" />
                       <span>Cargando...</span>
                     </div>

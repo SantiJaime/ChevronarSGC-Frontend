@@ -15,20 +15,14 @@ interface Props {
 
 const TabsComp: React.FC<Props> = ({ activeTab }) => {
   const TabContentMap = {
-    Facturas: <NewInvoiceComp />,
-    Presupuestos: <NewBudgetComp />,
+    "Creación de facturas": <NewInvoiceComp />,
+    "Creación de presupuestos": <NewBudgetComp />,
     "Historial de facturas": <Invoices />,
-    "Menú de creación": (
-      <>
-        <NewClientComp />
-        <hr />
-        <NewCityComp />
-      </>
-    ),
+    "Ciudades": <NewCityComp />,
+    "Clientes": <NewClientComp />,
     "Historial de presupuestos": <Budgets />,
   };
 
-  // ...
   return (
     <Container className="mt-5">{TabContentMap[activeTab] || ""}</Container>
   );
