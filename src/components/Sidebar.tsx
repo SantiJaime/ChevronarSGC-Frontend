@@ -62,6 +62,7 @@ const Sidebar = () => {
               className="d-flex justify-content-center align-items-center gap-1"
               variant="danger"
               onClick={handleLogout}
+              disabled={loading}
             >
               {loading ? (
                 <>

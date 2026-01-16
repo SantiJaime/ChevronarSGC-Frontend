@@ -207,6 +207,7 @@ export const printInvoice = async (
   }
   return await response.json();
 };
+
 export const printBudget = async (
   budget: FullBudget
 ): Promise<PrintInvoiceResponse> => {
