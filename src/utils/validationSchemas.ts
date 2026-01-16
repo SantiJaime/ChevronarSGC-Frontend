@@ -1,5 +1,76 @@
 import * as yup from "yup";
 
+const emptyStringToNull = (
+  value: string | null | undefined,
+  originalValue: unknown
+): string | null | undefined => {
+  if (typeof originalValue === "string" && originalValue === "") {
+    return null;
+  }
+  return value;
+};
+
+const fromDateValidatorSchema = yup
+  .string()
+  .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
+  .test("is-valid-date", "La fecha debe ser a partir de 2025", (value) => {
+    if (!value) return false;
+    const [year] = value.split("-").map(Number);
+
+    return year >= 2025;
+  })
+  .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
+    if (!value) return false;
+
+    const [year, month, day] = value.split("-").map(Number);
+
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+
+    if (year > currentYear) return false;
+
+    if (year === currentYear && month > currentMonth) return false;
+
+    if (year === currentYear && month === currentMonth && day > currentDay)
+      return false;
+
+    const date = new Date(year, month - 1, day);
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+    );
+  });
+
+const toDateValidatorSchema = yup
+  .string()
+  .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
+  .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
+    if (!value) return false;
+
+    const [year, month, day] = value.split("-").map(Number);
+
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+
+    if (year > currentYear) return false;
+
+    if (year === currentYear && month > currentMonth) return false;
+
+    if (year === currentYear && month === currentMonth && day > currentDay)
+      return false;
+
+    const date = new Date(year, month - 1, day);
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+    );
+  });
 export const loginSchema = yup.object().shape({
   username: yup
     .string()
@@ -131,68 +202,8 @@ export const createCitySchema = yup.object().shape({
 
 export const searchInvoiceSchema = yup.object().shape({
   cuitOption: yup.string().required("El CUIT de facturación es requerido"),
-  fromDate: yup
-    .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
-    .test("is-valid-date", "La fecha debe ser a partir de 2025", (value) => {
-      if (!value) return false;
-      const [year] = value.split("-").map(Number);
-
-      return year >= 2025;
-    })
-    .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
-      if (!value) return false;
-
-      const [year, month, day] = value.split("-").map(Number);
-
-      const today = new Date();
-      const currentDay = today.getDate();
-      const currentMonth = today.getMonth() + 1;
-      const currentYear = today.getFullYear();
-
-      if (year > currentYear) return false;
-
-      if (year === currentYear && month > currentMonth) return false;
-
-      if (year === currentYear && month === currentMonth && day > currentDay)
-        return false;
-
-      const date = new Date(year, month - 1, day);
-      return (
-        date.getFullYear() === year &&
-        date.getMonth() === month - 1 &&
-        date.getDate() === day
-      );
-    })
-    .required("La fecha es requerida"),
-  toDate: yup
-    .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
-    .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
-      if (!value) return false;
-
-      const [year, month, day] = value.split("-").map(Number);
-
-      const today = new Date();
-      const currentDay = today.getDate();
-      const currentMonth = today.getMonth() + 1;
-      const currentYear = today.getFullYear();
-
-      if (year > currentYear) return false;
-
-      if (year === currentYear && month > currentMonth) return false;
-
-      if (year === currentYear && month === currentMonth && day > currentDay)
-        return false;
-
-      const date = new Date(year, month - 1, day);
-      return (
-        date.getFullYear() === year &&
-        date.getMonth() === month - 1 &&
-        date.getDate() === day
-      );
-    })
-    .required("La fecha es requerida"),
+  fromDate: fromDateValidatorSchema.required("La fecha desde es requerida"),
+  toDate: toDateValidatorSchema.required("La fecha hasta es requerida"),
   invoiceNumber: yup
     .string()
     .matches(
@@ -232,68 +243,8 @@ export const searchInvoiceSchema = yup.object().shape({
     .optional(),
 });
 export const searchBudgetSchema = yup.object().shape({
-  fromDate: yup
-    .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
-    .test("is-valid-date", "La fecha debe ser a partir de 2025", (value) => {
-      if (!value) return false;
-      const [year] = value.split("-").map(Number);
-
-      return year >= 2025;
-    })
-    .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
-      if (!value) return false;
-
-      const [year, month, day] = value.split("-").map(Number);
-
-      const today = new Date();
-      const currentDay = today.getDate();
-      const currentMonth = today.getMonth() + 1;
-      const currentYear = today.getFullYear();
-
-      if (year > currentYear) return false;
-
-      if (year === currentYear && month > currentMonth) return false;
-
-      if (year === currentYear && month === currentMonth && day > currentDay)
-        return false;
-
-      const date = new Date(year, month - 1, day);
-      return (
-        date.getFullYear() === year &&
-        date.getMonth() === month - 1 &&
-        date.getDate() === day
-      );
-    })
-    .required("La fecha es requerida"),
-  toDate: yup
-    .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
-    .test("is-valid-date", "La fecha ingresada no es válida", (value) => {
-      if (!value) return false;
-
-      const [year, month, day] = value.split("-").map(Number);
-
-      const today = new Date();
-      const currentDay = today.getDate();
-      const currentMonth = today.getMonth() + 1;
-      const currentYear = today.getFullYear();
-
-      if (year > currentYear) return false;
-
-      if (year === currentYear && month > currentMonth) return false;
-
-      if (year === currentYear && month === currentMonth && day > currentDay)
-        return false;
-
-      const date = new Date(year, month - 1, day);
-      return (
-        date.getFullYear() === year &&
-        date.getMonth() === month - 1 &&
-        date.getDate() === day
-      );
-    })
-    .required("La fecha es requerida"),
+  fromDate: fromDateValidatorSchema.required("La fecha es requerida"),
+  toDate: toDateValidatorSchema.required("La fecha es requerida"),
   budgetNumber: yup
     .string()
     .matches(
@@ -345,3 +296,106 @@ export const addPaymentMethodSchema = yup.object().shape({
     .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
     .required("El valor a pagar es requerido"),
 });
+
+export const newSaleSchema = yup.object().shape({
+  clientName: yup
+    .string()
+    .matches(
+      /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
+      "El nombre del cliente no puede contener números ni símbolos"
+    )
+    .required("El nombre del cliente es requerido"),
+  sellerId: yup
+    .number()
+    .integer()
+    .moreThan(0, "El vendedor es requerido")
+    .required("El vendedor es requerido"),
+});
+
+export const searchSalesValidatorSchema = yup.object().shape({
+  sellerId: yup
+    .number()
+    .integer()
+    .moreThan(0, "El vendedor es requerido")
+    .required(),
+  fromDate: yup
+    .string()
+    .nullable()
+    .transform(emptyStringToNull)
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
+    .test("is-valid-year", "La fecha debe ser a partir de 2025", (value) => {
+      if (!value) return true;
+
+      const [year] = value.split("-").map(Number);
+      return year >= 2025;
+    })
+    .test(
+      "is-valid-date",
+      "La fecha ingresada no es válida o es futura",
+      (value) => {
+        if (!value) return true;
+
+        const [year, month, day] = value.split("-").map(Number);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const currentDay = today.getDate();
+        const currentMonth = today.getMonth() + 1;
+        const currentYear = today.getFullYear();
+
+        if (year > currentYear) return false;
+        if (year === currentYear && month > currentMonth) return false;
+        if (year === currentYear && month === currentMonth && day > currentDay)
+          return false;
+
+        const date = new Date(year, month - 1, day);
+        return (
+          date.getFullYear() === year &&
+          date.getMonth() === month - 1 &&
+          date.getDate() === day
+        );
+      }
+    ),
+  toDate: yup
+    .string()
+    .nullable()
+    .transform(emptyStringToNull)
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "El formato debe ser YYYY-MM-DD")
+    .test(
+      "is-valid-date",
+      "La fecha ingresada no es válida o es futura",
+      (value) => {
+        if (!value) return true;
+
+        const [year, month, day] = value.split("-").map(Number);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const currentDay = today.getDate();
+        const currentMonth = today.getMonth() + 1;
+        const currentYear = today.getFullYear();
+
+        if (year > currentYear) return false;
+        if (year === currentYear && month > currentMonth) return false;
+        if (year === currentYear && month === currentMonth && day > currentDay)
+          return false;
+
+        const date = new Date(year, month - 1, day);
+        return (
+          date.getFullYear() === year &&
+          date.getMonth() === month - 1 &&
+          date.getDate() === day
+        );
+      }
+    ),
+  saleNumber: yup
+    .number()
+    .integer()
+    .min(1, "El número de venta debe ser mayor a 0")
+    .optional(),
+});
+
+export type NewSale = yup.InferType<typeof newSaleSchema>;
+export type ISearchSale = yup.InferType<typeof searchSalesValidatorSchema>;

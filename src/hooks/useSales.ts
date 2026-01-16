@@ -1,0 +1,47 @@
+import { useContext, useState } from "react";
+import { SalesContext } from "../context/SalesContext";
+import { createSale, getSales } from "../helpers/salesQueries";
+import { toast } from "sonner";
+
+const useSales = () => {
+  const context = useContext(SalesContext);
+  if (!context) {
+    throw new Error("El contexto de ventas no está definido");
+  }
+  const [loading, setLoading] = useState(false);
+  const { sales, setSales } = context;
+
+  const handleGetSales = async (payload: SaleSearch, page: number) => {
+    try {
+      setLoading(true);
+      const res = await getSales(payload, page);
+      setSales(res.sales);
+      toast.success(res.msg);
+
+      return res.infoPagination;
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
+      setSales([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = async (sale: SaleWithProducts) => {
+    try {
+      setLoading(true);
+      return await createSale(sale);
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  return { sales, setSales, handleCreate, loading, handleGetSales };
+};
+
+export default useSales;

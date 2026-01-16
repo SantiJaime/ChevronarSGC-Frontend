@@ -1,3 +1,5 @@
+import { ISearchSale } from "./validationSchemas";
+
 export const validateInvoice = <T extends InvoiceData | BudgetData>(
   values: T,
   client: Client | null,
@@ -34,7 +36,9 @@ export const validateInvoice = <T extends InvoiceData | BudgetData>(
   return null;
 };
 
-export const validateSearchInvoice = <T extends InvoiceSearch | BudgetSearch> (values: T) => {
+export const validateSearchInvoice = <T extends InvoiceSearch | BudgetSearch>(
+  values: T
+) => {
   if (values.saleCond !== "Crédito" && values.saleCond !== "Débito") {
     values.creditCard = "";
     values.debitCard = "";
@@ -46,4 +50,21 @@ export const validateSearchInvoice = <T extends InvoiceSearch | BudgetSearch> (v
   if (values.saleCond === "Débito") {
     values.creditCard = "";
   }
+};
+
+export const validateSearchSale = (values: ISearchSale): string | null => {
+  if (values.fromDate && !values.toDate) {
+    return "Si ingresa una fecha de inicio, debe ingresar una fecha de fin";
+  }
+  if (values.toDate && !values.fromDate) {
+    return "Si ingresa una fecha de fin, debe ingresar una fecha de inicio";
+  }
+  if (
+    values.fromDate &&
+    values.toDate &&
+    new Date(values.fromDate) > new Date(values.toDate)
+  ) {
+    return "La fecha de fin debe ser mayor a la fecha de inicio";
+  }
+  return null;
 };

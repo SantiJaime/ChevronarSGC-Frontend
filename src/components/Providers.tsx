@@ -1,5 +1,6 @@
 import CitiesProvider from "../context/providers/CitiesProvider";
 import ClientProvider from "../context/providers/ClientProvider";
+import SalesProvider from "../context/providers/SalesProvider";
 import SessionProvider from "../context/providers/SessionProvider";
 
 interface Props {
@@ -10,7 +11,9 @@ const Providers: React.FC<Props> = ({ children }) => {
   return (
     <CitiesProvider>
       <ClientProvider>
-        <SessionProvider>{children}</SessionProvider>
+        <SalesProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </SalesProvider>
       </ClientProvider>
     </CitiesProvider>
   );
