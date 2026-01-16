@@ -9,13 +9,13 @@ interface Props {
 
 const Providers: React.FC<Props> = ({ children }) => {
   return (
-    <CitiesProvider>
-      <ClientProvider>
-        <SalesProvider>
-          <SessionProvider>{children}</SessionProvider>
-        </SalesProvider>
-      </ClientProvider>
-    </CitiesProvider>
+    <SessionProvider>
+      <CitiesProvider>
+        <ClientProvider>
+          <SalesProvider>{children}</SalesProvider>
+        </ClientProvider>
+      </CitiesProvider>
+    </SessionProvider>
   );
 };
 
