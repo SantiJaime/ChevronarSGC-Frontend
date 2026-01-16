@@ -79,7 +79,9 @@ export const NAV_LINKS = [
   "Creación de presupuestos",
   "Historial de presupuestos",
   "Ciudades",
-  "Clientes"
+  "Clientes",
+  "Creación de presupuesto de ventas",
+  "Historial de presupuestos de ventas",
 ] as const;
 
 export const NAV_LINKS_MENU_CREACION = [
@@ -107,6 +109,10 @@ export const NAV_LINKS_OBJECT = [
     path: "/presupuestos",
   },
   {
+    label: "Ventas",
+    path: "/ventas",
+  },
+  {
     label: "Menú de creación",
     path: "/menu-de-creacion",
   },
@@ -122,3 +128,30 @@ export const CUIT_MAP = [
     label: "Chevronar SRL - AÚN NO DISPONIBLE",
   },
 ];
+
+export const SELLERS = [
+  {
+    value: 1,
+    label: "Martín",
+  },
+  {
+    value: 2,
+    label: "Marcos",
+  },
+  {
+    value: 3,
+    label: "José Luis",
+  },
+  {
+    value: 4,
+    label: "José",
+  },
+  {
+    value: 5,
+    label: "Natalia",
+  },
+  {
+    value: 6,
+    label: "Alejandro",
+  },
+]

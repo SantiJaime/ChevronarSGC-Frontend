@@ -4,6 +4,11 @@ interface Product {
   quantity: number;
   productSubtotal: number;
 }
+interface Sale {
+  clientName: string;
+  sellerId: number;
+  products: Product[];
+}
 interface ErrorMessage {
   msg: string;
   error: string | string[];
@@ -50,8 +55,12 @@ interface ClientContextType {
 interface SessionContextType {
   session: boolean;
   setSession: React.Dispatch<React.SetStateAction<boolean>>;
-  username: string | null,
-  setUsername: React.Dispatch<React.SetStateAction<string | null>>
+  username: string | null;
+  setUsername: React.Dispatch<React.SetStateAction<string | null>>;
+}
+interface SalesContextType {
+  sales: FullSale[];
+  setSales: React.Dispatch<React.SetStateAction<FullSale[]>>;
 }
 interface City {
   _id?: string;
@@ -171,4 +180,47 @@ interface PaymentMethods {
   debitCard?: string;
   paymentsQuantity: string;
   valueToPay: string;
+}
+interface SaleWithProducts extends Sale {
+  products: Product[];
+}
+
+interface FullSale extends SaleWithProducts {
+  date: string;
+  _id: string;
+  saleNumber: number;
+  total: number;
+}
+
+interface CreateSaleResponse {
+  msg: string;
+  sale: SaleWithDate;
+  result: string;
+}
+
+interface SaleSearch {
+  sellerId: number;
+  fromDate?: string;
+  toDate?: string;
+  saleNumber?: number;
+}
+
+interface GetSalesResponse {
+  msg: string;
+  sales: FullSale[];
+  infoPagination: {
+    page: number;
+    limit: number;
+    totalDocs: number;
+    totalPages: number;
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
+    prevPage: number | null;
+    nextPage: number | null;
+  };
+}
+
+interface PrintInvoiceResponse {
+  result: string;
+  msg: string;
 }

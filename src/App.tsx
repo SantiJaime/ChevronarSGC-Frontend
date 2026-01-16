@@ -7,6 +7,7 @@ import Sidebar from "./components/Sidebar";
 import InvoicesView from "./pages/InvoicesView";
 import BudgetsView from "./pages/BudgetsView";
 import CreationMenuView from './pages/CreationMenuView';
+import SalesView from './pages/SalesView';
 
 const App = () => {
   return (
@@ -37,6 +38,14 @@ const App = () => {
               element={
                 <PrivateRoutes>
                   <BudgetsView />
+                </PrivateRoutes>
+              }
+            />
+            <Route
+              path="/ventas"
+              element={
+                <PrivateRoutes>
+                  <SalesView />
                 </PrivateRoutes>
               }
             />

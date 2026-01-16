@@ -6,6 +6,8 @@ import Invoices from "./Invoices";
 import NewBudgetComp from "./NewBudgetComp";
 import { NAV_LINKS } from "../constants/const";
 import Budgets from "./Budgets";
+import NewSaleComp from './NewSaleComp';
+import Sales from './Sales';
 
 type TabKey = (typeof NAV_LINKS)[number];
 
@@ -18,9 +20,11 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
     "Creación de facturas": <NewInvoiceComp />,
     "Creación de presupuestos": <NewBudgetComp />,
     "Historial de facturas": <Invoices />,
-    "Ciudades": <NewCityComp />,
-    "Clientes": <NewClientComp />,
+    Ciudades: <NewCityComp />,
+    Clientes: <NewClientComp />,
     "Historial de presupuestos": <Budgets />,
+    "Creación de presupuesto de ventas": <NewSaleComp />,
+    "Historial de presupuestos de ventas": <Sales />,
   };
 
   return (
