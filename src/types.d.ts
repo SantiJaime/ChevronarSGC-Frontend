@@ -17,7 +17,7 @@ interface InvoiceData {
   saleCond: string;
   salePoint: string;
   invoiceType: string;
-  cbteTipo: number;
+  cbteTipo?: number;
   creditCard?: string;
   debitCard?: string;
   paymentsQuantity: string;
