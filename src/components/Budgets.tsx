@@ -56,8 +56,11 @@ const Budgets = () => {
   const handleSearch = (paramPage?: number) => {
     validateSearchInvoice(values);
     setLoading(true);
+    
+    const pageToFetch = paramPage || 1;
+    setPage(pageToFetch);
 
-    getBudgets(values, paramPage || page)
+    getBudgets(values, pageToFetch)
       .then((res) => {
         setBudgets(res.budgets);
         setTotalPages(res.infoPagination.totalPages);
@@ -71,14 +74,12 @@ const Budgets = () => {
 
   const goToNextPage = () => {
     if (page < totalPages) {
-      setPage((prevPage) => prevPage + 1);
       handleSearch(page + 1);
     }
   };
 
   const goToPreviousPage = () => {
     if (page > 1) {
-      setPage((prevPage) => prevPage - 1);
       handleSearch(page - 1);
     }
   };

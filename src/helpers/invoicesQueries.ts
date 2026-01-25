@@ -59,8 +59,9 @@ export const getInvoices = async (
   const params = new URLSearchParams({ page: page.toString() });
 
   Object.entries(payload).forEach(([key, value]) => {
-    if (value) params.append(key, value);
+    if (value) params.append(key, value.toString());
   });
+
   const response = await fetch(`${url}?${params}`, {
     method: "GET",
     headers: {

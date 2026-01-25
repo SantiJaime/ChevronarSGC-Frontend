@@ -26,29 +26,25 @@ import {
 } from "../constants/const";
 import InvoiceDetails from "./InvoiceDetails";
 import { validateSearchInvoice } from "../utils/validationFunctions";
-import { formatPrice } from '../utils/utils';
+import { formatPrice } from "../utils/utils";
 
 const Invoices = () => {
   const INVOICES_TYPES = [
     {
-      name: "Todas",
-      value: "",
-    },
-    {
       name: "Factura A",
-      value: "Factura-A",
+      value: 1,
     },
     {
       name: "Factura B",
-      value: "Factura-B",
+      value: 6,
     },
     {
       name: "Nota de crédito A",
-      value: "Nota de Crédito-A",
+      value: 3,
     },
     {
       name: "Nota de crédito B",
-      value: "Nota de Crédito-B",
+      value: 8,
     },
   ];
   const formik = useFormik({
@@ -58,7 +54,7 @@ const Invoices = () => {
       cuitOption: "",
       clientName: "",
       clientDocument: "",
-      invoiceType: "",
+      cbteTipo: undefined,
       invoiceNumber: "",
       salePoint: "",
       total: "",
@@ -84,7 +80,10 @@ const Invoices = () => {
     validateSearchInvoice(values);
     setLoading(true);
 
-    getInvoices(values, paramPage || page)
+    const pageToFetch = paramPage || 1;
+    setPage(pageToFetch);
+    
+    getInvoices(values, pageToFetch)
       .then((res) => {
         setInvoices(res.invoices);
         setTotalPages(res.infoPagination.totalPages);
@@ -98,14 +97,12 @@ const Invoices = () => {
 
   const goToNextPage = () => {
     if (page < totalPages) {
-      setPage((prevPage) => prevPage + 1);
       handleSearch(page + 1);
     }
   };
 
   const goToPreviousPage = () => {
     if (page > 1) {
-      setPage((prevPage) => prevPage - 1);
       handleSearch(page - 1);
     }
   };
@@ -144,7 +141,7 @@ const Invoices = () => {
               const updatedInvoices = prevState.map((invoice) =>
                 invoice._id === data._id
                   ? { ...invoice, cancelled: true }
-                  : invoice
+                  : invoice,
               );
 
               return [...updatedInvoices, res.newCreditNote];
@@ -344,11 +341,18 @@ const Invoices = () => {
           <Form.Group as={Col} md={3} controlId="invoiceTypeId">
             <Form.Label>Tipo de factura</Form.Label>
             <Form.Select
-              name="invoiceType"
-              value={values.invoiceType}
-              onChange={handleChange}
-              isInvalid={touched.invoiceType && !!errors.invoiceType}
+              name="cbteTipo"
+              value={values.cbteTipo}
+              onChange={(ev) => {
+                if (isNaN(Number(ev.target.value))) {
+                  setFieldValue("cbteTipo", undefined);
+                  return;
+                }
+                setFieldValue("cbteTipo", Number(ev.target.value));
+              }}
+              isInvalid={touched.cbteTipo && !!errors.cbteTipo}
             >
+              <option value={undefined}>Todas</option>
               {INVOICES_TYPES.map((type) => (
                 <option value={type.value} key={type.name}>
                   {type.name}
@@ -356,9 +360,7 @@ const Invoices = () => {
               ))}
             </Form.Select>
             <Form.Control.Feedback type="invalid">
-              {errors.invoiceType && touched.invoiceType
-                ? errors.invoiceType
-                : ""}
+              {errors.cbteTipo && touched.cbteTipo ? errors.cbteTipo : ""}
             </Form.Control.Feedback>
           </Form.Group>
         </Row>
@@ -506,8 +508,10 @@ const Invoices = () => {
                   <td>
                     <div>
                       <div>
-                        <strong>Total: </strong>${formatPrice(invoice.amounts.total)} |
-                        <strong> IVA: </strong>${formatPrice(invoice.amounts.iva)} |
+                        <strong>Total: </strong>$
+                        {formatPrice(invoice.amounts.total)} |
+                        <strong> IVA: </strong>$
+                        {formatPrice(invoice.amounts.iva)} |
                         <strong> Precio sin IVA: </strong>$
                         {formatPrice(invoice.amounts.precioSinIva)}
                       </div>
