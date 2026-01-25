@@ -225,7 +225,7 @@ export const searchInvoiceSchema = yup.object().shape({
       "El documento debe ser un número (sin letras ni símbolos)"
     )
     .optional(),
-  invoiceType: yup.string().optional(),
+  cbteTipo: yup.number().optional(),
   salePoint: yup.string().required("El punto de venta es requerido"),
   total: yup
     .string()

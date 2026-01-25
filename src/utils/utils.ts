@@ -4,3 +4,7 @@ export const formatPrice = (value: number): string => {
     maximumFractionDigits: 2,
   }).format(value || 0);
 };
+
+export const formatDateISO = (date: string): string => {
+  return date.split("T")[0];
+};

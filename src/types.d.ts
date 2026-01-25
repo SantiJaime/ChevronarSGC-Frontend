@@ -17,6 +17,7 @@ interface InvoiceData {
   saleCond: string;
   salePoint: string;
   invoiceType: string;
+  cbteTipo?: number;
   creditCard?: string;
   debitCard?: string;
   paymentsQuantity: string;
@@ -122,7 +123,7 @@ interface InvoiceSearch {
   cuitOption: string;
   clientName?: string;
   clientDocument?: string;
-  invoiceType?: string;
+  cbteTipo?: number;
   invoiceNumber?: string;
   salePoint: string;
   total?: string;

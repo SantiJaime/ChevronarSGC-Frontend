@@ -3,6 +3,7 @@ import { Col, Row, Table } from "react-bootstrap";
 import { FileText } from "react-bootstrap-icons";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { formatDateISO } from '../utils/utils';
 
 interface Props {
   invoice: FullInvoice;
@@ -22,7 +23,7 @@ const InvoiceDetails: React.FC<Props> = ({ invoice }) => {
 
       <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Detalles de la factura</Modal.Title>
+          <Modal.Title>Factura Nº {invoice.invoiceNumber}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {/* Datos del Cliente */}
@@ -32,7 +33,7 @@ const InvoiceDetails: React.FC<Props> = ({ invoice }) => {
             {[
               { label: "Número de comprobante", value: invoice.invoiceNumber },
               { label: "Tipo de factura", value: invoice.invoiceType },
-              { label: "Fecha", value: invoice.date },
+              { label: "Fecha", value: formatDateISO(invoice.date) },
               { label: "CAE", value: invoice.cae },
               { label: "Fecha de vencimiento", value: invoice.caeExpiringDate },
               { label: "Punto de venta", value: invoice.salePoint },
