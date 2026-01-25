@@ -120,11 +120,11 @@ export const NAV_LINKS_OBJECT = [
 
 export const CUIT_MAP = [
   {
-    value: "0",
+    value: 0,
     label: "Mohadile, Natalia Alejandra",
   },
   {
-    value: "1",
+    value: 1,
     label: "Chevronar SRL - AÚN NO DISPONIBLE",
   },
 ];
