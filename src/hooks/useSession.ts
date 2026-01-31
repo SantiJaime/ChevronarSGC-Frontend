@@ -9,8 +9,9 @@ const useSession = () => {
   if (!context) {
     throw new Error("El contexto de sesión no está definido");
   }
+
   const navigate = useNavigate();
-  const { session, setSession, username, setUsername } = context;
+  const { session, setSession, user, setUser } = context;
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (data: UserLogin) => {
@@ -18,9 +19,9 @@ const useSession = () => {
       setLoading(true);
       const res = await loginUser(data);
       sessionStorage.setItem("session", JSON.stringify(true));
-      sessionStorage.setItem("username", data.username);
+      sessionStorage.setItem("user", JSON.stringify(res.user));
       setSession(true);
-      setUsername(data.username);
+      setUser(res.user);
       return res;
     } catch (error) {
       console.error(error);
@@ -35,8 +36,8 @@ const useSession = () => {
       await logoutUser();
       setSession(false);
       sessionStorage.removeItem("session");
-      sessionStorage.removeItem("username");
-      setUsername(null);
+      sessionStorage.removeItem("user");
+      setUser(null);
       navigate("/");
     } catch (error) {
       console.error(error);
@@ -45,7 +46,7 @@ const useSession = () => {
     }
   };
 
-  return { session, setSession, handleLogout, loading, handleLogin, username };
+  return { session, setSession, handleLogout, loading, handleLogin, user };
 };
 
 export default useSession;

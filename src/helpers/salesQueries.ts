@@ -3,15 +3,21 @@ import { refreshAccessToken } from "./authQueries";
 
 export const getSales = async (
   payload: SaleSearch,
-  page: number
+  page: number,
 ): Promise<GetSalesResponse> => {
   const url = new URL(`${URL_API}/sales`);
   const params = new URLSearchParams({ page: page.toString() });
 
   Object.entries(payload).forEach(([key, value]) => {
-    if (typeof value === "number" && value > 0) {
-      params.append(key, value.toString());
-    } else if (value) params.append(key, value);
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      value !== 0 &&
+      value !== "0"
+    ) {
+      params.append(key, String(value));
+    }
   });
   const response = await fetch(`${url}?${params}`, {
     method: "GET",
@@ -32,7 +38,7 @@ export const getSales = async (
 };
 
 export const createSale = async (
-  sale: SaleWithProducts
+  sale: SaleWithProducts,
 ): Promise<CreateSaleResponse> => {
   const response = await fetch(`${URL_API}/sales`, {
     method: "POST",
@@ -53,9 +59,26 @@ export const createSale = async (
   return await response.json();
 };
 
-export const printSale = async (
-  id: string
-): Promise<PrintInvoiceResponse> => {
+export const authorizeSale = async (id: string): Promise<{ msg: string }> => {
+  const response = await fetch(`${URL_API}/sales/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return authorizeSale(id);
+  }
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+};
+
+export const printSale = async (id: string): Promise<PrintInvoiceResponse> => {
   const response = await fetch(`${URL_API}/sales/print/${id}`, {
     method: "GET",
     headers: {

@@ -1,11 +1,24 @@
 import { NavLink } from "react-router-dom";
 import { Button, Nav, Image, Spinner } from "react-bootstrap";
-import { NAV_LINKS_OBJECT } from "../constants/const";
+import {
+  NAV_LINKS_OBJECT,
+  NAV_LINKS_OBJECT_VENTAS,
+  Role,
+} from "../constants/const";
 import useSession from "../hooks/useSession";
 import { DoorOpen } from "react-bootstrap-icons";
 
+const ROLE_LINKS = {
+  [Role.ADMIN]: NAV_LINKS_OBJECT,
+  [Role.VENDEDOR]: NAV_LINKS_OBJECT_VENTAS,
+};
+
 const Sidebar = () => {
-  const { session, handleLogout, username, loading } = useSession();
+  const { session, handleLogout, user, loading } = useSession();
+
+  const currentLinks = user
+    ? ROLE_LINKS[user.role as keyof typeof ROLE_LINKS]
+    : null;
   return (
     <div
       className="d-flex flex-column flex-shrink-0 p-3 bg-light text-dark"
@@ -22,18 +35,17 @@ const Sidebar = () => {
 
       <hr />
       <Nav className="flex-column gap-2 px-2">
-        {session ? (
-          NAV_LINKS_OBJECT.map(({ label, path }) => (
+        {session && user && currentLinks ? (
+          currentLinks.map(({ label, path }) => (
             <Nav.Item key={path}>
               <NavLink
                 to={path}
                 end
-                style={{ transition: "all 0.2s ease-in-out" }}
                 className={({ isActive }) =>
                   `d-flex align-items-center py-2 px-3 text-decoration-none rounded-3 ${
                     isActive
                       ? "bg-dark text-white shadow-sm fw-semibold"
-                      : "text-secondary hover-bg-light"
+                      : "text-secondary"
                   }`
                 }
               >
@@ -44,10 +56,8 @@ const Sidebar = () => {
           ))
         ) : (
           <NavLink
-            to={"/"}
-            end
-            style={{ transition: "all 0.2s ease-in-out" }}
-            className={"d-flex align-items-center py-2 px-3 text-decoration-none rounded-3 bg-dark text-white shadow-sm fw-semibold"}
+            to="/"
+            className="d-flex align-items-center py-2 px-3 text-decoration-none rounded-3 bg-dark text-white shadow-sm fw-semibold"
           >
             Inicio de sesión
           </NavLink>
@@ -55,7 +65,7 @@ const Sidebar = () => {
       </Nav>
 
       <hr />
-      {session && (
+      {session && user && (
         <div className="mt-auto">
           <div className="d-grid gap-2">
             <Button
@@ -78,7 +88,7 @@ const Sidebar = () => {
             </Button>
           </div>
           <div className="text-center mt-2 text-muted small">
-            Usuario: {username}
+            Usuario: {user.username}
           </div>
         </div>
       )}
