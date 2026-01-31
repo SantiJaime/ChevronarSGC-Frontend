@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { SalesContext } from "../context/SalesContext";
-import { createSale, getSales } from "../helpers/salesQueries";
+import { authorizeSale, createSale, getSales } from "../helpers/salesQueries";
 import { toast } from "sonner";
 
 const useSales = () => {
@@ -9,6 +9,7 @@ const useSales = () => {
     throw new Error("El contexto de ventas no está definido");
   }
   const [loading, setLoading] = useState(false);
+  const [loadingAuthorize, setLoadingAuthorize] = useState(false);
   const { sales, setSales } = context;
 
   const handleGetSales = async (payload: SaleSearch, page: number) => {
@@ -40,8 +41,33 @@ const useSales = () => {
     }
   };
 
+  const handleAuthorize = async (id: string) => {
+    try {
+      setLoadingAuthorize(true);
+      const res = await authorizeSale(id);
+      toast.success(res.msg);
+      setSales((prevSales) =>
+        prevSales.map((sale) =>
+          sale._id === id ? { ...sale, authorized: true } : sale,
+        ),
+      );
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
+    } finally {
+      setLoadingAuthorize(false);
+    }
+  };
 
-  return { sales, setSales, handleCreate, loading, handleGetSales };
+  return {
+    sales,
+    setSales,
+    handleCreate,
+    loading,
+    handleGetSales,
+    handleAuthorize,
+    loadingAuthorize,
+  };
 };
 
 export default useSales;

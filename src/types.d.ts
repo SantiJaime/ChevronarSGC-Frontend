@@ -56,8 +56,8 @@ interface ClientContextType {
 interface SessionContextType {
   session: boolean;
   setSession: React.Dispatch<React.SetStateAction<boolean>>;
-  username: string | null;
-  setUsername: React.Dispatch<React.SetStateAction<string | null>>;
+  user: UserInfo | null;
+  setUser: React.Dispatch<React.SetStateAction<UserInfo | null>>;
 }
 interface SalesContextType {
   sales: FullSale[];
@@ -191,6 +191,7 @@ interface FullSale extends SaleWithProducts {
   _id: string;
   saleNumber: number;
   total: number;
+  authorized: boolean;
 }
 
 interface CreateSaleResponse {
@@ -200,6 +201,7 @@ interface CreateSaleResponse {
 }
 
 interface SaleSearch {
+  authorized: boolean;
   sellerId: number;
   fromDate?: string;
   toDate?: string;
@@ -224,4 +226,14 @@ interface GetSalesResponse {
 interface PrintInvoiceResponse {
   result: string;
   msg: string;
+}
+
+interface UserInfo {
+  username: string;
+  role: string;
+}
+
+interface LoginUserResponse {
+  msg: string;
+  user: UserInfo;
 }

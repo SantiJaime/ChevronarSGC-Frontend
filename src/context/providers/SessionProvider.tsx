@@ -9,8 +9,9 @@ const SessionProvider: React.FC<Props> = ({ children }) => {
     return storedSession ? JSON.parse(storedSession) === true : false;
   });
 
-  const [username, setUsername] = useState<string | null>(() => {
-    return sessionStorage.getItem("username");
+  const [user, setUser] = useState<UserInfo | null>(() => {
+    const user = sessionStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
   });
 
   useEffect(() => {
@@ -22,16 +23,16 @@ const SessionProvider: React.FC<Props> = ({ children }) => {
   }, [session]);
 
   useEffect(() => {
-    if (username) {
-      sessionStorage.setItem("username", username);
+    if (user) {
+      sessionStorage.setItem("user", JSON.stringify(user));
     } else {
-      sessionStorage.removeItem("username");
+      sessionStorage.removeItem("user");
     }
-  }, [username]);
+  }, [user]);
 
   return (
     <SessionContext.Provider
-      value={{ session, setSession, username, setUsername }}
+      value={{ session, setSession, user, setUser }}
     >
       {children}
     </SessionContext.Provider>

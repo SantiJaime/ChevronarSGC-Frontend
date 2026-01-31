@@ -4,12 +4,13 @@ import Table from "react-bootstrap/Table";
 import {
   ArrowLeftCircleFill,
   ArrowRightCircleFill,
+  PatchCheck,
   Printer,
   Search,
   Trash3Fill,
 } from "react-bootstrap-icons";
 import { searchSalesValidatorSchema } from "../utils/validationSchemas";
-import { SELLERS } from "../constants/const";
+import { SELLERS, SELLERS_MAP } from "../constants/const";
 import Swal from "sweetalert2";
 import { formatPrice } from "../utils/utils";
 import useSales from "../hooks/useSales";
@@ -21,6 +22,7 @@ import { deleteSale, printSale } from "../helpers/salesQueries";
 const Sales = () => {
   const formik = useFormik({
     initialValues: {
+      authorized: "",
       fromDate: "",
       toDate: "",
       sellerId: 0,
@@ -32,7 +34,14 @@ const Sales = () => {
   const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
     formik;
 
-  const { sales, loading, handleGetSales, setSales } = useSales();
+  const {
+    sales,
+    loading,
+    handleGetSales,
+    setSales,
+    handleAuthorize,
+    loadingAuthorize,
+  } = useSales();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -46,8 +55,12 @@ const Sales = () => {
       return;
     }
     const res = await handleGetSales(
-      { ...values, saleNumber: Number(values.saleNumber ?? 0) },
-      paramPage || page
+      {
+        ...values,
+        authorized: JSON.parse(values.authorized),
+        saleNumber: Number(values.saleNumber ?? 0),
+      },
+      paramPage || page,
     );
     if (!res) return;
 
@@ -101,7 +114,7 @@ const Sales = () => {
           loading: "Eliminando presupuesto de venta...",
           success: (res) => {
             setSales((prevSales) =>
-              prevSales.filter((sale) => sale._id !== id)
+              prevSales.filter((sale) => sale._id !== id),
             );
             return res.msg;
           },
@@ -121,15 +134,31 @@ const Sales = () => {
 
       <Form noValidate onSubmit={handleSubmit}>
         <Row>
+          <Form.Group as={Col} md={3} controlId="isSaleAuthId">
+            <Form.Label>Estado *</Form.Label>
+            <Form.Select
+              name="authorized"
+              value={values.authorized}
+              onChange={handleChange}
+              isInvalid={touched.authorized && !!errors.authorized}
+            >
+              <option value="">Estado no seleccionado</option>
+              <option value={"true"}>Autorizado</option>
+              <option value={"false"}>Pendiente de autorización</option>
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.authorized && touched.authorized ? errors.authorized : ""}
+            </Form.Control.Feedback>
+          </Form.Group>
           <Form.Group as={Col} md={3} controlId="saleSellerId">
-            <Form.Label>Vendedor *</Form.Label>
+            <Form.Label>Vendedor</Form.Label>
             <Form.Select
               name="sellerId"
               value={values.sellerId}
               onChange={handleChange}
               isInvalid={touched.sellerId && !!errors.sellerId}
             >
-              <option value="">Vendedor no seleccionado</option>
+              <option value={0}>Vendedor no seleccionado</option>
               {SELLERS.map(({ label, value }) => (
                 <option value={value} key={value}>
                   {label}
@@ -186,7 +215,7 @@ const Sales = () => {
               {errors.toDate && touched.toDate ? errors.toDate : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="saleNumberId">
+          <Form.Group as={Col} md={3} controlId="saleNumberId" className="mt-3">
             <Form.Label>Número de presupuesto</Form.Label>
             <Form.Control
               type="text"
@@ -229,9 +258,11 @@ const Sales = () => {
             <thead>
               <tr>
                 <th>Cliente</th>
+                <th>Vendedor</th>
                 <th>Nro. de presupuesto</th>
                 <th>Fecha de emisión</th>
                 <th>Importes</th>
+                <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -239,6 +270,7 @@ const Sales = () => {
               {sales.map((sale) => (
                 <tr key={sale._id}>
                   <td>{sale.clientName}</td>
+                  <td>{SELLERS_MAP[sale.sellerId]}</td>
                   <td>Presupuesto Nº {sale.saleNumber}</td>
                   <td>{sale.date}</td>
                   <td>
@@ -248,6 +280,7 @@ const Sales = () => {
                       </div>
                     </div>
                   </td>
+                  <td>{sale.authorized ? "Autorizado" : "Pendiente"}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-1">
                       <Button
@@ -258,6 +291,29 @@ const Sales = () => {
                         <Printer />
                         <span>Imprimir</span>
                       </Button>
+                      {!sale.authorized && (
+                        <Button
+                          variant="info"
+                          className="d-flex align-items-center gap-1"
+                          onClick={() => handleAuthorize(sale._id)}
+                        >
+                          {loadingAuthorize ? (
+                            <>
+                              <Spinner
+                                animation="border"
+                                variant="dark"
+                                size="sm"
+                              />
+                              <span>Cargando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <PatchCheck />
+                              <span>Autorizar</span>
+                            </>
+                          )}
+                        </Button>
+                      )}
                       <Button
                         variant="danger"
                         className="d-flex align-items-center gap-1"

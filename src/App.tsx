@@ -9,6 +9,7 @@ import BudgetsView from "./pages/BudgetsView";
 import CreationMenuView from "./pages/CreationMenuView";
 import SalesView from "./pages/SalesView";
 import Providers from "./components/Providers";
+import { Role } from './constants/const';
 
 const App = () => {
   return (
@@ -22,7 +23,7 @@ const App = () => {
               <Route
                 path="/"
                 element={
-                  <PublicRoutes>
+                  <PublicRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
                     <Login />
                   </PublicRoutes>
                 }
@@ -30,7 +31,7 @@ const App = () => {
               <Route
                 path="/facturas"
                 element={
-                  <PrivateRoutes>
+                  <PrivateRoutes role={[Role.ADMIN]}>
                     <InvoicesView />
                   </PrivateRoutes>
                 }
@@ -38,7 +39,7 @@ const App = () => {
               <Route
                 path="/presupuestos"
                 element={
-                  <PrivateRoutes>
+                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
                     <BudgetsView />
                   </PrivateRoutes>
                 }
@@ -46,7 +47,7 @@ const App = () => {
               <Route
                 path="/ventas"
                 element={
-                  <PrivateRoutes>
+                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
                     <SalesView />
                   </PrivateRoutes>
                 }
@@ -54,7 +55,7 @@ const App = () => {
               <Route
                 path="/menu-de-creacion"
                 element={
-                  <PrivateRoutes>
+                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
                     <CreationMenuView />
                   </PrivateRoutes>
                 }
