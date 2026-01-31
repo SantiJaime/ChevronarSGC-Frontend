@@ -2,7 +2,7 @@ import * as yup from "yup";
 
 const emptyStringToNull = (
   value: string | null | undefined,
-  originalValue: unknown
+  originalValue: unknown,
 ): string | null | undefined => {
   if (typeof originalValue === "string" && originalValue === "") {
     return null;
@@ -192,7 +192,7 @@ export const createCitySchema = yup.object().shape({
     .min(3, "El nombre de la localidad debe tener al menos 3 caracteres")
     .matches(
       /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
-      "El nombre de la localidad no puede contener números ni símbolos"
+      "El nombre de la localidad no puede contener números ni símbolos",
     ),
   province: yup
     .string()
@@ -208,21 +208,21 @@ export const searchInvoiceSchema = yup.object().shape({
     .string()
     .matches(
       /^\d+$/,
-      "El número de factura debe ser un número (sin letras ni símbolos)"
+      "El número de factura debe ser un número (sin letras ni símbolos)",
     )
     .optional(),
   clientName: yup
     .string()
     .matches(
       /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
-      "El nombre del cliente no puede contener números ni símbolos"
+      "El nombre del cliente no puede contener números ni símbolos",
     )
     .optional(),
   clientDocument: yup
     .string()
     .matches(
       /^\d+$/,
-      "El documento debe ser un número (sin letras ni símbolos)"
+      "El documento debe ser un número (sin letras ni símbolos)",
     )
     .optional(),
   cbteTipo: yup.number().optional(),
@@ -231,7 +231,7 @@ export const searchInvoiceSchema = yup.object().shape({
     .string()
     .matches(
       /^\d+$/,
-      "El valor total de la factura debe ser un número (sin letras ni símbolos)"
+      "El valor total de la factura debe ser un número (sin letras ni símbolos)",
     )
     .optional(),
   saleCond: yup.string().optional(),
@@ -249,21 +249,21 @@ export const searchBudgetSchema = yup.object().shape({
     .string()
     .matches(
       /^\d+$/,
-      "El número de presupuesto debe ser un número (sin letras ni símbolos)"
+      "El número de presupuesto debe ser un número (sin letras ni símbolos)",
     )
     .optional(),
   clientName: yup
     .string()
     .matches(
       /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
-      "El nombre del cliente no puede contener números ni símbolos"
+      "El nombre del cliente no puede contener números ni símbolos",
     )
     .optional(),
   clientDocument: yup
     .string()
     .matches(
       /^\d+$/,
-      "El documento debe ser un número (sin letras ni símbolos)"
+      "El documento debe ser un número (sin letras ni símbolos)",
     )
     .optional(),
   salePoint: yup.string().required("El punto de venta es requerido"),
@@ -271,7 +271,7 @@ export const searchBudgetSchema = yup.object().shape({
     .string()
     .matches(
       /^\d+$/,
-      "El valor total de la factura debe ser un número (sin letras ni símbolos)"
+      "El valor total de la factura debe ser un número (sin letras ni símbolos)",
     )
     .optional(),
   saleCond: yup.string().optional(),
@@ -298,13 +298,7 @@ export const addPaymentMethodSchema = yup.object().shape({
 });
 
 export const newSaleSchema = yup.object().shape({
-  clientName: yup
-    .string()
-    .matches(
-      /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
-      "El nombre del cliente no puede contener números ni símbolos"
-    )
-    .required("El nombre del cliente es requerido"),
+  clientName: yup.string().required("El nombre del cliente es requerido"),
   sellerId: yup
     .number()
     .integer()
@@ -313,11 +307,8 @@ export const newSaleSchema = yup.object().shape({
 });
 
 export const searchSalesValidatorSchema = yup.object().shape({
-  sellerId: yup
-    .number()
-    .integer()
-    .moreThan(0, "El vendedor es requerido")
-    .required(),
+  authorized: yup.string().required("El estado del presupuesto es requerido"),
+  sellerId: yup.number().integer().optional(),
   fromDate: yup
     .string()
     .nullable()
@@ -355,7 +346,7 @@ export const searchSalesValidatorSchema = yup.object().shape({
           date.getMonth() === month - 1 &&
           date.getDate() === day
         );
-      }
+      },
     ),
   toDate: yup
     .string()
@@ -388,7 +379,7 @@ export const searchSalesValidatorSchema = yup.object().shape({
           date.getMonth() === month - 1 &&
           date.getDate() === day
         );
-      }
+      },
     ),
   saleNumber: yup
     .number()

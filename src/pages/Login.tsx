@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
 import useSession from "../hooks/useSession";
+import { Role } from "../constants/const";
 const Login = () => {
   const navigate = useNavigate();
 
@@ -15,17 +16,20 @@ const Login = () => {
   const login = (values: UserLogin) => {
     setLoading(true);
     const promise = handleLogin(values)
-      .then((res) => {
-        navigate("/facturas");
-        return res;
-      })
+      .then((res) => res)
       .catch((err) => {
         throw err;
       });
 
     toast.promise(promise, {
       loading: "Iniciando sesión...",
-      success: (data) => `${data.msg}`,
+      success: (data) => {
+        if (!data) return;
+        const redirect =
+          data.user.role === Role.ADMIN ? "/facturas" : "/ventas";
+        navigate(redirect);
+        return data.msg;
+      },
       error: (err) => `${err.error}`,
       finally: () => setLoading(false),
     });

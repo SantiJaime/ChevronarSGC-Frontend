@@ -1,6 +1,6 @@
 import { URL } from "../constants/const";
 
-export const loginUser = async (payload: UserLogin) => {
+export const loginUser = async (payload: UserLogin): Promise<LoginUserResponse> => {
   const response = await fetch(`${URL}/users/login`, {
     method: "POST",
     headers: {
@@ -13,6 +13,5 @@ export const loginUser = async (payload: UserLogin) => {
     const error: ErrorMessage = await response.json();
     throw error;
   }
-  const res = await response.json();
-  return res;
+  return await response.json();
 };

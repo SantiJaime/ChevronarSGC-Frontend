@@ -84,10 +84,7 @@ export const NAV_LINKS = [
   "Historial de presupuestos de ventas",
 ] as const;
 
-export const NAV_LINKS_MENU_CREACION = [
-  "Clientes",
-  "Ciudades",
-] as const;
+export const NAV_LINKS_MENU_CREACION = ["Clientes", "Ciudades"] as const;
 
 export const NAV_LINKS_FACTURAS = [
   "Creación de facturas",
@@ -116,7 +113,22 @@ export const NAV_LINKS_OBJECT = [
     label: "Menú de creación",
     path: "/menu-de-creacion",
   },
-]
+];
+
+export const NAV_LINKS_OBJECT_VENTAS = [
+  {
+    label: "Presupuestos",
+    path: "/presupuestos",
+  },
+  {
+    label: "Ventas",
+    path: "/ventas",
+  },
+  {
+    label: "Menú de creación",
+    path: "/menu-de-creacion",
+  },
+];
 
 export const CUIT_MAP = [
   {
@@ -154,4 +166,16 @@ export const SELLERS = [
     value: 6,
     label: "Alejandro",
   },
-]
+];
+
+type SellerId = typeof SELLERS[number]['value'];
+
+export const SELLERS_MAP: Record<SellerId, string> = SELLERS.reduce((acc, { value, label }) => {
+  acc[value as SellerId] = label;
+  return acc;
+}, {} as Record<SellerId, string>);
+
+export enum Role {
+  ADMIN = "admin",
+  VENDEDOR = "vendedor",
+}
