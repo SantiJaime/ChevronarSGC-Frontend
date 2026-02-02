@@ -31,17 +31,16 @@ const NewSaleComp = () => {
       return;
     }
     const res = await handleCreate({...values, products});
-    if (res === undefined) return;
+    
+    open(res?.result, "_blank");
 
-    open(res.result, "_blank");
-
-    toast.success(res.msg, {
+    toast.success(res?.msg, {
       description: (
         <div style={{ marginTop: "8px" }}>
           En caso de que el presupuesto no se abra, podés visualizarlo aquí:
           <br />
           <a
-            href={res.result}
+            href={res?.result}
             target="_blank"
             rel="noopener noreferrer"
             style={{
