@@ -36,6 +36,7 @@ const useSales = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
+      console.error(error)
     } finally {
       setLoading(false);
     }
