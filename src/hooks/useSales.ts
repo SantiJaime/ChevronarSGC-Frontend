@@ -1,6 +1,11 @@
 import { useContext, useState } from "react";
 import { SalesContext } from "../context/SalesContext";
-import { authorizeSale, createSale, getSales } from "../helpers/salesQueries";
+import {
+  authorizeSale,
+  createSale,
+  editSale,
+  getSales,
+} from "../helpers/salesQueries";
 import { toast } from "sonner";
 
 const useSales = () => {
@@ -36,7 +41,24 @@ const useSales = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error(error)
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = async (sale: FullSale) => {
+    try {
+      setLoading(true);
+      console.log(sale)
+      const res = await editSale(sale);
+      toast.success(res.msg);
+      setSales((prevSales) =>
+        prevSales.map((s) => (s._id === res.sale._id ? res.sale : s)),
+      );
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
     } finally {
       setLoading(false);
     }
@@ -46,12 +68,12 @@ const useSales = () => {
     try {
       setLoadingAuthorize(true);
       const res = await authorizeSale(id);
-      toast.success(res.msg);
       setSales((prevSales) =>
         prevSales.map((sale) =>
           sale._id === id ? { ...sale, authorized: true } : sale,
         ),
       );
+      return res;
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
@@ -68,6 +90,7 @@ const useSales = () => {
     handleGetSales,
     handleAuthorize,
     loadingAuthorize,
+    handleEdit,
   };
 };
 

@@ -19,7 +19,7 @@ const NewSaleComp = () => {
   useEffect(() => {
     const total = products.reduce(
       (total, product) => total + product.productSubtotal,
-      0
+      0,
     );
 
     setProductsTotal(total);
@@ -30,34 +30,9 @@ const NewSaleComp = () => {
       toast.error("El presupuesto para venta debe tener al menos un producto");
       return;
     }
-    const res = await handleCreate({...values, products});
-    if (res){
-      open(res?.result, "_blank");
-  
-      toast.success(res?.msg, {
-        description: (
-          <div style={{ marginTop: "8px" }}>
-            En caso de que el presupuesto no se abra, podés visualizarlo aquí:
-            <br />
-            <a
-              href={res?.result}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#3b82f6",
-                textDecoration: "underline",
-                fontWeight: "bold",
-                marginTop: "4px",
-                display: "inline-block",
-              }}
-            >
-              Ver presupuesto de venta
-            </a>
-          </div>
-        ),
-        duration: 5000,
-        closeButton: true,
-      });
+    const res = await handleCreate({ ...values, products });
+    if (res) {
+      toast.success(res.msg);
       resetForm();
       setProducts([]);
     }
@@ -76,7 +51,7 @@ const NewSaleComp = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         const newProducts = products.filter(
-          (product) => product.productName !== productName
+          (product) => product.productName !== productName,
         );
         setProducts(newProducts);
       }
@@ -85,7 +60,12 @@ const NewSaleComp = () => {
   return (
     <Formik
       validationSchema={newSaleSchema}
-      onSubmit={(values, { resetForm }) => handleSubmit(values, resetForm)}
+      onSubmit={(values, { resetForm }) =>
+        handleSubmit(
+          { ...values, clientName: values.clientName.trim() },
+          resetForm,
+        )
+      }
       initialValues={{
         clientName: "",
         sellerId: 0,
