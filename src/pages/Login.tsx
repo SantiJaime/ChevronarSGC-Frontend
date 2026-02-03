@@ -30,7 +30,11 @@ const Login = () => {
         navigate(redirect);
         return data.msg;
       },
-      error: (err) => `${err.error}`,
+      error: (err) => {
+        if (err.error) return err.error;
+        if (err instanceof Error) return err.message;
+        return "Error desconocido al iniciar sesión";
+      },
       finally: () => setLoading(false),
     });
   };

@@ -24,7 +24,8 @@ const useSession = () => {
       setUser(res.user);
       return res;
     } catch (error) {
-      console.error(error);
+      console.log(error)
+      throw error;
     } finally {
       setLoading(false);
     }
