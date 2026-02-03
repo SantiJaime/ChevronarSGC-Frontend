@@ -31,35 +31,36 @@ const NewSaleComp = () => {
       return;
     }
     const res = await handleCreate({...values, products});
-    
-    open(res?.result, "_blank");
-
-    toast.success(res?.msg, {
-      description: (
-        <div style={{ marginTop: "8px" }}>
-          En caso de que el presupuesto no se abra, podés visualizarlo aquí:
-          <br />
-          <a
-            href={res?.result}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: "#3b82f6",
-              textDecoration: "underline",
-              fontWeight: "bold",
-              marginTop: "4px",
-              display: "inline-block",
-            }}
-          >
-            Ver presupuesto de venta
-          </a>
-        </div>
-      ),
-      duration: 5000,
-      closeButton: true,
-    });
-    resetForm();
-    setProducts([]);
+    if (res){
+      open(res?.result, "_blank");
+  
+      toast.success(res?.msg, {
+        description: (
+          <div style={{ marginTop: "8px" }}>
+            En caso de que el presupuesto no se abra, podés visualizarlo aquí:
+            <br />
+            <a
+              href={res?.result}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#3b82f6",
+                textDecoration: "underline",
+                fontWeight: "bold",
+                marginTop: "4px",
+                display: "inline-block",
+              }}
+            >
+              Ver presupuesto de venta
+            </a>
+          </div>
+        ),
+        duration: 5000,
+        closeButton: true,
+      });
+      resetForm();
+      setProducts([]);
+    }
   };
 
   const handleDelete = (productName: string) => {
