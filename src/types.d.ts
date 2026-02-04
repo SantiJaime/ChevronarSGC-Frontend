@@ -237,3 +237,8 @@ interface LoginUserResponse {
   msg: string;
   user: UserInfo;
 }
+
+interface EditSaleResponse {
+  msg: string;
+  sale: FullSale;
+}

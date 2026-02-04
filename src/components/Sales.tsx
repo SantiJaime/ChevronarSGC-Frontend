@@ -18,6 +18,7 @@ import { useState } from "react";
 import { validateSearchSale } from "../utils/validationFunctions";
 import { toast } from "sonner";
 import { deleteSale, printSale } from "../helpers/salesQueries";
+import EditSaleComp from "./EditSaleComp";
 
 const Sales = () => {
   const formik = useFormik({
@@ -125,6 +126,37 @@ const Sales = () => {
         });
       }
     });
+  };
+
+  const handleAuthorizeSale = async (id: string) => {
+    const res = await handleAuthorize(id);
+    if (res) {
+      open(res.result, "_blank");
+      toast.success(res.msg, {
+        description: (
+          <div style={{ marginTop: "8px" }}>
+            En caso de que el presupuesto no se abra, podés visualizarlo aquí:
+            <br />
+            <a
+              href={res?.result}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#3b82f6",
+                textDecoration: "underline",
+                fontWeight: "bold",
+                marginTop: "4px",
+                display: "inline-block",
+              }}
+            >
+              Ver presupuesto de venta
+            </a>
+          </div>
+        ),
+        duration: 5000,
+        closeButton: true,
+      });
+    }
   };
 
   return (
@@ -283,35 +315,40 @@ const Sales = () => {
                   <td>{sale.authorized ? "Autorizado" : "Pendiente"}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-1">
-                      <Button
-                        variant="success"
-                        className="d-flex align-items-center gap-1"
-                        onClick={() => handlePrint(sale._id)}
-                      >
-                        <Printer />
-                        <span>Imprimir</span>
-                      </Button>
-                      {!sale.authorized && (
+                      {!sale.authorized ? (
+                        <>
+                          <EditSaleComp sale={sale} />
+                          <Button
+                            variant="info"
+                            className="d-flex align-items-center gap-1"
+                            onClick={() => handleAuthorizeSale(sale._id)}
+                            disabled={loadingAuthorize}
+                          >
+                            {loadingAuthorize ? (
+                              <>
+                                <Spinner
+                                  animation="border"
+                                  variant="dark"
+                                  size="sm"
+                                />
+                                <span>Cargando...</span>
+                              </>
+                            ) : (
+                              <>
+                                <PatchCheck />
+                                <span>Autorizar</span>
+                              </>
+                            )}
+                          </Button>
+                        </>
+                      ) : (
                         <Button
-                          variant="info"
+                          variant="success"
                           className="d-flex align-items-center gap-1"
-                          onClick={() => handleAuthorize(sale._id)}
+                          onClick={() => handlePrint(sale._id)}
                         >
-                          {loadingAuthorize ? (
-                            <>
-                              <Spinner
-                                animation="border"
-                                variant="dark"
-                                size="sm"
-                              />
-                              <span>Cargando...</span>
-                            </>
-                          ) : (
-                            <>
-                              <PatchCheck />
-                              <span>Autorizar</span>
-                            </>
-                          )}
+                          <Printer />
+                          <span>Imprimir</span>
                         </Button>
                       )}
                       <Button

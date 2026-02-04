@@ -59,7 +59,7 @@ export const createSale = async (
   return await response.json();
 };
 
-export const authorizeSale = async (id: string): Promise<{ msg: string }> => {
+export const authorizeSale = async (id: string): Promise<{ msg: string, result: string }> => {
   const response = await fetch(`${URL_API}/sales/${id}`, {
     method: "PATCH",
     headers: {
@@ -77,6 +77,26 @@ export const authorizeSale = async (id: string): Promise<{ msg: string }> => {
   }
   return await response.json();
 };
+
+export const editSale = async (sale: FullSale): Promise<EditSaleResponse> => {
+  const response = await fetch(`${URL_API}/sales/${sale._id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(sale),
+    credentials: "include",
+  });
+  if (response.status === 401) {
+    await refreshAccessToken();
+    return editSale(sale);
+  }
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+}
 
 export const printSale = async (id: string): Promise<PrintInvoiceResponse> => {
   const response = await fetch(`${URL_API}/sales/print/${id}`, {
