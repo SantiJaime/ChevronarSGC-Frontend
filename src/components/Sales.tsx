@@ -55,13 +55,16 @@ const Sales = () => {
       toast.error(error);
       return;
     }
+    const pageToFetch = paramPage || 1;
+    setPage(pageToFetch);
+    
     const res = await handleGetSales(
       {
         ...values,
         authorized: JSON.parse(values.authorized),
         saleNumber: Number(values.saleNumber ?? 0),
       },
-      paramPage || page,
+      pageToFetch,
     );
     if (!res) return;
 
@@ -69,14 +72,12 @@ const Sales = () => {
   };
   const goToNextPage = () => {
     if (page < totalPages) {
-      setPage((prevPage) => prevPage + 1);
       handleSearch(page + 1);
     }
   };
 
   const goToPreviousPage = () => {
     if (page > 1) {
-      setPage((prevPage) => prevPage - 1);
       handleSearch(page - 1);
     }
   };
