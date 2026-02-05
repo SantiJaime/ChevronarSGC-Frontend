@@ -286,7 +286,10 @@ export const addPaymentMethodSchema = yup.object().shape({
   debitCard: yup.string().optional(),
   paymentsQuantity: yup
     .string()
-    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .matches(
+      /^([1-6]|[Zz])$/,
+      "Solo se permiten números del 1 al 6 o la letra Z",
+    )
     .required("La cantidad de cuotas es requerida"),
   valueToPay: yup
     .string()

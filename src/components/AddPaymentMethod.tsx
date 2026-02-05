@@ -7,6 +7,9 @@ import { addPaymentMethodSchema } from "../utils/validationSchemas";
 import { CREDIT_CARDS, DEBIT_CARDS } from "../constants/const";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { NumericFormat } from "react-number-format";
+import BootstrapInputAdapter from "../utils/numericFormatHelper";
+import { TAX_CONFIG, TaxTable } from "../constants/card_tax";
 
 interface Props {
   setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethods[]>>;
@@ -38,15 +41,35 @@ const AddPaymentMethod: React.FC<Props> = ({
       return;
     }
 
-    if (
-      !(
-        values.method === "Tarjeta de crédito" ||
-        values.method === "Tarjeta de débito"
-      )
-    ) {
+    if (values.method !== "Crédito") {
       values.paymentsQuantity = "1";
     }
-    setPaymentMethods((prevPaymentMethods) => [...prevPaymentMethods, values]);
+
+    let valueWithInterest = Number(values.valueToPay);
+    let interest: number | null = null;
+    let taxTable: TaxTable | null = null;
+
+    if (values.method === "Crédito") {
+      const payments = isNaN(Number(values.paymentsQuantity))
+        ? values.paymentsQuantity.toUpperCase()
+        : Number(values.paymentsQuantity);
+
+      taxTable = TAX_CONFIG[values.creditCard as string];
+      interest = taxTable[payments];
+
+      if (interest === undefined) {
+        toast.error(
+          `No existen ${values.paymentsQuantity} cuotas para la tarjeta ${values.creditCard}`,
+        );
+        return;
+      }
+
+      valueWithInterest += valueWithInterest * interest;
+    }
+    setPaymentMethods((prevPaymentMethods) => [
+      ...prevPaymentMethods,
+      { ...values, valueWithInterest },
+    ]);
     setPaymentsLeftValue(remainingAfterPayment);
     handleClose();
   };
@@ -75,10 +98,17 @@ const AddPaymentMethod: React.FC<Props> = ({
             }}
             onSubmit={(values) => {
               const newValues = { ...values, id: uuidv4() };
-              handleAddPayment(newValues);
+              handleAddPayment({...newValues, valueWithInterest: Number(newValues.valueToPay)});
             }}
           >
-            {({ values, errors, touched, handleChange, handleSubmit }) => (
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleSubmit,
+              setFieldValue,
+            }) => (
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="methodId">
                   <Form.Label>Método de pago</Form.Label>
@@ -92,39 +122,57 @@ const AddPaymentMethod: React.FC<Props> = ({
                     <option value="Efectivo">Efectivo</option>
                     <option value="Transferencia">Transferencia</option>
                     <option value="Cheque">Cheque</option>
-                    <option value="Tarjeta de crédito">
-                      Tarjeta de crédito
-                    </option>
-                    <option value="Tarjeta de débito">Tarjeta de débito</option>
+                    <option value="Crédito">Tarjeta de crédito</option>
+                    <option value="Débito">Tarjeta de débito</option>
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">
                     {errors.method && touched.method && errors.method}
                   </Form.Control.Feedback>
                 </Form.Group>
-                {values.method === "Tarjeta de crédito" ? (
-                  <Form.Group className="mb-3" controlId="creditCardId">
-                    <Form.Label>Tarjeta de crédito</Form.Label>
-                    <Form.Select
-                      name="creditCard"
-                      value={values.creditCard}
-                      onChange={handleChange}
-                      isInvalid={touched.creditCard && !!errors.creditCard}
-                    >
-                      <option value="">
-                        Sin seleccionar tarjeta de crédito
-                      </option>
-                      {CREDIT_CARDS.map((card) => (
-                        <option key={card} value={card}>
-                          {card}
+                {values.method === "Crédito" ? (
+                  <>
+                    <Form.Group className="mb-3" controlId="creditCardId">
+                      <Form.Label>Tarjeta de crédito</Form.Label>
+                      <Form.Select
+                        name="creditCard"
+                        value={values.creditCard}
+                        onChange={handleChange}
+                        isInvalid={touched.creditCard && !!errors.creditCard}
+                      >
+                        <option value="">
+                          Sin seleccionar tarjeta de crédito
                         </option>
-                      ))}
-                    </Form.Select>
-                    <Form.Control.Feedback type="invalid">
-                      {errors.creditCard &&
-                        touched.creditCard &&
-                        errors.creditCard}
-                    </Form.Control.Feedback>
-                  </Form.Group>
+                        {CREDIT_CARDS.map((card) => (
+                          <option key={card} value={card}>
+                            {card}
+                          </option>
+                        ))}
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">
+                        {errors.creditCard &&
+                          touched.creditCard &&
+                          errors.creditCard}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="paymentsQuantityId">
+                      <Form.Label>Cantidad de cuotas</Form.Label>
+                      <Form.Control
+                        placeholder="Ej: 3"
+                        type="text"
+                        name="paymentsQuantity"
+                        value={values.paymentsQuantity}
+                        onChange={handleChange}
+                        isInvalid={
+                          touched.paymentsQuantity && !!errors.paymentsQuantity
+                        }
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.paymentsQuantity &&
+                          touched.paymentsQuantity &&
+                          errors.paymentsQuantity}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </>
                 ) : values.method === "Tarjeta de débito" ? (
                   <Form.Group className="mb-3" controlId="debitCardId">
                     <Form.Label>Tarjeta de débito</Form.Label>
@@ -152,38 +200,33 @@ const AddPaymentMethod: React.FC<Props> = ({
                 ) : (
                   ""
                 )}
-                {values.method === "Tarjeta de crédito" ||
-                values.method === "Tarjeta de débito" ? (
-                  <Form.Group className="mb-3" controlId="paymentsQuantityId">
-                    <Form.Label>Cantidad de cuotas</Form.Label>
-                    <Form.Control
-                      placeholder="Ej: 3"
-                      type="text"
-                      name="paymentsQuantity"
-                      value={values.paymentsQuantity}
-                      onChange={handleChange}
-                      isInvalid={
-                        touched.paymentsQuantity && !!errors.paymentsQuantity
-                      }
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.paymentsQuantity &&
-                        touched.paymentsQuantity &&
-                        errors.paymentsQuantity}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                ) : (
-                  ""
-                )}
                 <Form.Group className="mb-3" controlId="valueToPayId">
                   <Form.Label>Valor a pagar</Form.Label>
-                  <Form.Control
+                  {/* <Form.Control
                     placeholder="Ej: $1000"
                     type="texxt"
                     name="valueToPay"
                     value={values.valueToPay}
                     onChange={handleChange}
                     isInvalid={touched.valueToPay && !!errors.valueToPay}
+                  /> */}
+                  <NumericFormat
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    decimalScale={2}
+                    prefix="$"
+                    name="price"
+                    placeholder="10.000"
+                    value={values.valueToPay}
+                    onValueChange={({ value }) =>
+                      setFieldValue("valueToPay", value)
+                    }
+                    className={`form-control ${
+                      touched.valueToPay && errors.valueToPay
+                        ? "is-invalid"
+                        : ""
+                    }`}
+                    customInput={BootstrapInputAdapter}
                   />
                   <Form.Control.Feedback type="invalid">
                     {errors.valueToPay &&

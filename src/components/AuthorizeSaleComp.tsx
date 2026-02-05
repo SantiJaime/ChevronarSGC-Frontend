@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, InputGroup, Spinner } from "react-bootstrap";
 import {
   CashCoin,
@@ -19,10 +19,13 @@ import { TAX_CONFIG, TaxTable } from "../constants/card_tax";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import { validateAuthorizeSale } from "../utils/validationFunctions";
-import { formatPrice } from '../utils/utils';
+import { formatPrice } from "../utils/utils";
+import AddPaymentMethod from "./AddPaymentMethod";
+import MultiplePaymentsTable from "./MultiplePaymentsTable";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
+  payments?: PaymentMethods[];
 }
 
 interface Props {
@@ -36,12 +39,19 @@ interface Props {
 const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [paymentsLeftValue, setPaymentsLeftValue] = useState(sale.total);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
+  const [multiplePaymenstTotal, setMultiplePaymenstTotal] = useState(0);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const handleSubmit = (values: IAuthorizeSale, resetForm: () => void) => {
-    const errors = validateAuthorizeSale(values);
+    const errors = validateAuthorizeSale(
+      values,
+      multiplePaymenstTotal,
+      sale.total,
+    );
 
     if (errors) {
       toast.error(errors);
@@ -69,6 +79,36 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
 
       totalValue += totalValue * interest;
     }
+
+    if (values.method === "Múltiples métodos de pago") {
+      // totalValue = multiplePaymenstTotal;
+      Swal.fire({
+        title: "¿Estás seguro de autorizar?",
+        text: `Subtotal: $${formatPrice(sale.total)} - Total con interés: $${formatPrice(multiplePaymenstTotal)}`,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#05b000",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Si, autorizar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setLoading(true);
+          handleAuthorizeSale(sale._id, {
+            ...values,
+            paymentsQuantity: values.paymentsQuantity.toUpperCase(),
+            totalValue: multiplePaymenstTotal,
+            payments: paymentMethods,
+          })
+            .then(() => {
+              handleClose();
+              resetForm();
+            })
+            .finally(() => setLoading(false));
+        }
+      });
+      return;
+    }
     Swal.fire({
       title: "¿Estás seguro de autorizar?",
       text: `Interés: ${(interest ?? 0) * 100}% - Valor total: $${formatPrice(totalValue)}`,
@@ -94,6 +134,20 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
       }
     });
   };
+  useEffect(() => {
+    const multiplePaymentsTotal = paymentMethods.reduce(
+      (total, paymentMethod) => total + Number(paymentMethod.valueToPay),
+      0,
+    );
+    const multiplePaymentsTotalWithInterest = paymentMethods.reduce(
+      (total, paymentMethod) => total + Number(paymentMethod.valueWithInterest),
+      0,
+    );
+
+    const total = sale.total - multiplePaymentsTotal;
+    setPaymentsLeftValue(total);
+    setMultiplePaymenstTotal(multiplePaymentsTotalWithInterest);
+  }, [paymentMethods, sale.total]);
 
   return (
     <>
@@ -107,7 +161,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
         <span>Autorizar</span>
       </Button>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Agregar método de pago para autorizar</Modal.Title>
         </Modal.Header>
@@ -232,7 +286,21 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
                     </InputGroup>
                   </Form.Group>
                 )}
-                <div className="d-flex justify-content-end">
+                {values.method === "Múltiples métodos de pago" && (
+                  <>
+                    <div className="d-flex justify-content-end mb-3">
+                      <AddPaymentMethod
+                        setPaymentMethods={setPaymentMethods}
+                        setPaymentsLeftValue={setPaymentsLeftValue}
+                        paymentsLeftValue={paymentsLeftValue}
+                      />
+                    </div>
+                    <MultiplePaymentsTable paymentMethods={paymentMethods} />
+                  </>
+                )}
+                <hr />
+                <div className="d-flex justify-content-between">
+                  <h6>Subtotal a pagar: ${formatPrice(sale.total)}</h6>
                   <Button
                     variant="dark"
                     type="submit"

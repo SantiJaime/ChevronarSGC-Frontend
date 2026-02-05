@@ -71,6 +71,8 @@ export const validateSearchSale = (values: ISearchSale): string | null => {
 
 export const validateAuthorizeSale = (
   values: IAuthorizeSale,
+  multiplePaymenstTotal: number,
+  saleTotal: number
 ): string | null => {
   if (values.method === "Crédito" && !values.creditCard) {
     return "Debes seleccionar una tarjeta de crédito";
@@ -78,6 +80,10 @@ export const validateAuthorizeSale = (
 
   if (values.method === "Débito" && !values.debitCard) {
     return "Debes seleccionar una tarjeta de débito";
+  }
+
+  if(values.method === "Múltiples métodos de pago" && multiplePaymenstTotal < saleTotal) {
+    return "Aún no se ha alcanzado el total del presupuesto, por favor agregue otro método de pago o modifique el valor a pagar";
   }
 
   const resetFields = ["Contado", "Transferencia", "Cheque"].includes(
@@ -88,10 +94,6 @@ export const validateAuthorizeSale = (
     values.paymentsQuantity = "1";
     values.creditCard = "";
     values.debitCard = "";
-  }
-  
-  if (values.method === "Múltiples métodos de pago") {
-    return "Aún no disponible. Se encuentra en desarrollo";
   }
 
   return null;
