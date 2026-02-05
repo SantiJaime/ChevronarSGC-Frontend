@@ -1,5 +1,10 @@
 import { URL as URL_API } from "../constants/const";
+import { type IAuthorizeSale } from "../utils/validationSchemas";
 import { refreshAccessToken } from "./authQueries";
+
+interface FullPaymentsInfo extends IAuthorizeSale {
+  totalValue: number;
+}
 
 export const getSales = async (
   payload: SaleSearch,
@@ -59,17 +64,21 @@ export const createSale = async (
   return await response.json();
 };
 
-export const authorizeSale = async (id: string): Promise<{ msg: string, result: string }> => {
+export const authorizeSale = async (
+  id: string,
+  paymentsInfo: FullPaymentsInfo,
+): Promise<AuthorizeSaleResponse> => {
   const response = await fetch(`${URL_API}/sales/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
+    body: JSON.stringify(paymentsInfo),
   });
   if (response.status === 401) {
     await refreshAccessToken();
-    return authorizeSale(id);
+    return authorizeSale(id, paymentsInfo);
   }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
@@ -96,7 +105,7 @@ export const editSale = async (sale: FullSale): Promise<EditSaleResponse> => {
     throw error;
   }
   return await response.json();
-}
+};
 
 export const printSale = async (id: string): Promise<PrintInvoiceResponse> => {
   const response = await fetch(`${URL_API}/sales/print/${id}`, {

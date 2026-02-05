@@ -7,6 +7,11 @@ import {
   getSales,
 } from "../helpers/salesQueries";
 import { toast } from "sonner";
+import { IAuthorizeSale } from "../utils/validationSchemas";
+
+interface FullPaymentsInfo extends IAuthorizeSale {
+  totalValue: number;
+}
 
 const useSales = () => {
   const context = useContext(SalesContext);
@@ -50,7 +55,7 @@ const useSales = () => {
   const handleEdit = async (sale: FullSale) => {
     try {
       setLoading(true);
-      console.log(sale)
+      console.log(sale);
       const res = await editSale(sale);
       toast.success(res.msg);
       setSales((prevSales) =>
@@ -64,14 +69,15 @@ const useSales = () => {
     }
   };
 
-  const handleAuthorize = async (id: string) => {
+  const handleAuthorize = async (
+    id: string,
+    paymentsInfo: FullPaymentsInfo,
+  ) => {
     try {
       setLoadingAuthorize(true);
-      const res = await authorizeSale(id);
+      const res = await authorizeSale(id, paymentsInfo);
       setSales((prevSales) =>
-        prevSales.map((sale) =>
-          sale._id === id ? { ...sale, authorized: true } : sale,
-        ),
+        prevSales.map((s) => (s._id === id ? res.sale : s)),
       );
       return res;
     } catch (error) {
