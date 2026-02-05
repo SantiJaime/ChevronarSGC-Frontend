@@ -4,12 +4,11 @@ import Table from "react-bootstrap/Table";
 import {
   ArrowLeftCircleFill,
   ArrowRightCircleFill,
-  PatchCheck,
   Printer,
   Search,
   Trash3Fill,
 } from "react-bootstrap-icons";
-import { searchSalesValidatorSchema } from "../utils/validationSchemas";
+import { type IAuthorizeSale, searchSalesValidatorSchema } from "../utils/validationSchemas";
 import { SELLERS, SELLERS_MAP } from "../constants/const";
 import Swal from "sweetalert2";
 import { formatPrice } from "../utils/utils";
@@ -19,6 +18,11 @@ import { validateSearchSale } from "../utils/validationFunctions";
 import { toast } from "sonner";
 import { deleteSale, printSale } from "../helpers/salesQueries";
 import EditSaleComp from "./EditSaleComp";
+import AuthorizeSaleComp from './AuthorizeSaleComp';
+
+interface FullPaymentsInfo extends IAuthorizeSale {
+  totalValue: number;
+}
 
 const Sales = () => {
   const formik = useFormik({
@@ -41,8 +45,8 @@ const Sales = () => {
     handleGetSales,
     setSales,
     handleAuthorize,
-    loadingAuthorize,
   } = useSales();
+  
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -129,8 +133,8 @@ const Sales = () => {
     });
   };
 
-  const handleAuthorizeSale = async (id: string) => {
-    const res = await handleAuthorize(id);
+  const handleAuthorizeSale = async (id: string, paymentsInfo: FullPaymentsInfo) => {
+    const res = await handleAuthorize(id, paymentsInfo);
     if (res) {
       open(res.result, "_blank");
       toast.success(res.msg, {
@@ -294,6 +298,7 @@ const Sales = () => {
                 <th>Vendedor</th>
                 <th>Nro. de presupuesto</th>
                 <th>Fecha de emisión</th>
+                <th>Método de pago</th>
                 <th>Importes</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -306,10 +311,14 @@ const Sales = () => {
                   <td>{SELLERS_MAP[sale.sellerId]}</td>
                   <td>Presupuesto Nº {sale.saleNumber}</td>
                   <td>{sale.date}</td>
+                  <td>{sale.payments}</td>
                   <td>
                     <div>
                       <div>
-                        <strong>Total: </strong>${formatPrice(sale.total)}
+                        <strong>Subtotal: </strong>${formatPrice(sale.total)}
+                      </div>
+                      <div>
+                        <strong>Total: </strong>${formatPrice(sale.totalWithInterest)}
                       </div>
                     </div>
                   </td>
@@ -319,28 +328,7 @@ const Sales = () => {
                       {!sale.authorized ? (
                         <>
                           <EditSaleComp sale={sale} />
-                          <Button
-                            variant="info"
-                            className="d-flex align-items-center gap-1"
-                            onClick={() => handleAuthorizeSale(sale._id)}
-                            disabled={loadingAuthorize}
-                          >
-                            {loadingAuthorize ? (
-                              <>
-                                <Spinner
-                                  animation="border"
-                                  variant="dark"
-                                  size="sm"
-                                />
-                                <span>Cargando...</span>
-                              </>
-                            ) : (
-                              <>
-                                <PatchCheck />
-                                <span>Autorizar</span>
-                              </>
-                            )}
-                          </Button>
+                          <AuthorizeSaleComp sale={sale} handleAuthorizeSale={handleAuthorizeSale}/>
                         </>
                       ) : (
                         <Button

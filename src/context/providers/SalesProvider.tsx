@@ -6,7 +6,7 @@ interface Props {
 }
 
 const SalesProvider: React.FC<Props> = ({ children }) => {
-  const [sales, setSales] = useState<FullSale[]>([]);
+  const [sales, setSales] = useState<FullSaleWithPayments[]>([]);
 
   return (
     <SalesContext.Provider value={{ sales, setSales }}>
