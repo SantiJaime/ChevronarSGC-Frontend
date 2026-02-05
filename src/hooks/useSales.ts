@@ -11,6 +11,7 @@ import { IAuthorizeSale } from "../utils/validationSchemas";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
+  payments?: PaymentMethods[];
 }
 
 const useSales = () => {
@@ -55,7 +56,7 @@ const useSales = () => {
   const handleEdit = async (sale: FullSale) => {
     try {
       setLoading(true);
-      console.log(sale);
+
       const res = await editSale(sale);
       toast.success(res.msg);
       setSales((prevSales) =>

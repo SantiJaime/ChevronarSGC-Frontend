@@ -181,6 +181,7 @@ interface PaymentMethods {
   debitCard?: string;
   paymentsQuantity: string;
   valueToPay: string;
+  valueWithInterest: number;
 }
 interface SaleWithProducts extends Sale {
   products: Product[];
