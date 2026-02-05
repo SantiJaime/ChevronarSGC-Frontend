@@ -21,6 +21,10 @@ export const SOL_TAX: Record<number, number> = {
   3: 0.35,
 };
 
+export const TITANO_TAX: Record<number, number> = {
+  3: 0.1
+}
+
 export const TAX_CONFIG: Record<string, TaxTable> = {
   Naranja: NARANJA_TAX,
   Visa: VISA_TAX,
@@ -29,6 +33,6 @@ export const TAX_CONFIG: Record<string, TaxTable> = {
   Cabal: VISA_TAX,
   Credimas: CREDIMAS_TAX,
   Sucredito: CREDIMAS_TAX,
-  Titanio: CREDIMAS_TAX,
+  Titanio: TITANO_TAX,
   Sol: SOL_TAX,
 };
