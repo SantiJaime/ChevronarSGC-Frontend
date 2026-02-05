@@ -60,8 +60,8 @@ interface SessionContextType {
   setUser: React.Dispatch<React.SetStateAction<UserInfo | null>>;
 }
 interface SalesContextType {
-  sales: FullSale[];
-  setSales: React.Dispatch<React.SetStateAction<FullSale[]>>;
+  sales: FullSaleWithPayments[];
+  setSales: React.Dispatch<React.SetStateAction<FullSaleWithPayments[]>>;
 }
 interface City {
   _id?: string;
@@ -194,6 +194,11 @@ interface FullSale extends SaleWithProducts {
   authorized: boolean;
 }
 
+interface FullSaleWithPayments extends FullSale {
+  payments: string;
+  totalWithInterest: number;
+}
+
 interface CreateSaleResponse {
   msg: string;
   sale: SaleWithDate;
@@ -210,7 +215,7 @@ interface SaleSearch {
 
 interface GetSalesResponse {
   msg: string;
-  sales: FullSale[];
+  sales: FullSaleWithPayments[];
   infoPagination: {
     page: number;
     limit: number;
@@ -240,5 +245,11 @@ interface LoginUserResponse {
 
 interface EditSaleResponse {
   msg: string;
-  sale: FullSale;
+  sale: FullSaleWithPayments;
+}
+
+interface AuthorizeSaleResponse {
+  msg: string;
+  sale: FullSaleWithPayments;
+  result: string;
 }

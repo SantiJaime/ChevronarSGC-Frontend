@@ -1,10 +1,10 @@
-import { ISearchSale } from "./validationSchemas";
+import { IAuthorizeSale, ISearchSale } from "./validationSchemas";
 
 export const validateInvoice = <T extends InvoiceData | BudgetData>(
   values: T,
   client: Client | null,
   products: Product[],
-  paymentsLeftValue: number
+  paymentsLeftValue: number,
 ): string | null => {
   if (!client) return "Debe seleccionar un cliente para generar la factura";
   if (products.length === 0)
@@ -37,7 +37,7 @@ export const validateInvoice = <T extends InvoiceData | BudgetData>(
 };
 
 export const validateSearchInvoice = <T extends InvoiceSearch | BudgetSearch>(
-  values: T
+  values: T,
 ) => {
   if (values.saleCond !== "Crédito" && values.saleCond !== "Débito") {
     values.creditCard = "";
@@ -66,5 +66,33 @@ export const validateSearchSale = (values: ISearchSale): string | null => {
   ) {
     return "La fecha de fin debe ser mayor a la fecha de inicio";
   }
+  return null;
+};
+
+export const validateAuthorizeSale = (
+  values: IAuthorizeSale,
+): string | null => {
+  if (values.method === "Crédito" && !values.creditCard) {
+    return "Debes seleccionar una tarjeta de crédito";
+  }
+
+  if (values.method === "Débito" && !values.debitCard) {
+    return "Debes seleccionar una tarjeta de débito";
+  }
+
+  const resetFields = ["Contado", "Transferencia", "Cheque"].includes(
+    values.method,
+  );
+
+  if (resetFields) {
+    values.paymentsQuantity = "1";
+    values.creditCard = "";
+    values.debitCard = "";
+  }
+  
+  if (values.method === "Múltiples métodos de pago") {
+    return "Aún no disponible. Se encuentra en desarrollo";
+  }
+
   return null;
 };
