@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Col,
@@ -26,61 +26,73 @@ import AddPaymentMethod from "./AddPaymentMethod";
 import { CheckLg, Trash3Fill } from "react-bootstrap-icons";
 import EditProductComp from "./EditProductComp";
 import Swal from "sweetalert2";
-import { formatPrice } from '../utils/utils';
+import { formatPrice } from "../utils/utils";
+
+const normalizeText = (text: string) => {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
 
 const NewInvoiceComp = () => {
+  const { clients } = useClients();
+
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  const [client, setClient] = useState<Client | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredItems, setFilteredItems] = useState<Client[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
   const [productsTotal, setProductsTotal] = useState({
     total: 0,
     iva: 0,
     precioSinIva: 0,
   });
-  const [paymentsLeftValue, setPaymentsLeftValue] = useState(
-    productsTotal.total
-  );
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
-  const { clients } = useClients();
+  const [paymentsLeftValue, setPaymentsLeftValue] = useState(0);
+  const [client, setClient] = useState<Client | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const filteredClients = useMemo(() => {
+    if (searchTerm.trim().length < 3) return [];
+    const normalizedSearch = normalizeText(searchTerm);
+
+    return clients.filter((c) => {
+      const normalizedName = normalizeText(c.name);
+      const documentString = c.document.toString();
+
+      return (
+        normalizedName.includes(normalizedSearch) ||
+        documentString.includes(normalizedSearch)
+      );
+    });
+  }, [clients, searchTerm]);
 
   useEffect(() => {
     const total = products.reduce(
-      (total, product) => total + product.productSubtotal,
-      0
+      (acc, product) => acc + product.productSubtotal,
+      0,
     );
+
     const precioSinIva = total / 1.21;
-    const iva = precioSinIva * 0.21;
+    const iva = total - precioSinIva;
 
     setProductsTotal({ total, iva, precioSinIva });
     setPaymentsLeftValue(total);
   }, [products]);
 
-  const handleInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const value = ev.target.value;
-    setSearchTerm(value);
 
-    if (value.trim().length < 3) {
-      setFilteredItems([]);
-      setShowDropdown(false);
-      return;
-    }
-
-    const filtered = clients.filter((client) => {
-      const name = client.name.toLowerCase();
-      const document = client.document.toString();
-
-      return name.includes(value.toLowerCase()) || document.includes(value);
-    });
-    setFilteredItems(filtered);
-    setShowDropdown(filtered.length > 0);
+  const handleInputChange = (value: string) => {
+    setSearchTerm(value.trim());
+    setClient(null);
+    setIsDropdownOpen(true);
   };
-  const handleSelect = (client: Client) => {
-    setSearchTerm(`${client.name} - ${client.document}`);
-    setClient({ ...client, document: client.document.toString() });
-    setShowDropdown(false);
+
+  const handleSelect = (selectedClient: Client) => {
+    setClient({
+      ...selectedClient,
+      document: selectedClient.document.toString(),
+    });
+    setSearchTerm(`${selectedClient.name} - ${selectedClient.document}`);
+    setIsDropdownOpen(false);
   };
 
   const newInvoice = (values: InvoiceData, resetForm: () => void) => {
@@ -140,11 +152,11 @@ const NewInvoiceComp = () => {
 
   const handleDeletePaymentMethod = (id: string) => {
     const newPaymentMethods = paymentMethods.filter(
-      (paymentMethod) => paymentMethod.id !== id
+      (paymentMethod) => paymentMethod.id !== id,
     );
     const updatedTotal = newPaymentMethods.reduce(
       (total, paymentMethod) => total + Number(paymentMethod.valueToPay),
-      0
+      0,
     );
     setPaymentsLeftValue(productsTotal.total - updatedTotal);
     setPaymentMethods(newPaymentMethods);
@@ -163,7 +175,7 @@ const NewInvoiceComp = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         const newProducts = products.filter(
-          (product) => product.productName !== productName
+          (product) => product.productName !== productName,
         );
         setProducts(newProducts);
       }
@@ -195,13 +207,13 @@ const NewInvoiceComp = () => {
                 placeholder="Escriba el CUIT o nombre del cliente (al menos 3 caracteres)"
                 value={searchTerm}
                 autoComplete="off"
-                onChange={handleInputChange}
+                onChange={(ev) => handleInputChange(ev.target.value)}
               />
             </Form.Group>
 
-            {showDropdown && (
+            {isDropdownOpen && filteredClients.length > 0 && (
               <Dropdown.Menu show className="position-absolute w-100 top-100">
-                {filteredItems.map((client) => (
+                {filteredClients.map((client) => (
                   <Dropdown.Item
                     key={client.document}
                     onClick={() => handleSelect(client)}
@@ -229,7 +241,9 @@ const NewInvoiceComp = () => {
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
-                {errors.cuitOption && touched.cuitOption ? errors.cuitOption : ""}
+                {errors.cuitOption && touched.cuitOption
+                  ? errors.cuitOption
+                  : ""}
               </Form.Control.Feedback>
             </Form.Group>
           </Row>
@@ -440,7 +454,9 @@ const NewInvoiceComp = () => {
               </Table>
               <div className="d-flex justify-content-end flex-column align-items-end">
                 <h5>IVA: ${formatPrice(productsTotal.iva)}</h5>
-                <h5>Precio s/ IVA: ${formatPrice(productsTotal.precioSinIva)}</h5>
+                <h5>
+                  Precio s/ IVA: ${formatPrice(productsTotal.precioSinIva)}
+                </h5>
                 <h4>Total: ${formatPrice(productsTotal.total)}</h4>
               </div>
             </>
