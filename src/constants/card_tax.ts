@@ -32,7 +32,7 @@ export const TAX_CONFIG: Record<string, TaxTable> = {
   "American Express": VISA_TAX,
   Cabal: VISA_TAX,
   Credimas: CREDIMAS_TAX,
-  Sucredito: CREDIMAS_TAX,
+  Sucredito: TITANO_TAX,
   Titanio: TITANO_TAX,
   Sol: SOL_TAX,
 };
