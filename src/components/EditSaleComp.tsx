@@ -12,7 +12,6 @@ import {
 import { SELLERS } from "../constants/const";
 import AddProductComp from "./AddProductComp";
 import { formatPrice } from "../utils/utils";
-import EditProductComp from "./EditProductComp";
 import { NewSale, newSaleSchema } from "../utils/validationSchemas";
 import Swal from "sweetalert2";
 import useSales from "../hooks/useSales";
@@ -157,7 +156,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                 </Form.Group>
                 <hr />
                 <div className="d-flex justify-content-end">
-                  <AddProductComp setProducts={setProducts} />
+                  <AddProductComp setEditProducts={setProducts} />
                 </div>
                 {products.length === 0 ? (
                   <h5 className="text-center">No se agregaron productos</h5>
@@ -173,7 +172,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {products.map((product, index) => (
+                      {products.map((product) => (
                         <tr key={product.productName}>
                           <td>{product.productName}</td>
                           <td>${formatPrice(product.price)}</td>
@@ -182,11 +181,6 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                             ${formatPrice(product.price * product.quantity)}
                           </td>
                           <td className="d-flex justify-content-center gap-2">
-                            <EditProductComp
-                              product={product}
-                              setProducts={setProducts}
-                              index={index}
-                            />
                             <Button
                               className="d-flex align-items-center gap-1"
                               variant="danger"

@@ -4,11 +4,12 @@ import { formatPrice } from "../utils/utils";
 
 interface Props {
   paymentMethods: PaymentMethods[];
-  handleDeletePaymentMethod?: (id: string) => void;
+  handleDeletePaymentMethod: (id: string) => void;
 }
 
 const MultiplePaymentsTable: React.FC<Props> = ({
   paymentMethods,
+  handleDeletePaymentMethod
 }) => {
   return (
     <>
@@ -36,7 +37,7 @@ const MultiplePaymentsTable: React.FC<Props> = ({
                   <Button
                     className="d-flex align-items-center gap-1"
                     variant="danger"
-                    // onClick={() => handleDeletePaymentMethod(method.id)}
+                    onClick={() => handleDeletePaymentMethod(method.id)}
                   >
                     <Trash3Fill />
                     <span>Eliminar</span>

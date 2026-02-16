@@ -1,41 +1,36 @@
+import { Formik } from "formik";
 import { useState } from "react";
+import { Form, InputGroup, Spinner } from "react-bootstrap";
+import {
+  Cart2,
+  CurrencyDollar,
+  FloppyFill,
+  PencilFill,
+  Tag,
+} from "react-bootstrap-icons";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { Formik } from "formik";
-import Form from "react-bootstrap/Form";
-import { InputGroup } from "react-bootstrap";
-import { Cart2, CurrencyDollar, PencilFill, Tag } from "react-bootstrap-icons";
-import { addProductSchema } from "../utils/validationSchemas";
-import { NumericFormat } from 'react-number-format';
-import BootstrapInputAdapter from '../utils/numericFormatHelper';
+import { NumericFormat } from "react-number-format";
+import BootstrapInputAdapter from "../utils/numericFormatHelper";
+import useProducts from "../hooks/useProducts";
+import { editProductSchema } from "../utils/validationSchemas";
 
 interface Props {
-  product: Product;
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-  index: number;
+  product: ProductInDb;
 }
 
-const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
+const EditProductInDbComp: React.FC<Props> = ({ product }) => {
+  const { handleEditProduct, loading } = useProducts();
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
-  const editProduct = (editedProduct: Product) => {
-    setProducts((prevProducts) => {
-      const newProducts = [...prevProducts];
-      newProducts[index] = editedProduct;
-      return newProducts;
-    });
-    handleClose();
-  };
-
   return (
     <>
       <Button
         variant="info"
         onClick={handleShow}
-        className="d-flex align-items-center gap-1"
+        className="d-flex align-items-center gap-2"
       >
         <PencilFill />
         <span>Editar</span>
@@ -43,51 +38,54 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Editar este producto</Modal.Title>
+          <Modal.Title>Editar producto {product.productId}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Formik
-            validationSchema={addProductSchema}
+            validationSchema={editProductSchema}
             initialValues={{
-              productId: product.productId,
               productName: product.productName,
               price: product.price,
-              quantity: product.quantity,
+              stock: product.stock,
             }}
-            onSubmit={(values) => {
-              const submitValues = {
-                ...values,
-                quantity: Number(values.quantity),
-                price: Number(values.price),
-                productSubtotal: Number(values.quantity) * Number(values.price),
-              };
-              editProduct(submitValues);
-            }}
+            onSubmit={(values, { resetForm }) =>
+              handleEditProduct(
+                { ...product, ...values },
+                resetForm,
+                handleClose,
+              )
+            }
           >
-            {({ values, errors, touched, handleChange, handleSubmit, setFieldValue }) => (
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="productNameId">
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleSubmit,
+              setFieldValue,
+            }) => (
+              <Form noValidate onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="editProductNameId">
                   <Form.Label>Nombre</Form.Label>
                   <InputGroup>
                     <InputGroup.Text>
                       <Tag />
                     </InputGroup.Text>
                     <Form.Control
-                      placeholder="Ej: Kit de distribución"
                       type="text"
                       name="productName"
-                      value={values.productName}
                       onChange={handleChange}
+                      value={values.productName}
                       isInvalid={touched.productName && !!errors.productName}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errors.productName &&
-                        touched.productName &&
-                        errors.productName}
+                      {errors.productName && touched.productName
+                        ? errors.productName
+                        : ""}
                     </Form.Control.Feedback>
                   </InputGroup>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="priceId">
+                <Form.Group className="mb-3" controlId="editProductPriceId">
                   <Form.Label>Precio unitario</Form.Label>
                   <InputGroup>
                     <InputGroup.Text>
@@ -102,7 +100,7 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
                       placeholder="10.000"
                       value={values.price}
                       onValueChange={({ value }) =>
-                        setFieldValue("price", value)
+                        setFieldValue("price", Number(value))
                       }
                       className={`form-control ${
                         touched.price && errors.price ? "is-invalid" : ""
@@ -110,32 +108,47 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
                       customInput={BootstrapInputAdapter}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errors.price && touched.price && errors.price}
+                      {errors.price && touched.price ? errors.price : ""}
                     </Form.Control.Feedback>
                   </InputGroup>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="quantityId">
-                  <Form.Label>Cantidad</Form.Label>
+                <Form.Group className="mb-3" controlId="editProductStockId">
+                  <Form.Label>Stock</Form.Label>
                   <InputGroup>
                     <InputGroup.Text>
                       <Cart2 />
                     </InputGroup.Text>
                     <Form.Control
-                      placeholder="Ej: 1"
                       type="number"
-                      name="quantity"
-                      value={values.quantity}
+                      name="stock"
                       onChange={handleChange}
-                      isInvalid={touched.quantity && !!errors.quantity}
+                      value={values.stock}
+                      isInvalid={touched.stock && !!errors.stock}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errors.quantity && touched.quantity && errors.quantity}
+                      {errors.stock && touched.stock
+                        ? errors.stock
+                        : ""}
                     </Form.Control.Feedback>
                   </InputGroup>
                 </Form.Group>
                 <div className="d-flex justify-content-end">
-                  <Button variant="dark" type="submit">
-                    Guardar cambios
+                  <Button
+                    className="d-flex align-items-center gap-2"
+                    variant="dark"
+                    type="submit"
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner animation="border" variant="light" size="sm" />
+                        <span>Guardando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FloppyFill />
+                        <span>Guardar cambios</span>
+                      </>
+                    )}
                   </Button>
                 </div>
               </Form>
@@ -147,4 +160,4 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
   );
 };
 
-export default EditProductComp;
+export default EditProductInDbComp;

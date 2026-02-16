@@ -8,7 +8,10 @@ import {
   Search,
   Trash3Fill,
 } from "react-bootstrap-icons";
-import { type IAuthorizeSale, searchSalesValidatorSchema } from "../utils/validationSchemas";
+import {
+  type IAuthorizeSale,
+  searchSalesValidatorSchema,
+} from "../utils/validationSchemas";
 import { SELLERS, SELLERS_MAP } from "../constants/const";
 import Swal from "sweetalert2";
 import { formatPrice } from "../utils/utils";
@@ -18,13 +21,16 @@ import { validateSearchSale } from "../utils/validationFunctions";
 import { toast } from "sonner";
 import { deleteSale, printSale } from "../helpers/salesQueries";
 import EditSaleComp from "./EditSaleComp";
-import AuthorizeSaleComp from './AuthorizeSaleComp';
+import AuthorizeSaleComp from "./AuthorizeSaleComp";
+import useProducts from "../hooks/useProducts";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
 }
 
 const Sales = () => {
+  const { setProductsInDb } = useProducts();
+
   const formik = useFormik({
     initialValues: {
       authorized: "",
@@ -39,14 +45,9 @@ const Sales = () => {
   const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
     formik;
 
-  const {
-    sales,
-    loading,
-    handleGetSales,
-    setSales,
-    handleAuthorize,
-  } = useSales();
-  
+  const { sales, loading, handleGetSales, setSales, handleAuthorize } =
+    useSales();
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -61,7 +62,7 @@ const Sales = () => {
     }
     const pageToFetch = paramPage || 1;
     setPage(pageToFetch);
-    
+
     const res = await handleGetSales(
       {
         ...values,
@@ -102,7 +103,7 @@ const Sales = () => {
     });
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (sale: FullSale) => {
     Swal.fire({
       title: "¿Estás seguro de eliminar este presupuesto de venta?",
       text: "Esta acción no se puede deshacer",
@@ -114,14 +115,29 @@ const Sales = () => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        const promise = deleteSale(id);
+        const promise = deleteSale(sale._id);
 
         toast.promise(promise, {
           loading: "Eliminando presupuesto de venta...",
           success: (res) => {
             setSales((prevSales) =>
-              prevSales.filter((sale) => sale._id !== id),
+              prevSales.filter((s) => s._id !== sale._id),
             );
+            setProductsInDb((prevProducts) => {
+              return prevProducts.map((dbProduct) => {
+                const productRestored = sale.products.find(
+                  (p) => p.productId === dbProduct.productId,
+                );
+                if (productRestored) {
+                  return {
+                    ...dbProduct,
+                    stock: dbProduct.stock + productRestored.quantity,
+                  };
+                }
+
+                return dbProduct;
+              });
+            });
             return res.msg;
           },
           error: (err) => {
@@ -133,7 +149,10 @@ const Sales = () => {
     });
   };
 
-  const handleAuthorizeSale = async (id: string, paymentsInfo: FullPaymentsInfo) => {
+  const handleAuthorizeSale = async (
+    id: string,
+    paymentsInfo: FullPaymentsInfo,
+  ) => {
     const res = await handleAuthorize(id, paymentsInfo);
     if (res) {
       open(res.result, "_blank");
@@ -318,7 +337,8 @@ const Sales = () => {
                         <strong>Subtotal: </strong>${formatPrice(sale.total)}
                       </div>
                       <div>
-                        <strong>Total: </strong>${formatPrice(sale.totalWithInterest)}
+                        <strong>Total: </strong>$
+                        {formatPrice(sale.totalWithInterest)}
                       </div>
                     </div>
                   </td>
@@ -328,7 +348,10 @@ const Sales = () => {
                       {!sale.authorized ? (
                         <>
                           <EditSaleComp sale={sale} />
-                          <AuthorizeSaleComp sale={sale} handleAuthorizeSale={handleAuthorizeSale}/>
+                          <AuthorizeSaleComp
+                            sale={sale}
+                            handleAuthorizeSale={handleAuthorizeSale}
+                          />
                         </>
                       ) : (
                         <Button
@@ -343,7 +366,7 @@ const Sales = () => {
                       <Button
                         variant="danger"
                         className="d-flex align-items-center gap-1"
-                        onClick={() => handleDelete(sale._id)}
+                        onClick={() => handleDelete(sale)}
                       >
                         <Trash3Fill />
                         <span>Eliminar</span>

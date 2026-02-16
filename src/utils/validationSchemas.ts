@@ -83,10 +83,6 @@ export const loginSchema = yup.object().shape({
 });
 
 export const addProductSchema = yup.object().shape({
-  productName: yup
-    .string()
-    .required("El nombre es requerido")
-    .min(3, "El nombre debe tener al menos 3 caracteres"),
   price: yup.number().required("El precio es requerido"),
   quantity: yup
     .number()
@@ -401,6 +397,97 @@ export const authorizeSaleSchema = yup.object().shape({
     ),
 });
 
+export const createNewProduct = yup.object().shape({
+  productName: yup
+    .string()
+    .required("El nombre del producto es requerido")
+    .min(3, "El nombre del producto debe tener al menos 3 caracteres"),
+  price: yup
+    .number()
+    .required("El precio es requerido")
+    .min(1, "El precio debe ser mayor a 0"),
+});
+
+export const editProductSchema = createNewProduct.shape({
+  stock: yup.number().required("El stock es requerido"),
+});
+
+export const getProductSalesSchema = yup.object().shape({
+  fromDate: yup
+    .string()
+    .required("La fecha de inicio es requerida")
+    .test("is-valid-year", "La fecha debe ser a partir de 2026", (value) => {
+      if (!value) return true;
+
+      const [year] = value.split("-").map(Number);
+      return year >= 2025;
+    })
+    .test(
+      "is-valid-date",
+      "La fecha ingresada no es válida o es futura",
+      (value) => {
+        if (!value) return true;
+
+        const [year, month, day] = value.split("-").map(Number);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const currentDay = today.getDate();
+        const currentMonth = today.getMonth() + 1;
+        const currentYear = today.getFullYear();
+
+        if (year > currentYear) return false;
+        if (year === currentYear && month > currentMonth) return false;
+        if (year === currentYear && month === currentMonth && day > currentDay)
+          return false;
+
+        const date = new Date(year, month - 1, day);
+        return (
+          date.getFullYear() === year &&
+          date.getMonth() === month - 1 &&
+          date.getDate() === day
+        );
+      },
+    ),
+  toDate: yup
+    .string()
+    .required("La fecha hasta es requerida")
+    .test(
+      "is-valid-date",
+      "La fecha ingresada no es válida o es futura",
+      (value) => {
+        if (!value) return true;
+
+        const [year, month, day] = value.split("-").map(Number);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const currentDay = today.getDate();
+        const currentMonth = today.getMonth() + 1;
+        const currentYear = today.getFullYear();
+
+        if (year > currentYear) return false;
+        if (year === currentYear && month > currentMonth) return false;
+        if (year === currentYear && month === currentMonth && day > currentDay)
+          return false;
+
+        const date = new Date(year, month - 1, day);
+        return (
+          date.getFullYear() === year &&
+          date.getMonth() === month - 1 &&
+          date.getDate() === day
+        );
+      },
+    ),
+  sellerId: yup.number().integer().required("El vendedor es requerido"),
+});
+
+export type ICreateProduct = yup.InferType<typeof createNewProduct>;
 export type NewSale = yup.InferType<typeof newSaleSchema>;
+export type IAddProduct = yup.InferType<typeof addProductSchema>;
 export type ISearchSale = yup.InferType<typeof searchSalesValidatorSchema>;
 export type IAuthorizeSale = yup.InferType<typeof authorizeSaleSchema>;
+export type IGetProductSales = yup.InferType<typeof getProductSalesSchema>;
+export type IEditProduct = yup.InferType<typeof editProductSchema>;

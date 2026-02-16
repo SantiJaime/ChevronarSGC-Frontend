@@ -41,7 +41,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
   const [loading, setLoading] = useState(false);
   const [paymentsLeftValue, setPaymentsLeftValue] = useState(sale.total);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
-  const [multiplePaymenstTotal, setMultiplePaymenstTotal] = useState(0);
+  const [multiplePaymentsTotal, setMultiplePaymentsTotal] = useState(0);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -49,7 +49,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
   const handleSubmit = (values: IAuthorizeSale, resetForm: () => void) => {
     const errors = validateAuthorizeSale(
       values,
-      multiplePaymenstTotal,
+      multiplePaymentsTotal,
       sale.total,
     );
 
@@ -81,10 +81,9 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
     }
 
     if (values.method === "Múltiples métodos de pago") {
-      // totalValue = multiplePaymenstTotal;
       Swal.fire({
         title: "¿Estás seguro de autorizar?",
-        text: `Subtotal: $${formatPrice(sale.total)} - Total con interés: $${formatPrice(multiplePaymenstTotal)}`,
+        text: `Subtotal: $${formatPrice(sale.total)} - Total con interés: $${formatPrice(multiplePaymentsTotal)}`,
         icon: "info",
         showCancelButton: true,
         confirmButtonColor: "#05b000",
@@ -97,7 +96,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
           handleAuthorizeSale(sale._id, {
             ...values,
             paymentsQuantity: values.paymentsQuantity.toUpperCase(),
-            totalValue: multiplePaymenstTotal,
+            totalValue: multiplePaymentsTotal,
             payments: paymentMethods,
           })
             .then(() => {
@@ -134,6 +133,19 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
       }
     });
   };
+
+  const handleDeletePaymentMethod = (id: string) => {
+    const newPaymentMethods = paymentMethods.filter(
+      (paymentMethod) => paymentMethod.id !== id,
+    );
+    const updatedTotal = newPaymentMethods.reduce(
+      (total, paymentMethod) => total + Number(paymentMethod.valueToPay),
+      0,
+    );
+    setPaymentsLeftValue(multiplePaymentsTotal - updatedTotal);
+    setPaymentMethods(newPaymentMethods);
+  };
+
   useEffect(() => {
     const multiplePaymentsTotal = paymentMethods.reduce(
       (total, paymentMethod) => total + Number(paymentMethod.valueToPay),
@@ -146,7 +158,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
 
     const total = sale.total - multiplePaymentsTotal;
     setPaymentsLeftValue(total);
-    setMultiplePaymenstTotal(multiplePaymentsTotalWithInterest);
+    setMultiplePaymentsTotal(multiplePaymentsTotalWithInterest);
   }, [paymentMethods, sale.total]);
 
   return (
@@ -154,7 +166,6 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
       <Button
         variant="info"
         className="d-flex align-items-center gap-1"
-        // onClick={() => handleAuthorizeSale(sale._id)}
         onClick={handleShow}
       >
         <PatchCheck />
@@ -295,7 +306,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
                         paymentsLeftValue={paymentsLeftValue}
                       />
                     </div>
-                    <MultiplePaymentsTable paymentMethods={paymentMethods} />
+                    <MultiplePaymentsTable paymentMethods={paymentMethods} handleDeletePaymentMethod={handleDeletePaymentMethod}/>
                   </>
                 )}
                 <hr />
