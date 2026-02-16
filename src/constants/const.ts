@@ -82,6 +82,8 @@ export const NAV_LINKS = [
   "Clientes",
   "Creación de presupuesto de ventas",
   "Historial de presupuestos de ventas",
+  "Tabla de productos",
+  "Consultar ventas de productos",
 ] as const;
 
 export const NAV_LINKS_MENU_CREACION = ["Clientes", "Ciudades"] as const;
@@ -89,6 +91,11 @@ export const NAV_LINKS_MENU_CREACION = ["Clientes", "Ciudades"] as const;
 export const NAV_LINKS_FACTURAS = [
   "Creación de facturas",
   "Historial de facturas",
+] as const;
+
+export const NAV_LINKS_PRODUCTOS = [
+  "Tabla de productos",
+  "Consultar ventas de productos",
 ] as const;
 
 export const NAV_LINKS_PRESUPUESTOS = [
@@ -112,6 +119,28 @@ export const NAV_LINKS_OBJECT = [
   {
     label: "Menú de creación",
     path: "/menu-de-creacion",
+  },
+];
+export const NAV_LINKS_OBJECT_MARTIN = [
+  {
+    label: "Facturas",
+    path: "/facturas",
+  },
+  {
+    label: "Presupuestos",
+    path: "/presupuestos",
+  },
+  {
+    label: "Ventas",
+    path: "/ventas",
+  },
+  {
+    label: "Menú de creación",
+    path: "/menu-de-creacion",
+  },
+  {
+    label: "Productos",
+    path: "/productos",
   },
 ];
 
@@ -156,26 +185,33 @@ export const SELLERS = [
   },
   {
     value: 4,
-    label: "José",
+    label: "Josecito",
   },
   {
     value: 5,
-    label: "Natalia",
-  },
-  {
-    value: 6,
     label: "Alejandro",
   },
 ];
 
-type SellerId = typeof SELLERS[number]['value'];
+type SellerId = (typeof SELLERS)[number]["value"];
 
-export const SELLERS_MAP: Record<SellerId, string> = SELLERS.reduce((acc, { value, label }) => {
-  acc[value as SellerId] = label;
-  return acc;
-}, {} as Record<SellerId, string>);
+export const SELLERS_MAP: Record<SellerId, string> = SELLERS.reduce(
+  (acc, { value, label }) => {
+    acc[value as SellerId] = label;
+    return acc;
+  },
+  {} as Record<SellerId, string>,
+);
 
 export enum Role {
   ADMIN = "admin",
   VENDEDOR = "vendedor",
+  MARTIN = "martin",
 }
+
+export const normalizeText = (text: string) => {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
