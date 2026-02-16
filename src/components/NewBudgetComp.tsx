@@ -95,7 +95,7 @@ const NewBudgetComp = () => {
     setPaymentMethods(newPaymentMethods);
   };
 
-  const handleDelete = (productName: string) => {
+  const handleDelete = (productId: number) => {
     Swal.fire({
       title: "¿Estás seguro de eliminar este producto?",
       text: "Esta acción no se puede deshacer",
@@ -108,7 +108,7 @@ const NewBudgetComp = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         const newProducts = products.filter(
-          (product) => product.productName !== productName,
+          (product) => product.productId !== productId,
         );
         setProducts(newProducts);
       }
@@ -374,7 +374,7 @@ const NewBudgetComp = () => {
                   </thead>
                   <tbody>
                     {products.map((product) => (
-                      <tr key={product.productName}>
+                      <tr key={product.productId}>
                         <td>{product.productName}</td>
                         <td>${formatPrice(product.price)}</td>
                         <td>{product.quantity}</td>
@@ -385,7 +385,7 @@ const NewBudgetComp = () => {
                           <Button
                             className="d-flex align-items-center gap-1"
                             variant="danger"
-                            onClick={() => handleDelete(product.productName)}
+                            onClick={() => handleDelete(product.productId)}
                           >
                             <Trash3Fill />
                             <span>Eliminar</span>
