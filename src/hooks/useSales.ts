@@ -74,14 +74,18 @@ const useSales = () => {
     }
   };
 
-  const handleEdit = async (sale: FullSale) => {
+  const handleEdit = async (sale: FullSale, newTotal: number) => {
     try {
       setLoading(true);
 
-      const res = await editSale(sale);
+      const res = await editSale(sale, newTotal);
       toast.success(res.msg);
       setSales((prevSales) =>
-        prevSales.map((s) => (s._id === res.sale._id ? res.sale : s)),
+        prevSales.map((s) =>
+          s._id === res.sale._id
+            ? { ...res.sale, totalWithInterest: newTotal }
+            : s,
+        ),
       );
     } catch (error) {
       const err = error as { error: string };

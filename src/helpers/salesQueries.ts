@@ -87,18 +87,18 @@ export const authorizeSale = async (
   return await response.json();
 };
 
-export const editSale = async (sale: FullSale): Promise<EditSaleResponse> => {
+export const editSale = async (sale: FullSale, newTotal: number): Promise<EditSaleResponse> => {
   const response = await fetch(`${URL_API}/sales/${sale._id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(sale),
+    body: JSON.stringify({...sale, totalWithInterest: newTotal}),
     credentials: "include",
   });
   if (response.status === 401) {
     await refreshAccessToken();
-    return editSale(sale);
+    return editSale(sale, newTotal);
   }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
