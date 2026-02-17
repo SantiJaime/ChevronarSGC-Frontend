@@ -98,7 +98,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
 
   const handleSelect = (selectedProduct: ProductInDb) => {
     setProduct({ ...selectedProduct });
-    setSearchTerm(`${selectedProduct.productName} - ${formatPrice(selectedProduct.price)}`);
+    setSearchTerm(`${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`);
     setIsDropdownOpen(false);
   };
 
