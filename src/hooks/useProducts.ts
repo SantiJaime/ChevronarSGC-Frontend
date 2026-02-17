@@ -10,7 +10,7 @@ const useProducts = () => {
     throw new Error("El contexto de productos no está definido");
   }
 
-  const { productsInDb, setProductsInDb } = context;
+  const { productsInDb, setProductsInDb, loading: loadingProducts } = context;
   const [loading, setLoading] = useState(false);
 
   const handleCreateProduct = async (
@@ -81,7 +81,8 @@ const useProducts = () => {
     loading,
     setLoading,
     handleEditProduct,
-    handleDeleteProduct
+    handleDeleteProduct,
+    loadingProducts
   };
 };
 
