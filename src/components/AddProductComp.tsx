@@ -12,6 +12,7 @@ import { NumericFormat } from "react-number-format";
 import BootstrapInputAdapter from "../utils/numericFormatHelper";
 import useProducts from "../hooks/useProducts";
 import useInvoiceProducts from "../hooks/useInvoiceProducts";
+import { formatPrice } from '../utils/utils';
 
 interface Props {
   setEditProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -57,7 +58,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
 
   const filteredProducts = useMemo(() => {
     if (searchTerm.trim().length < 3) return [];
-    const normalizedSearch = normalizeText(searchTerm);
+    const normalizedSearch = normalizeText(searchTerm.trim());
 
     return productsInDb.filter((product) => {
       const normalizedName = normalizeText(product.productName);
@@ -91,13 +92,13 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   };
 
   const handleInputChange = (value: string) => {
-    setSearchTerm(value.trim());
+    setSearchTerm(value);
     setIsDropdownOpen(true);
   };
 
   const handleSelect = (selectedProduct: ProductInDb) => {
     setProduct({ ...selectedProduct });
-    setSearchTerm(selectedProduct.productName);
+    setSearchTerm(`${selectedProduct.productName} - ${formatPrice(selectedProduct.price)}`);
     setIsDropdownOpen(false);
   };
 
@@ -137,7 +138,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                       key={prod.productId}
                       onClick={() => handleSelect(prod)}
                     >
-                      {prod.productName}
+                      {prod.productName} - ${formatPrice(prod.price)}
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Menu>
