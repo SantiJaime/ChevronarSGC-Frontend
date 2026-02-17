@@ -1,6 +1,13 @@
 import { Formik } from "formik";
 import { useState } from "react";
-import { Button, Form, InputGroup, Modal, Table } from "react-bootstrap";
+import {
+  Button,
+  Form,
+  InputGroup,
+  Modal,
+  Spinner,
+  Table,
+} from "react-bootstrap";
 import {
   FloppyFill,
   PencilFill,
@@ -28,15 +35,13 @@ interface Props {
 }
 
 const EditSaleComp: React.FC<Props> = ({ sale }) => {
-  const { handleEdit } = useSales();
+  const { handleEdit, loading } = useSales();
   const [show, setShow] = useState<boolean>(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const handleSubmitForm = async (
-    values: FormValues,
-  ) => {
+  const handleSubmitForm = async (values: FormValues) => {
     if (values.products.length === 0) {
       toast.error("Debe existir al menos un producto en el presupuesto");
       return;
@@ -44,7 +49,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
 
     const newTotal = values.products.reduce(
       (acc: number, product: Product) => acc + product.productSubtotal,
-      0
+      0,
     );
 
     const editedSale: FullSale = {
@@ -98,7 +103,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
               setFieldValue,
             }) => {
               const handleProductsUpdate = (
-                action: React.SetStateAction<Product[]>
+                action: React.SetStateAction<Product[]>,
               ) => {
                 let newProducts: Product[];
 
@@ -107,7 +112,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                 } else {
                   newProducts = action;
                 }
-                
+
                 setFieldValue("products", newProducts);
               };
 
@@ -124,7 +129,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                 }).then((result) => {
                   if (result.isConfirmed) {
                     const filtered = values.products.filter(
-                      (p) => p.productId !== productId
+                      (p) => p.productId !== productId,
                     );
                     setFieldValue("products", filtered);
                   }
@@ -238,9 +243,23 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                       variant="dark"
                       type="submit"
                       className="d-flex align-items-center gap-2"
+                      disabled={loading}
                     >
-                      <FloppyFill />
-                      <span>Guardar cambios</span>
+                      {loading ? (
+                        <>
+                          <Spinner
+                            animation="border"
+                            size="sm"
+                            variant="light"
+                          />
+                          <span>Guardando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FloppyFill />
+                          <span>Guardar cambios</span>
+                        </>
+                      )}
                     </Button>
                   </div>
                 </Form>

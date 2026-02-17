@@ -267,6 +267,8 @@ interface ProductInDb {
 interface ProductsContextType {
   productsInDb: ProductInDb[];
   setProductsInDb: React.Dispatch<React.SetStateAction<ProductInDb[]>>
+  loading: boolean
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface InvoiceProductsContextType {

@@ -1,14 +1,14 @@
 import Table from "react-bootstrap/Table";
 import useProducts from "../hooks/useProducts";
 import { formatPrice } from "../utils/utils";
-import { Container, Form, InputGroup } from "react-bootstrap";
+import { Container, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useMemo, useState } from "react";
 import { normalizeText } from "../constants/const";
 import { Search } from "react-bootstrap-icons";
 import EditProductInDbComp from "./EditProductInDbComp";
 
 const ProductsTableComp = () => {
-  const { productsInDb } = useProducts();
+  const { productsInDb, loadingProducts } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredItems = useMemo(() => {
@@ -43,7 +43,12 @@ const ProductsTableComp = () => {
         </Form>
       </div>
       <hr />
-      {filteredItems.length === 0 ? (
+      {loadingProducts ? (
+        <div className="d-flex justify-content-center gap-2">
+          <Spinner animation="border" variant="dark" />
+          <h4 className="text-center">Cargando productos...</h4>
+        </div>
+      ) : filteredItems.length === 0 ? (
         <h4 className="text-center">
           No se encontraron productos con el nombre "{searchTerm}"
         </h4>
