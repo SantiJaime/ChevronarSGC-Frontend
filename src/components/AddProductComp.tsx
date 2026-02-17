@@ -79,9 +79,10 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
       productSubtotal: values.quantity * values.price,
     };
 
-    setProducts((prevProducts) => [...prevProducts, finalProduct]);
     if (setEditProducts) {
       setEditProducts((prevProducts) => [...prevProducts, finalProduct]);
+    } else {
+      setProducts((prevProducts) => [...prevProducts, finalProduct]);
     }
     setProduct(null);
     setSearchTerm("");
@@ -157,7 +158,9 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     name="price"
                     placeholder="10.000"
                     value={values.price}
-                    onValueChange={({ value }) => setFieldValue("price", Number(value))}
+                    onValueChange={({ value }) =>
+                      setFieldValue("price", Number(value))
+                    }
                     className={`form-control ${
                       touched.price && errors.price ? "is-invalid" : ""
                     }`}
