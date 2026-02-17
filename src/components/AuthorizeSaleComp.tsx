@@ -316,6 +316,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
                     variant="dark"
                     type="submit"
                     className="d-flex align-items-center gap-1"
+                    disabled={loading}
                   >
                     {loading ? (
                       <>
