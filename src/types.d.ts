@@ -3,6 +3,7 @@ interface Product {
   price: number;
   quantity: number;
   productSubtotal: number;
+  productId: number;
 }
 interface Sale {
   clientName: string;
@@ -253,4 +254,24 @@ interface AuthorizeSaleResponse {
   msg: string;
   sale: FullSaleWithPayments;
   result: string;
+}
+
+interface ProductInDb {
+  _id: string;
+  productName: string;
+  price: number;
+  productId: number;
+  stock: number;
+}
+
+interface ProductsContextType {
+  productsInDb: ProductInDb[];
+  setProductsInDb: React.Dispatch<React.SetStateAction<ProductInDb[]>>
+  loading: boolean
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+interface InvoiceProductsContextType {
+  products: Product[];
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>
 }

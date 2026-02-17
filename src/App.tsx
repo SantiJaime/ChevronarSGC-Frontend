@@ -10,6 +10,7 @@ import CreationMenuView from "./pages/CreationMenuView";
 import SalesView from "./pages/SalesView";
 import Providers from "./components/Providers";
 import { Role } from './constants/const';
+import ProductsView from './pages/ProductsView';
 
 const App = () => {
   return (
@@ -23,7 +24,7 @@ const App = () => {
               <Route
                 path="/"
                 element={
-                  <PublicRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
+                  <PublicRoutes role={[Role.ADMIN, Role.VENDEDOR, Role.MARTIN]}>
                     <Login />
                   </PublicRoutes>
                 }
@@ -31,7 +32,7 @@ const App = () => {
               <Route
                 path="/facturas"
                 element={
-                  <PrivateRoutes role={[Role.ADMIN]}>
+                  <PrivateRoutes role={[Role.ADMIN, Role.MARTIN]}>
                     <InvoicesView />
                   </PrivateRoutes>
                 }
@@ -39,7 +40,7 @@ const App = () => {
               <Route
                 path="/presupuestos"
                 element={
-                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
+                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR, Role.MARTIN]}>
                     <BudgetsView />
                   </PrivateRoutes>
                 }
@@ -47,7 +48,7 @@ const App = () => {
               <Route
                 path="/ventas"
                 element={
-                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
+                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR, Role.MARTIN]}>
                     <SalesView />
                   </PrivateRoutes>
                 }
@@ -55,8 +56,16 @@ const App = () => {
               <Route
                 path="/menu-de-creacion"
                 element={
-                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR]}>
+                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR, Role.MARTIN]}>
                     <CreationMenuView />
+                  </PrivateRoutes>
+                }
+              />
+              <Route
+                path="/productos"
+                element={
+                  <PrivateRoutes role={[Role.ADMIN, Role.VENDEDOR, Role.MARTIN]}>
+                    <ProductsView />
                   </PrivateRoutes>
                 }
               />

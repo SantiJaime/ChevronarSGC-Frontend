@@ -7,7 +7,9 @@ import {
   getSales,
 } from "../helpers/salesQueries";
 import { toast } from "sonner";
-import { IAuthorizeSale } from "../utils/validationSchemas";
+import { IAuthorizeSale, IGetProductSales } from "../utils/validationSchemas";
+import { getProductSales } from "../helpers/productsQueries";
+import useProducts from "./useProducts";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -22,6 +24,7 @@ const useSales = () => {
   const [loading, setLoading] = useState(false);
   const [loadingAuthorize, setLoadingAuthorize] = useState(false);
   const { sales, setSales } = context;
+  const { setProductsInDb } = useProducts();
 
   const handleGetSales = async (payload: SaleSearch, page: number) => {
     try {
@@ -43,7 +46,25 @@ const useSales = () => {
   const handleCreate = async (sale: SaleWithProducts) => {
     try {
       setLoading(true);
-      return await createSale(sale);
+      const response = await createSale(sale);
+
+      setProductsInDb((prevProducts) => {
+        return prevProducts.map((dbProduct) => {
+          const productSold = sale.products.find(
+            (p) => p.productId === dbProduct.productId,
+          );
+
+          if (productSold) {
+            return {
+              ...dbProduct,
+              stock: dbProduct.stock - productSold.quantity,
+            };
+          }
+
+          return dbProduct;
+        });
+      });
+      return response;
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
@@ -53,14 +74,18 @@ const useSales = () => {
     }
   };
 
-  const handleEdit = async (sale: FullSale) => {
+  const handleEdit = async (sale: FullSale, newTotal: number) => {
     try {
       setLoading(true);
 
-      const res = await editSale(sale);
+      const res = await editSale(sale, newTotal);
       toast.success(res.msg);
       setSales((prevSales) =>
-        prevSales.map((s) => (s._id === res.sale._id ? res.sale : s)),
+        prevSales.map((s) =>
+          s._id === res.sale._id
+            ? { ...res.sale, totalWithInterest: newTotal }
+            : s,
+        ),
       );
     } catch (error) {
       const err = error as { error: string };
@@ -89,6 +114,25 @@ const useSales = () => {
     }
   };
 
+  const handleGetProductSales = async (
+    data: IGetProductSales,
+    productId: number,
+  ) => {
+    try {
+      setLoading(true);
+      const res = await getProductSales(data, productId);
+      toast.success(res.msg);
+
+      return res.result;
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
+      console.error("Error al obtener las ventas del producto:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     sales,
     setSales,
@@ -98,6 +142,7 @@ const useSales = () => {
     handleAuthorize,
     loadingAuthorize,
     handleEdit,
+    handleGetProductSales,
   };
 };
 

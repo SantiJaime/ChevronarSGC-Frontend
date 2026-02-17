@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { Button, Nav, Image, Spinner } from "react-bootstrap";
 import {
   NAV_LINKS_OBJECT,
+  NAV_LINKS_OBJECT_MARTIN,
   NAV_LINKS_OBJECT_VENTAS,
   Role,
 } from "../constants/const";
@@ -11,6 +12,7 @@ import { DoorOpen } from "react-bootstrap-icons";
 const ROLE_LINKS = {
   [Role.ADMIN]: NAV_LINKS_OBJECT,
   [Role.VENDEDOR]: NAV_LINKS_OBJECT_VENTAS,
+  [Role.MARTIN]: NAV_LINKS_OBJECT_MARTIN,
 };
 
 const Sidebar = () => {

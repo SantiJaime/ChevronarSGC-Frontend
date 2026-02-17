@@ -202,14 +202,6 @@ const AddPaymentMethod: React.FC<Props> = ({
                 )}
                 <Form.Group className="mb-3" controlId="valueToPayId">
                   <Form.Label>Valor a pagar</Form.Label>
-                  {/* <Form.Control
-                    placeholder="Ej: $1000"
-                    type="texxt"
-                    name="valueToPay"
-                    value={values.valueToPay}
-                    onChange={handleChange}
-                    isInvalid={touched.valueToPay && !!errors.valueToPay}
-                  /> */}
                   <NumericFormat
                     thousandSeparator="."
                     decimalSeparator=","

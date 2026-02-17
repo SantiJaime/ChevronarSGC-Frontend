@@ -14,7 +14,7 @@ export const VISA_TAX: Record<number, number> = {
 };
 
 export const CREDIMAS_TAX: Record<number, number> = {
-  3: 0.2,
+  3: 0.1,
 };
 
 export const SOL_TAX: Record<number, number> = {
