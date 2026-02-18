@@ -269,6 +269,8 @@ interface ProductsContextType {
   setProductsInDb: React.Dispatch<React.SetStateAction<ProductInDb[]>>
   loading: boolean
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  searchProducts: (term: string) => ProductInDb[];
+  handleGetProducts: (reload?: boolean) => Promise<void>;
 }
 
 interface InvoiceProductsContextType {
