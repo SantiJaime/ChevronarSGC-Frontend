@@ -1,34 +1,26 @@
 import Table from "react-bootstrap/Table";
 import useProducts from "../hooks/useProducts";
 import { formatPrice } from "../utils/utils";
-import { Container, Form, InputGroup, Spinner } from "react-bootstrap";
+import { Button, Container, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useMemo, useState } from "react";
-import { normalizeText } from "../constants/const";
-import { Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Search } from "react-bootstrap-icons";
 import EditProductInDbComp from "./EditProductInDbComp";
 
 const ProductsTableComp = () => {
-  const { productsInDb, loadingProducts } = useProducts();
+  const { productsInDb, loadingProducts, searchProducts, handleGetProducts } =
+    useProducts();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredItems = useMemo(() => {
-    if (searchTerm.trim().length < 2) {
-      return productsInDb;
-    }
-    const normalizedSearch = normalizeText(searchTerm);
-
-    return productsInDb.filter((prod) => {
-      const normalizedName = normalizeText(prod.productName);
-
-      return normalizedName.includes(normalizedSearch);
-    });
-  }, [productsInDb, searchTerm]);
+    if (!searchTerm || searchTerm.trim().length < 3) return productsInDb;
+    return searchProducts(searchTerm);
+  }, [searchTerm, searchProducts, productsInDb]);
 
   return (
     <Container className="mt-5">
-      <div className="d-flex justify-content-between">
-        <h2>Productos cargados en la base de datos</h2>
-        <Form>
+      <h2>Productos cargados en la base de datos</h2>
+      <div className="d-flex justify-content-between mt-3">
+        <Form className='w-50'>
           <InputGroup>
             <Form.Control
               type="search"
@@ -41,6 +33,24 @@ const ProductsTableComp = () => {
             </InputGroup.Text>
           </InputGroup>
         </Form>
+        <Button
+          variant="dark"
+          onClick={() => handleGetProducts(true)}
+          className="d-flex align-items-center gap-2"
+          disabled={loadingProducts}
+        >
+          {loadingProducts ? (
+            <>
+              <Spinner animation="border" variant="dark" size="sm" />
+              <span>Recargando...</span>
+            </>
+          ) : (
+            <>
+              <ArrowClockwise />
+              <span>Recargar productos</span>
+            </>
+          )}
+        </Button>
       </div>
       <hr />
       {loadingProducts ? (

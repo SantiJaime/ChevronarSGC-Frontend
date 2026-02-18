@@ -1,7 +1,11 @@
 import { useContext, useState } from "react";
 import { ProductsContext } from "../context/ProductsContext";
 import { ICreateProduct } from "../utils/validationSchemas";
-import { createProduct, deleteProduct, editProduct } from "../helpers/productsQueries";
+import {
+  createProduct,
+  deleteProduct,
+  editProduct,
+} from "../helpers/productsQueries";
 import { toast } from "sonner";
 
 const useProducts = () => {
@@ -10,7 +14,13 @@ const useProducts = () => {
     throw new Error("El contexto de productos no está definido");
   }
 
-  const { productsInDb, setProductsInDb, loading: loadingProducts } = context;
+  const {
+    productsInDb,
+    setProductsInDb,
+    loading: loadingProducts,
+    searchProducts,
+    handleGetProducts,
+  } = context;
   const [loading, setLoading] = useState(false);
 
   const handleCreateProduct = async (
@@ -21,7 +31,7 @@ const useProducts = () => {
       setLoading(true);
       const res = await createProduct(data);
       toast.success(res.msg);
-      setProductsInDb([...productsInDb, {...res.newProduct, stock: 0}]);
+      setProductsInDb([...productsInDb, { ...res.newProduct, stock: 0 }]);
       resetForm();
     } catch (error) {
       const err = error as { error: string };
@@ -82,7 +92,9 @@ const useProducts = () => {
     setLoading,
     handleEditProduct,
     handleDeleteProduct,
-    loadingProducts
+    loadingProducts,
+    searchProducts,
+    handleGetProducts
   };
 };
 

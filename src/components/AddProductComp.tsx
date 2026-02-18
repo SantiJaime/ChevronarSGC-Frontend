@@ -3,16 +3,20 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useFormik } from "formik";
 import Form from "react-bootstrap/Form";
-import { Col, Dropdown, InputGroup, Row } from "react-bootstrap";
-import { Cart2, CurrencyDollar, Tag } from "react-bootstrap-icons";
+import { Col, Dropdown, InputGroup, Row, Spinner } from "react-bootstrap";
+import {
+  ArrowClockwise,
+  Cart2,
+  CurrencyDollar,
+  Tag,
+} from "react-bootstrap-icons";
 import { addProductSchema, IAddProduct } from "../utils/validationSchemas";
-import { normalizeText } from "../constants/const";
 import { toast } from "sonner";
 import { NumericFormat } from "react-number-format";
 import BootstrapInputAdapter from "../utils/numericFormatHelper";
 import useProducts from "../hooks/useProducts";
 import useInvoiceProducts from "../hooks/useInvoiceProducts";
-import { formatPrice } from '../utils/utils';
+import { formatPrice } from "../utils/utils";
 
 interface Props {
   setEditProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -23,7 +27,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [product, setProduct] = useState<ProductInDb | null>(null);
-  const { productsInDb } = useProducts();
+  const { searchProducts, handleGetProducts, loadingProducts } = useProducts();
   const { setProducts } = useInvoiceProducts();
 
   const handleClose = () => setShow(false);
@@ -57,15 +61,8 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   }, [product, setFieldValue]);
 
   const filteredProducts = useMemo(() => {
-    if (searchTerm.trim().length < 3) return [];
-    const normalizedSearch = normalizeText(searchTerm.trim());
-
-    return productsInDb.filter((product) => {
-      const normalizedName = normalizeText(product.productName);
-
-      return normalizedName.includes(normalizedSearch);
-    });
-  }, [searchTerm, productsInDb]);
+    return searchProducts(searchTerm);
+  }, [searchTerm, searchProducts]);
 
   const addProduct = (values: IAddProduct) => {
     if (product === null) {
@@ -98,7 +95,9 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
 
   const handleSelect = (selectedProduct: ProductInDb) => {
     setProduct({ ...selectedProduct });
-    setSearchTerm(`${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`);
+    setSearchTerm(
+      `${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`,
+    );
     setIsDropdownOpen(false);
   };
 
@@ -193,7 +192,25 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-between">
+              <Button
+                variant="info"
+                onClick={() => handleGetProducts(true)}
+                className="d-flex align-items-center gap-2"
+                disabled={loadingProducts}
+              >
+                {loadingProducts ? (
+                  <>
+                    <Spinner animation="border" variant="dark" size="sm" />
+                    <span>Recargando...</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowClockwise />
+                    <span>Recargar productos</span>
+                  </>
+                )}
+              </Button>
               <Button variant="dark" type="submit">
                 Agregar producto
               </Button>
