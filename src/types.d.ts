@@ -261,6 +261,7 @@ interface ProductInDb {
   productName: string;
   price: number;
   productId: number;
+  barcodes: string[];
   stock: number;
 }
 

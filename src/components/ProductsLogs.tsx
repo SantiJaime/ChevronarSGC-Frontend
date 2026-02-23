@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
-import { Button, Col, Dropdown, Form, Row, Spinner } from "react-bootstrap";
-import { normalizeText, SELLERS, SELLERS_MAP } from "../constants/const";
-import { Search } from "react-bootstrap-icons";
+import { Button, Col, Dropdown, Form, InputGroup, Row, Spinner } from "react-bootstrap";
+import { SELLERS, SELLERS_MAP } from "../constants/const";
+import { Search, UpcScan } from "react-bootstrap-icons";
 import { useMemo, useState } from "react";
 import useProducts from "../hooks/useProducts";
 import {
@@ -18,8 +18,9 @@ interface ProductFormValues {
 }
 
 const ProductsLogs = () => {
-  const { productsInDb } = useProducts();
+  const { productsInDb, searchProducts } = useProducts(); 
   const { handleGetProductSales, loading } = useSales();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [product, setProduct] = useState<ProductInDb | null>(null);
@@ -34,22 +35,16 @@ const ProductsLogs = () => {
     validationSchema: getProductSalesSchema,
     onSubmit: (values) => handleSearch(values),
   });
-  const { values, errors, touched, handleChange, handleSubmit, setFieldValue } =
-    formik;
+  
+  const { values, errors, touched, handleChange, handleSubmit, setFieldValue } = formik;
 
   const filteredProducts = useMemo(() => {
     if (searchTerm.trim().length < 3) return [];
-    const normalizedSearch = normalizeText(searchTerm);
-
-    return productsInDb.filter((product) => {
-      const normalizedName = normalizeText(product.productName);
-
-      return normalizedName.includes(normalizedSearch);
-    });
-  }, [searchTerm, productsInDb]);
+    return searchProducts(searchTerm); 
+  }, [searchTerm, searchProducts]);
 
   const handleInputChange = (value: string) => {
-    setSearchTerm(value.trim());
+    setSearchTerm(value);
     setIsDropdownOpen(true);
   };
 
@@ -59,6 +54,25 @@ const ProductsLogs = () => {
     setIsDropdownOpen(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      const code = searchTerm.trim();
+      if (!code) return;
+
+      const foundByBarcode = productsInDb.find((p) => p.barcodes?.includes(code));
+
+      if (foundByBarcode) {
+        handleSelect(foundByBarcode);
+      } else if (filteredProducts.length === 1 && isNaN(Number(code))) {
+        handleSelect(filteredProducts[0]);
+      } else {
+        toast.warning("Producto no encontrado. Seleccione manualmente.");
+      }
+    }
+  };
+
   const handleSearch = async (values: IGetProductSales) => {
     if (product === null) {
       toast.error("Debes seleccionar un producto");
@@ -66,11 +80,11 @@ const ProductsLogs = () => {
     }
 
     const res = await handleGetProductSales(values, product.productId);
-    if (res) {
+    if (res !== undefined) {
       setResult(
         values.sellerId !== 0
           ? `El vendedor ${SELLERS_MAP[values.sellerId]} ha vendido ${res} unidades de ${product.productName}`
-          : `Se han vendido ${res} unidades de ${product.productName} entre todos los vendedores`,
+          : `Se han vendido ${res} unidades de ${product.productName} entre todos los vendedores`
       );
       return;
     }
@@ -81,18 +95,23 @@ const ProductsLogs = () => {
     <>
       <Form noValidate onSubmit={handleSubmit}>
         <Row className="position-relative mb-3">
-          <Form.Group as={Col} md="6" controlId="productSearchId">
+          <Form.Group as={Col} md="12" controlId="productSearchId">
             <Form.Label>Buscar producto *</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Escriba el nombre del producto (al menos 3 caracteres)"
-              value={searchTerm}
-              autoComplete="off"
-              onChange={(ev) => handleInputChange(ev.target.value)}
-            />
+            <InputGroup>
+              <InputGroup.Text><UpcScan /></InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Escriba el nombre o escanee el código de barras..."
+                value={searchTerm}
+                autoComplete="off"
+                onChange={(ev) => handleInputChange(ev.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+            </InputGroup>
           </Form.Group>
+
           {isDropdownOpen && filteredProducts.length > 0 && (
-            <Dropdown.Menu show className="position-absolute w-50 top-100">
+            <Dropdown.Menu show className="position-absolute w-100 top-100" style={{ zIndex: 1050 }}>
               {filteredProducts.map((prod) => (
                 <Dropdown.Item
                   key={prod.productId}
@@ -105,42 +124,39 @@ const ProductsLogs = () => {
           )}
         </Row>
         <Row>
-          <Form.Group as={Col} md={3} controlId="saleFromDateId">
+          <Form.Group as={Col} md={4} controlId="saleFromDateId">
             <Form.Label>Desde *</Form.Label>
             <Form.Control
               type="date"
               name="fromDate"
               value={values.fromDate}
               onChange={handleChange}
-              placeholder="DD/MM/YYYY"
               isInvalid={touched.fromDate && !!errors.fromDate}
             />
             <Form.Control.Feedback type="invalid">
               {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="saleToDateId">
+          <Form.Group as={Col} md={4} controlId="saleToDateId">
             <Form.Label>Hasta *</Form.Label>
             <Form.Control
               type="date"
               name="toDate"
               value={values.toDate}
               onChange={handleChange}
-              placeholder="YYYY-MM-DD"
               isInvalid={touched.toDate && !!errors.toDate}
             />
             <Form.Control.Feedback type="invalid">
               {errors.toDate && touched.toDate ? errors.toDate : ""}
             </Form.Control.Feedback>
           </Form.Group>
-          <Form.Group as={Col} md={3} controlId="saleSellerId">
+
+          <Form.Group as={Col} md={4} controlId="saleSellerId">
             <Form.Label>Vendedor</Form.Label>
             <Form.Select
               name="sellerId"
               value={values.sellerId}
-              onChange={(ev) => {
-                setFieldValue("sellerId", Number(ev.target.value));
-              }}
+              onChange={(ev) => setFieldValue("sellerId", Number(ev.target.value))}
               isInvalid={touched.sellerId && !!errors.sellerId}
             >
               <option value={0}>Vendedor no seleccionado</option>
@@ -159,7 +175,8 @@ const ProductsLogs = () => {
           <Button
             type="submit"
             variant="dark"
-            className="d-flex align-items-center gap-1"
+            className="d-flex align-items-center gap-2"
+            disabled={loading}
           >
             {loading ? (
               <>
@@ -169,7 +186,7 @@ const ProductsLogs = () => {
             ) : (
               <>
                 <Search />
-                <span>Buscar</span>
+                <span>Buscar ventas</span>
               </>
             )}
           </Button>
@@ -178,7 +195,7 @@ const ProductsLogs = () => {
       {result && (
         <>
           <hr />
-          <h3 className="text-center">{result}</h3>
+          <h4 className="text-center mt-4">{result}</h4>
         </>
       )}
     </>

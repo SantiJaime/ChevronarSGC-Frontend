@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { ProductsContext } from "../context/ProductsContext";
 import { ICreateProduct } from "../utils/validationSchemas";
 import {
+  addBarcodeToProduct,
   createProduct,
   deleteProduct,
   editProduct,
@@ -25,14 +26,12 @@ const useProducts = () => {
 
   const handleCreateProduct = async (
     data: ICreateProduct,
-    resetForm: () => void,
   ) => {
     try {
       setLoading(true);
       const res = await createProduct(data);
       toast.success(res.msg);
       setProductsInDb([...productsInDb, { ...res.newProduct, stock: 0 }]);
-      resetForm();
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
@@ -67,6 +66,26 @@ const useProducts = () => {
     }
   };
 
+  const handleAddBarcode = async (productId: string, barcode: string) => {
+    try {
+      setLoading(true);
+      const res = await addBarcodeToProduct(productId, barcode);
+      toast.success(res.msg);
+      setProductsInDb((prevState) =>
+        prevState.map((product) =>
+          product._id === res.product._id ? res.product : product,
+        ),
+      );
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
+      console.error("Error al agregar el c&oacute;digo de barras:", error);
+    }
+    finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteProduct = async (id: string) => {
     try {
       setLoading(true);
@@ -94,7 +113,8 @@ const useProducts = () => {
     handleDeleteProduct,
     loadingProducts,
     searchProducts,
-    handleGetProducts
+    handleGetProducts,
+    handleAddBarcode
   };
 };
 
