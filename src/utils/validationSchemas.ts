@@ -406,10 +406,12 @@ export const createNewProduct = yup.object().shape({
     .number()
     .required("El precio es requerido")
     .min(1, "El precio debe ser mayor a 0"),
+  barcodes: yup.array().of(yup.string().optional()),
 });
 
 export const editProductSchema = createNewProduct.shape({
   stock: yup.number().required("El stock es requerido"),
+  barcodes: yup.array().of(yup.string().optional()),
 });
 
 export const getProductSalesSchema = yup.object().shape({

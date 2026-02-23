@@ -20,13 +20,15 @@ const ProductsTableComp = () => {
     <Container className="mt-5">
       <h2>Productos cargados en la base de datos</h2>
       <div className="d-flex justify-content-between mt-3">
-        <Form className='w-50'>
+        <Form className='w-50' onSubmit={(ev) => ev.preventDefault()}>
           <InputGroup>
             <Form.Control
               type="search"
-              placeholder="Buscar producto"
+              placeholder="Buscar producto por código de barras o nombre"
               value={searchTerm}
               onChange={(ev) => setSearchTerm(ev.target.value)}
+              autoComplete='off'
+              autoFocus
             />
             <InputGroup.Text>
               <Search />

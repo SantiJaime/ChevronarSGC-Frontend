@@ -181,7 +181,11 @@ const Invoices = () => {
   };
 
   const handlePrint = (invoiceData: FullInvoice) => {
-    const promise = printInvoice(invoiceData)
+    const invoice = {
+      ...invoiceData,
+      date: invoiceData.date.split("T")[0],
+    }
+    const promise = printInvoice(invoice)
       .then((res) => {
         open(res.result, "_blank");
         return res;
