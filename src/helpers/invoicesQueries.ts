@@ -190,6 +190,7 @@ export const cancelInvoice = async (
 export const printInvoice = async (
   invoice: FullInvoice
 ): Promise<PrintInvoiceResponse> => {
+  console.log(invoice)
   const response = await fetch(`${URL_API}/invoices/print-invoice`, {
     method: "POST",
     headers: {

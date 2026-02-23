@@ -17,6 +17,7 @@ import BootstrapInputAdapter from "../utils/numericFormatHelper";
 import useProducts from "../hooks/useProducts";
 import useInvoiceProducts from "../hooks/useInvoiceProducts";
 import { formatPrice } from "../utils/utils";
+import Swal from 'sweetalert2';
 
 interface Props {
   setEditProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -27,10 +28,18 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [product, setProduct] = useState<ProductInDb | null>(null);
-  const { searchProducts, handleGetProducts, loadingProducts } = useProducts();
+  const [unlinkedBarcode, setUnlinkedBarcode] = useState<string | null>(null);
+
+  const { searchProducts, handleGetProducts, loadingProducts, productsInDb, handleAddBarcode } =
+    useProducts();
   const { setProducts } = useInvoiceProducts();
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+    setSearchTerm("");
+    setProduct(null);
+    resetForm();
+  };
   const handleShow = () => setShow(true);
 
   const formik = useFormik({
@@ -93,12 +102,52 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
     setIsDropdownOpen(true);
   };
 
-  const handleSelect = (selectedProduct: ProductInDb) => {
+  const handleSelect = async (selectedProduct: ProductInDb) => {
+    if (unlinkedBarcode) {
+      Swal.fire({
+        title: `¿Deseas vincular el código de barras ${unlinkedBarcode} al producto "${selectedProduct.productName}"?`,
+        text: "Esta acción no se puede deshacer",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#05b000",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Si, vincular",
+        cancelButtonText: "Cancelar",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await handleAddBarcode(selectedProduct._id, unlinkedBarcode);
+          setUnlinkedBarcode(null); 
+        }
+      });
+      
+    }
     setProduct({ ...selectedProduct });
-    setSearchTerm(
-      `${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`,
-    );
+    setSearchTerm(`${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`);
     setIsDropdownOpen(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const code = searchTerm.trim();
+      if (!code) return;
+
+      const foundByBarcode = productsInDb.find((p) =>
+        p.barcodes?.includes(code),
+      );
+
+      if (foundByBarcode) {
+        handleSelect(foundByBarcode);
+      } else if (filteredProducts.length === 1 && isNaN(Number(code))) {
+        handleSelect(filteredProducts[0]);
+      } else {
+        setUnlinkedBarcode(code);
+        toast.info(
+          `Código ${code} detectado. Busque el producto manualmente para vincularlo.`,
+        );
+        setSearchTerm("");
+      }
+    }
   };
 
   return (
@@ -115,17 +164,19 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
           <Form onSubmit={handleSubmit}>
             <Row className="mb-3 position-relative">
               <Form.Group as={Col} md="12" controlId="productSearchId">
-                <Form.Label>Buscar producto</Form.Label>
+                <Form.Label>Buscar producto o Escanear Código</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
                     <Tag />
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
-                    placeholder="Escriba el nombre del producto (al menos 3 caracteres)"
+                    placeholder="Escriba el nombre o escanee el código de barras..."
                     value={searchTerm}
                     autoComplete="off"
+                    autoFocus
                     onChange={(ev) => handleInputChange(ev.target.value)}
+                    onKeyDown={handleKeyDown}
                   />
                 </InputGroup>
               </Form.Group>
@@ -143,13 +194,16 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                 </Dropdown.Menu>
               )}
             </Row>
+
             {product && (
               <Form.Group className="mb-3" controlId="priceId">
                 <Form.Label>Precio unitario</Form.Label>
+
                 <InputGroup>
                   <InputGroup.Text>
                     <CurrencyDollar />
                   </InputGroup.Text>
+
                   <NumericFormat
                     thousandSeparator="."
                     decimalSeparator=","
@@ -166,6 +220,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     }`}
                     customInput={BootstrapInputAdapter}
                   />
+
                   <Form.Control.Feedback type="invalid">
                     {errors.price && touched.price && errors.price}
                   </Form.Control.Feedback>
@@ -175,10 +230,12 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
 
             <Form.Group className="mb-3" controlId="quantityId">
               <Form.Label>Cantidad</Form.Label>
+
               <InputGroup>
                 <InputGroup.Text>
                   <Cart2 />
                 </InputGroup.Text>
+
                 <Form.Control
                   placeholder="Ej: 1"
                   type="number"
@@ -187,11 +244,13 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                   onChange={handleChange}
                   isInvalid={touched.quantity && !!errors.quantity}
                 />
+
                 <Form.Control.Feedback type="invalid">
                   {errors.quantity && touched.quantity && errors.quantity}
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
+
             <div className="d-flex justify-content-between">
               <Button
                 variant="info"
