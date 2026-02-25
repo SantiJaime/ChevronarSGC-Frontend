@@ -3,12 +3,19 @@ import useProducts from "../hooks/useProducts";
 import { formatPrice } from "../utils/utils";
 import { Button, Container, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useMemo, useState } from "react";
-import { ArrowClockwise, Search } from "react-bootstrap-icons";
+import { ArrowClockwise, Search, Trash3Fill } from "react-bootstrap-icons";
 import EditProductInDbComp from "./EditProductInDbComp";
+import Swal from "sweetalert2";
 
 const ProductsTableComp = () => {
-  const { productsInDb, loadingProducts, searchProducts, handleGetProducts } =
-    useProducts();
+  const {
+    productsInDb,
+    loadingProducts,
+    searchProducts,
+    handleGetProducts,
+    handleDeleteProduct,
+    loading,
+  } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredItems = useMemo(() => {
@@ -16,18 +23,35 @@ const ProductsTableComp = () => {
     return searchProducts(searchTerm);
   }, [searchTerm, searchProducts, productsInDb]);
 
+  const confirmDeleteProduct = async (product: ProductInDb) => {
+    Swal.fire({
+      title: `¿Estás seguro de eliminar el producto "${product.productName}"?`,
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#05b000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await handleDeleteProduct(product._id);
+      }
+    });
+  };
+
   return (
     <Container className="mt-5">
       <h2>Productos cargados en la base de datos</h2>
       <div className="d-flex justify-content-between mt-3">
-        <Form className='w-50' onSubmit={(ev) => ev.preventDefault()}>
+        <Form className="w-50" onSubmit={(ev) => ev.preventDefault()}>
           <InputGroup>
             <Form.Control
               type="search"
               placeholder="Buscar producto por código de barras o nombre"
               value={searchTerm}
               onChange={(ev) => setSearchTerm(ev.target.value)}
-              autoComplete='off'
+              autoComplete="off"
               autoFocus
             />
             <InputGroup.Text>
@@ -85,6 +109,27 @@ const ProductsTableComp = () => {
                 <td>
                   <div className="d-flex justify-content-center gap-1">
                     <EditProductInDbComp product={prod} />
+                    <Button
+                      variant="danger"
+                      className="d-flex align-items-center gap-1"
+                      onClick={() => confirmDeleteProduct(prod)}
+                    >
+                      {loading ? (
+                        <>
+                          <Spinner
+                            animation="border"
+                            variant="light"
+                            size="sm"
+                          />
+                          <span>Eliminando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Trash3Fill />
+                          <span>Eliminar</span>
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </td>
               </tr>

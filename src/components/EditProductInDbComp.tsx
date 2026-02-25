@@ -1,19 +1,26 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
-import { Button, Modal, Form, InputGroup, Spinner, Badge } from "react-bootstrap";
-import { 
-  PencilFill, 
-  Tag, 
-  CurrencyDollar, 
-  Cart2, 
-  FloppyFill, 
-  UpcScan, 
-  X 
+import {
+  Button,
+  Modal,
+  Form,
+  InputGroup,
+  Spinner,
+  Badge,
+} from "react-bootstrap";
+import {
+  PencilFill,
+  Tag,
+  CurrencyDollar,
+  Cart2,
+  FloppyFill,
+  UpcScan,
+  X,
 } from "react-bootstrap-icons";
 import { NumericFormat } from "react-number-format";
-import BootstrapInputAdapter from '../utils/numericFormatHelper';
-import { editProductSchema } from '../utils/validationSchemas';
-import useProducts from '../hooks/useProducts';
+import BootstrapInputAdapter from "../utils/numericFormatHelper";
+import { editProductSchema } from "../utils/validationSchemas";
+import useProducts from "../hooks/useProducts";
 
 interface Props {
   product: ProductInDb;
@@ -36,20 +43,24 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
       productName: product.productName,
       price: product.price,
       stock: product.stock,
-      barcodes: product.barcodes || [], 
+      barcodes: product.barcodes || [],
     },
     validationSchema: editProductSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      handleEditProduct(
-        { ...product, ...values }, 
-        resetForm, 
-        handleClose
-      );
+      handleEditProduct({ ...product, ...values }, resetForm, handleClose);
     },
   });
 
-  const { values, errors, touched, handleChange, handleSubmit, setFieldValue, resetForm } = formik;
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleSubmit,
+    setFieldValue,
+    resetForm,
+  } = formik;
 
   const addCurrentBarcode = () => {
     const newCode = barcodeInput.trim();
@@ -69,7 +80,7 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
   const removeBarcode = (codeToRemove: string) => {
     setFieldValue(
       "barcodes",
-      values.barcodes.filter((code: string) => code !== codeToRemove)
+      values.barcodes.filter((code: string) => code !== codeToRemove),
     );
   };
 
@@ -78,7 +89,7 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
       <Button
         variant="info"
         onClick={handleShow}
-        className="d-flex align-items-center gap-2"
+        className="d-flex align-items-center gap-1"
       >
         <PencilFill />
         <span>Editar</span>
@@ -93,7 +104,9 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
             <Form.Group className="mb-3" controlId="editProductNameId">
               <Form.Label>Nombre</Form.Label>
               <InputGroup>
-                <InputGroup.Text><Tag /></InputGroup.Text>
+                <InputGroup.Text>
+                  <Tag />
+                </InputGroup.Text>
                 <Form.Control
                   type="text"
                   name="productName"
@@ -102,14 +115,18 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
                   isInvalid={touched.productName && !!errors.productName}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.productName && touched.productName ? (errors.productName as string) : ""}
+                  {errors.productName && touched.productName
+                    ? (errors.productName as string)
+                    : ""}
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
             <Form.Group className="mb-3" controlId="editProductPriceId">
               <Form.Label>Precio unitario</Form.Label>
               <InputGroup>
-                <InputGroup.Text><CurrencyDollar /></InputGroup.Text>
+                <InputGroup.Text>
+                  <CurrencyDollar />
+                </InputGroup.Text>
                 <NumericFormat
                   thousandSeparator="."
                   decimalSeparator=","
@@ -118,19 +135,25 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
                   name="price"
                   placeholder="10.000"
                   value={values.price}
-                  onValueChange={({ value }) => setFieldValue("price", Number(value))}
+                  onValueChange={({ value }) =>
+                    setFieldValue("price", Number(value))
+                  }
                   className={`form-control ${touched.price && errors.price ? "is-invalid" : ""}`}
                   customInput={BootstrapInputAdapter}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.price && touched.price ? (errors.price as string) : ""}
+                  {errors.price && touched.price
+                    ? (errors.price as string)
+                    : ""}
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
             <Form.Group className="mb-3" controlId="editProductStockId">
               <Form.Label>Stock</Form.Label>
               <InputGroup>
-                <InputGroup.Text><Cart2 /></InputGroup.Text>
+                <InputGroup.Text>
+                  <Cart2 />
+                </InputGroup.Text>
                 <Form.Control
                   type="number"
                   name="stock"
@@ -139,14 +162,18 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
                   isInvalid={touched.stock && !!errors.stock}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.stock && touched.stock ? (errors.stock as string) : ""}
+                  {errors.stock && touched.stock
+                    ? (errors.stock as string)
+                    : ""}
                 </Form.Control.Feedback>
               </InputGroup>
             </Form.Group>
             <Form.Group className="mb-4" controlId="editBarcodeId">
               <Form.Label>Códigos de barras</Form.Label>
               <InputGroup>
-                <InputGroup.Text><UpcScan /></InputGroup.Text>
+                <InputGroup.Text>
+                  <UpcScan />
+                </InputGroup.Text>
                 <Form.Control
                   type="text"
                   placeholder="Escanea para agregar o presiona Enter..."
@@ -154,6 +181,7 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
                   onChange={(e) => setBarcodeInput(e.target.value)}
                   onKeyDown={handleBarcodeKeyDown}
                   autoComplete="off"
+                  autoFocus
                 />
                 <Button variant="secondary" onClick={addCurrentBarcode}>
                   Agregar
@@ -162,16 +190,16 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
               {values.barcodes.length > 0 && (
                 <div className="mt-2 d-flex flex-wrap gap-2">
                   {values.barcodes.map((code: string, index: number) => (
-                    <Badge 
-                      key={index} 
-                      bg="dark" 
+                    <Badge
+                      key={index}
+                      bg="dark"
                       className="d-flex align-items-center p-2"
                       style={{ fontSize: "0.9rem" }}
                     >
                       {code}
-                      <X 
-                        style={{ cursor: "pointer", marginLeft: "5px" }} 
-                        size={18} 
+                      <X
+                        style={{ cursor: "pointer", marginLeft: "5px" }}
+                        size={18}
                         onClick={() => removeBarcode(code)}
                       />
                     </Badge>
