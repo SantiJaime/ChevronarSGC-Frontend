@@ -137,7 +137,7 @@ export const addBarcodeToProduct = async (
 };
 
 export const deleteProduct = async (id: string): Promise<{ msg: string }> => {
-  const response = await fetch(`${URL}/products/${id}`, {
+  const response = await fetch(`${URL_API}/products/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

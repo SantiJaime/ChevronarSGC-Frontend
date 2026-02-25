@@ -3,12 +3,21 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useFormik } from "formik";
 import Form from "react-bootstrap/Form";
-import { Col, Dropdown, InputGroup, Row, Spinner } from "react-bootstrap";
+import {
+  Badge,
+  Col,
+  Dropdown,
+  InputGroup,
+  Row,
+  Spinner,
+} from "react-bootstrap";
 import {
   ArrowClockwise,
   Cart2,
   CurrencyDollar,
   Tag,
+  UpcScan,
+  X,
 } from "react-bootstrap-icons";
 import { addProductSchema, IAddProduct } from "../utils/validationSchemas";
 import { toast } from "sonner";
@@ -17,7 +26,7 @@ import BootstrapInputAdapter from "../utils/numericFormatHelper";
 import useProducts from "../hooks/useProducts";
 import useInvoiceProducts from "../hooks/useInvoiceProducts";
 import { formatPrice } from "../utils/utils";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 interface Props {
   setEditProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -30,8 +39,13 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   const [product, setProduct] = useState<ProductInDb | null>(null);
   const [unlinkedBarcode, setUnlinkedBarcode] = useState<string | null>(null);
 
-  const { searchProducts, handleGetProducts, loadingProducts, productsInDb, handleAddBarcode } =
-    useProducts();
+  const {
+    searchProducts,
+    handleGetProducts,
+    loadingProducts,
+    productsInDb,
+    handleAddBarcode,
+  } = useProducts();
   const { setProducts } = useInvoiceProducts();
 
   const handleClose = () => {
@@ -116,13 +130,14 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
       }).then(async (result) => {
         if (result.isConfirmed) {
           await handleAddBarcode(selectedProduct._id, unlinkedBarcode);
-          setUnlinkedBarcode(null); 
+          setUnlinkedBarcode(null);
         }
       });
-      
     }
     setProduct({ ...selectedProduct });
-    setSearchTerm(`${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`);
+    setSearchTerm(
+      `${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`,
+    );
     setIsDropdownOpen(false);
   };
 
@@ -164,7 +179,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
           <Form onSubmit={handleSubmit}>
             <Row className="mb-3 position-relative">
               <Form.Group as={Col} md="12" controlId="productSearchId">
-                <Form.Label>Buscar producto o Escanear Código</Form.Label>
+                <Form.Label>Buscar producto o escanear código</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
                     <Tag />
@@ -270,6 +285,25 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                   </>
                 )}
               </Button>
+              {unlinkedBarcode && (
+                <Badge
+                  bg="warning"
+                  text="dark"
+                  className="d-flex align-items-center p-2"
+                  style={{ fontSize: "0.85rem", border: "1px solid #ffc107" }}
+                >
+                  <UpcScan className="me-2" />
+                  <span>
+                    Código a vincular: <strong>{unlinkedBarcode}</strong>
+                  </span>
+                  <X
+                    style={{ cursor: "pointer", marginLeft: "8px" }}
+                    size={20}
+                    onClick={() => setUnlinkedBarcode(null)}
+                    title="Cancelar vinculación"
+                  />
+                </Badge>
+              )}
               <Button variant="dark" type="submit">
                 Agregar producto
               </Button>

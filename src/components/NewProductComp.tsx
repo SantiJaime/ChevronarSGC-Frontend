@@ -124,7 +124,7 @@ const NewProductComp = () => {
       </Row>
       <Row className="mb-4">
         <Form.Group as={Col} md="12" controlId="barcodeId">
-          <Form.Label>Códigos de barras (Opcional)</Form.Label>
+          <Form.Label>Códigos de barras (opcional)</Form.Label>
           <InputGroup>
             <InputGroup.Text>
               <UpcScan />

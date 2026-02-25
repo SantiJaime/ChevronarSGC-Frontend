@@ -120,6 +120,10 @@ export const NAV_LINKS_OBJECT = [
     label: "Menú de creación",
     path: "/menu-de-creacion",
   },
+  {
+    label: "Productos",
+    path: "/productos",
+  },
 ];
 export const NAV_LINKS_OBJECT_MARTIN = [
   {
@@ -156,6 +160,10 @@ export const NAV_LINKS_OBJECT_VENTAS = [
   {
     label: "Menú de creación",
     path: "/menu-de-creacion",
+  },
+  {
+    label: "Productos",
+    path: "/productos",
   },
 ];
 
