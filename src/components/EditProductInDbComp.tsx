@@ -189,9 +189,9 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
               </InputGroup>
               {values.barcodes.length > 0 && (
                 <div className="mt-2 d-flex flex-wrap gap-2">
-                  {values.barcodes.map((code: string, index: number) => (
+                  {values.barcodes.map((code) => (
                     <Badge
-                      key={index}
+                      key={code}
                       bg="dark"
                       className="d-flex align-items-center p-2"
                       style={{ fontSize: "0.9rem" }}
