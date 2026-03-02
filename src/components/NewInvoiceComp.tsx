@@ -349,6 +349,11 @@ const NewInvoiceComp = () => {
                     onChange={handleChange}
                     name="paymentsQuantity"
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.paymentsQuantity && touched.paymentsQuantity
+                      ? errors.paymentsQuantity
+                      : ""}
+                  </Form.Control.Feedback>
                 </Form.Group>
               ) : (
                 ""
