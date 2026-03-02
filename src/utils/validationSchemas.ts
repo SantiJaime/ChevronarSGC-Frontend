@@ -99,7 +99,7 @@ export const createInvoiceSchema = yup.object().shape({
   debitCard: yup.string(),
   paymentsQuantity: yup
     .string()
-    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .matches(/^[0-9zZ]+$/, "Solo se permiten números o la letra 'Z'")
     .optional(),
 });
 export const createBudgetSchema = yup.object().shape({
@@ -109,7 +109,7 @@ export const createBudgetSchema = yup.object().shape({
   debitCard: yup.string(),
   paymentsQuantity: yup
     .string()
-    .matches(/^\d+$/, "Solo se permiten números (sin letras ni símbolos)")
+    .matches(/^[0-9zZ]+$/, "Solo se permiten números o la letra 'Z'")
     .optional(),
 });
 export const createCreditNoteSchema = yup.object().shape({
