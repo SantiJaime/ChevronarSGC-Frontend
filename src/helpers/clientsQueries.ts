@@ -1,5 +1,5 @@
 import { URL } from "../constants/const";
-import { refreshAccessToken } from "./authQueries";
+import { fetchWithAuth } from "./authQueries";
 
 interface GetClientResponse {
   clients: Client[];
@@ -11,17 +11,13 @@ interface CreateClientResponse {
 }
 
 export const getClients = async (): Promise<GetClientResponse> => {
-  const response = await fetch(`${URL}/clients`, {
+  const response = await fetchWithAuth(`${URL}/clients`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return getClients();
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error.msg;
@@ -33,7 +29,7 @@ export const getClients = async (): Promise<GetClientResponse> => {
 export const createClient = async (
   client: Client
 ): Promise<CreateClientResponse> => {
-  const response = await fetch(`${URL}/clients`, {
+  const response = await fetchWithAuth(`${URL}/clients`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -41,10 +37,6 @@ export const createClient = async (
     body: JSON.stringify(client),
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return createClient(client);
-  }
 
   if (!response.ok) {
     const error: ErrorMessage = await response.json();

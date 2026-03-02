@@ -1,5 +1,5 @@
 import { URL as URL_API } from "../constants/const";
-import { refreshAccessToken } from "./authQueries";
+import { fetchWithAuth } from "./authQueries";
 
 interface GetInvoicesResponse {
   invoices: FullInvoice[];
@@ -62,17 +62,13 @@ export const getInvoices = async (
     if (value) params.append(key, value.toString());
   });
 
-  const response = await fetch(`${url}?${params}`, {
+  const response = await fetchWithAuth(`${url}?${params}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return getInvoices(payload, page);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -91,17 +87,13 @@ export const getBudgets = async (
     if (value) params.append(key, value);
   });
 
-  const response = await fetch(`${url}?${params}`, {
+  const response = await fetchWithAuth(`${url}?${params}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return getBudgets(payload, page);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -113,7 +105,7 @@ export const createBudget = async (
   payload: NewBudget
 ): Promise<CreateInvoiceResponse> => {
   try {
-    const response = await fetch(`${URL_API}/budgets`, {
+    const response = await fetchWithAuth(`${URL_API}/budgets`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -121,10 +113,6 @@ export const createBudget = async (
       body: JSON.stringify(payload),
       credentials: "include",
     });
-    if (response.status === 401) {
-      await refreshAccessToken();
-      return createBudget(payload);
-    }
     if (!response.ok) {
       const error: ErrorMessage = await response.json();
       throw error;
@@ -141,7 +129,7 @@ export const createInvoice = async (
 ): Promise<CreateInvoiceResponse> => {
   const { cuitOption, ...rest } = payload;
   try {
-    const response = await fetch(`${URL_API}/invoices/new-invoice?cuitOption=${cuitOption}`, {
+    const response = await fetchWithAuth(`${URL_API}/invoices/new-invoice?cuitOption=${cuitOption}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -149,10 +137,6 @@ export const createInvoice = async (
       body: JSON.stringify(rest),
       credentials: "include",
     });
-    if (response.status === 401) {
-      await refreshAccessToken();
-      return createInvoice(payload);
-    }
     if (!response.ok) {
       const error: ErrorMessage = await response.json();
       throw error;
@@ -168,7 +152,7 @@ export const cancelInvoice = async (
   payload: NewCreditNote
 ): Promise<CancelInvoiceResponse> => {
   const { cuitOption, ...rest } = payload;
-  const response = await fetch(`${URL_API}/invoices/new-credit-note?cuitOption=${cuitOption}`, {
+  const response = await fetchWithAuth(`${URL_API}/invoices/new-credit-note?cuitOption=${cuitOption}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -176,10 +160,6 @@ export const cancelInvoice = async (
     body: JSON.stringify(rest),
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return cancelInvoice(payload);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -191,7 +171,7 @@ export const printInvoice = async (
   invoice: FullInvoice
 ): Promise<PrintInvoiceResponse> => {
   console.log(invoice)
-  const response = await fetch(`${URL_API}/invoices/print-invoice`, {
+  const response = await fetchWithAuth(`${URL_API}/invoices/print-invoice`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -199,10 +179,6 @@ export const printInvoice = async (
     body: JSON.stringify(invoice),
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return printInvoice(invoice);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -213,7 +189,7 @@ export const printInvoice = async (
 export const printBudget = async (
   budget: FullBudget
 ): Promise<PrintInvoiceResponse> => {
-  const response = await fetch(`${URL_API}/budgets/print`, {
+  const response = await fetchWithAuth(`${URL_API}/budgets/print`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -221,10 +197,6 @@ export const printBudget = async (
     body: JSON.stringify(budget),
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return printBudget(budget);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -233,17 +205,13 @@ export const printBudget = async (
 };
 
 export const deleteBudget = async (id: string): Promise<DeleteBudgetResponse> => {
-  const response = await fetch(`${URL_API}/budgets/${id}`, {
+  const response = await fetchWithAuth(`${URL_API}/budgets/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return deleteBudget(id);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
