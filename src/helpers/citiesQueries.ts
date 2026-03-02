@@ -1,5 +1,5 @@
 import { URL } from "../constants/const";
-import { refreshAccessToken } from "./authQueries";
+import { fetchWithAuth } from "./authQueries";
 
 interface CreateCityResponse {
   city: City;
@@ -7,7 +7,7 @@ interface CreateCityResponse {
 }
 
 export const getCities = async () => {
-  const response = await fetch(`${URL}/cities`);
+  const response = await fetchWithAuth(`${URL}/cities`);
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -18,7 +18,7 @@ export const getCities = async () => {
 };
 
 export const createCity = async (city: City): Promise<CreateCityResponse> => {
-  const response = await fetch(`${URL}/cities`, {
+  const response = await fetchWithAuth(`${URL}/cities`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -26,10 +26,6 @@ export const createCity = async (city: City): Promise<CreateCityResponse> => {
     body: JSON.stringify(city),
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return createCity(city);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
