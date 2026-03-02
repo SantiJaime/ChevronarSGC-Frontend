@@ -1,6 +1,6 @@
 import { URL as URL_API } from "../constants/const";
 import { type IAuthorizeSale } from "../utils/validationSchemas";
-import { refreshAccessToken } from "./authQueries";
+import { fetchWithAuth } from "./authQueries";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -24,17 +24,13 @@ export const getSales = async (
       params.append(key, String(value));
     }
   });
-  const response = await fetch(`${url}?${params}`, {
+  const response = await fetchWithAuth(`${url}?${params}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return getSales(payload, page);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -45,7 +41,7 @@ export const getSales = async (
 export const createSale = async (
   sale: SaleWithProducts,
 ): Promise<CreateSaleResponse> => {
-  const response = await fetch(`${URL_API}/sales`, {
+  const response = await fetchWithAuth(`${URL_API}/sales`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -53,10 +49,6 @@ export const createSale = async (
     body: JSON.stringify(sale),
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return createSale(sale);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -68,7 +60,7 @@ export const authorizeSale = async (
   id: string,
   paymentsInfo: FullPaymentsInfo,
 ): Promise<AuthorizeSaleResponse> => {
-  const response = await fetch(`${URL_API}/sales/${id}`, {
+  const response = await fetchWithAuth(`${URL_API}/sales/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -76,10 +68,6 @@ export const authorizeSale = async (
     credentials: "include",
     body: JSON.stringify(paymentsInfo),
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return authorizeSale(id, paymentsInfo);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -88,7 +76,7 @@ export const authorizeSale = async (
 };
 
 export const editSale = async (sale: FullSale, newTotal: number): Promise<EditSaleResponse> => {
-  const response = await fetch(`${URL_API}/sales/${sale._id}`, {
+  const response = await fetchWithAuth(`${URL_API}/sales/${sale._id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -96,10 +84,6 @@ export const editSale = async (sale: FullSale, newTotal: number): Promise<EditSa
     body: JSON.stringify({...sale, totalWithInterest: newTotal}),
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return editSale(sale, newTotal);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -108,17 +92,13 @@ export const editSale = async (sale: FullSale, newTotal: number): Promise<EditSa
 };
 
 export const printSale = async (id: string): Promise<PrintInvoiceResponse> => {
-  const response = await fetch(`${URL_API}/sales/print/${id}`, {
+  const response = await fetchWithAuth(`${URL_API}/sales/print/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return printSale(id);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
@@ -127,17 +107,13 @@ export const printSale = async (id: string): Promise<PrintInvoiceResponse> => {
 };
 
 export const deleteSale = async (id: string): Promise<{ msg: string }> => {
-  const response = await fetch(`${URL_API}/sales/${id}`, {
+  const response = await fetchWithAuth(`${URL_API}/sales/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
-  if (response.status === 401) {
-    await refreshAccessToken();
-    return deleteSale(id);
-  }
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
