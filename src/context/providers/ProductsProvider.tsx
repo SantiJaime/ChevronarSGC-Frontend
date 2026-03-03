@@ -21,14 +21,12 @@ const ProductsProvider: React.FC<Props> = ({ children }) => {
 
   const preparedProducts = useMemo<PreparedProduct[]>(() => {
     return productsInDb.map((product) => {
-      // 1. Unimos todos los códigos del array en un solo texto separado por espacios
-      const barcodesString = product.barcodes && product.barcodes.length > 0 
+      const barcodesString = product.barcodes.length > 0 
         ? product.barcodes.join(" ") 
         : "";
 
       return {
         original: product,
-        // 2. Agregamos los códigos al "Super String" de búsqueda
         searchString: normalizeText(`${product.productName} ${product.productId} ${barcodesString}`),
       };
     });
