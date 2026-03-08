@@ -38,6 +38,26 @@ export const getSales = async (
   return await response.json();
 };
 
+export const getSalesAmounts = async (
+  date: string,
+): Promise<GetSalesAmountsResponse> => {
+  const response = await fetchWithAuth(
+    `${URL_API}/sales/day?date=${date}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    },
+  );
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+};
+
 export const createSale = async (
   sale: SaleWithProducts,
 ): Promise<CreateSaleResponse> => {
@@ -75,13 +95,16 @@ export const authorizeSale = async (
   return await response.json();
 };
 
-export const editSale = async (sale: FullSale, newTotal: number): Promise<EditSaleResponse> => {
+export const editSale = async (
+  sale: FullSale,
+  newTotal: number,
+): Promise<EditSaleResponse> => {
   const response = await fetchWithAuth(`${URL_API}/sales/${sale._id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({...sale, totalWithInterest: newTotal}),
+    body: JSON.stringify({ ...sale, totalWithInterest: newTotal }),
     credentials: "include",
   });
   if (!response.ok) {
@@ -120,3 +143,18 @@ export const deleteSale = async (id: string): Promise<{ msg: string }> => {
   }
   return await response.json();
 };
+
+export const exportToSheets = async (date: string): Promise<ExportToSheetsResponse> => {
+  const response = await fetchWithAuth(`${URL_API}/sales/spreadsheet?date=${date}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+}

@@ -4,7 +4,9 @@ import {
   authorizeSale,
   createSale,
   editSale,
+  exportToSheets,
   getSales,
+  getSalesAmounts,
 } from "../helpers/salesQueries";
 import { toast } from "sonner";
 import { IAuthorizeSale, IGetProductSales } from "../utils/validationSchemas";
@@ -38,6 +40,20 @@ const useSales = () => {
       const err = error as { error: string };
       toast.error(err.error);
       setSales([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGetSalesAmounts = async (date: string) => {
+    try {
+      setLoading(true);
+      const res = await getSalesAmounts(date);
+      toast.success(res.msg);
+      return res;
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
     } finally {
       setLoading(false);
     }
@@ -133,6 +149,19 @@ const useSales = () => {
     }
   };
 
+  const handleExportToSheets = async (date: string) => {
+    try {
+      setLoading(true);
+      return await exportToSheets(date);
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     sales,
     setSales,
@@ -143,6 +172,8 @@ const useSales = () => {
     loadingAuthorize,
     handleEdit,
     handleGetProductSales,
+    handleGetSalesAmounts,
+    handleExportToSheets
   };
 };
 

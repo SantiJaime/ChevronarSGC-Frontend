@@ -25,6 +25,7 @@ export const SALE_CONDITIONS = [
   "Transferencia",
   "Cheque",
   "Múltiples métodos de pago",
+  "Gastos"
 ];
 
 export const ARG_PROVINCES = [
@@ -223,3 +224,12 @@ export const normalizeText = (text: string) => {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 };
+
+export const NUMBER_STRING_PAYMENTS: Record<number, string> = {
+  1: "Contado",
+  2: "Tarjeta",
+  3: "Transferencia",
+  4: "Cheque",
+  5: "Múltiples métodos de pago",
+  6: "Gastos"
+}

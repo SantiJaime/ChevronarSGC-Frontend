@@ -278,3 +278,19 @@ interface InvoiceProductsContextType {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>
 }
+
+interface GetSalesAmountsResponse {
+  msg: string;
+  totalCollected: number;
+  salesQuantity: number;
+  byPaymentMethodId: {
+    paymentMethodId: number;
+    totalCollected: number;
+    salesQuantity: number;
+  }[];
+}
+
+interface ExportToSheetsResponse {
+  msg: string;
+  sheetUrl: string;
+}
