@@ -227,9 +227,18 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     name="price"
                     placeholder="10.000"
                     value={values.price}
-                    onValueChange={({ value }) =>
-                      setFieldValue("price", Number(value))
-                    }
+                    onValueChange={({ value }) => {
+                      const numberValue = Number(value);
+                      if (
+                        (product.productId === 962 ||
+                          product.productId === 348) &&
+                        numberValue > 0
+                      ) {
+                        setFieldValue("price", numberValue * -1);
+                        return;
+                      }
+                      setFieldValue("price", numberValue);
+                    }}
                     className={`form-control ${
                       touched.price && errors.price ? "is-invalid" : ""
                     }`}

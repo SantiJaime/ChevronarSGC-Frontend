@@ -79,7 +79,10 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
 
       totalValue += totalValue * interest;
     }
-
+    // if (values.method === "Gastos" && totalValue > 0) {
+    //   totalValue = totalValue * -1;
+    // }
+    
     if (values.method === "Múltiples métodos de pago") {
       Swal.fire({
         title: "¿Estás seguro de autorizar?",
@@ -108,6 +111,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
       });
       return;
     }
+
     Swal.fire({
       title: "¿Estás seguro de autorizar?",
       text: `Interés: ${(interest ?? 0) * 100}% - Valor total: $${formatPrice(totalValue)}`,
@@ -306,7 +310,10 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
                         paymentsLeftValue={paymentsLeftValue}
                       />
                     </div>
-                    <MultiplePaymentsTable paymentMethods={paymentMethods} handleDeletePaymentMethod={handleDeletePaymentMethod}/>
+                    <MultiplePaymentsTable
+                      paymentMethods={paymentMethods}
+                      handleDeletePaymentMethod={handleDeletePaymentMethod}
+                    />
                   </>
                 )}
                 <hr />

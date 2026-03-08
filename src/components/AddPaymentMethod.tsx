@@ -4,12 +4,13 @@ import Modal from "react-bootstrap/Modal";
 import { Formik } from "formik";
 import Form from "react-bootstrap/Form";
 import { addPaymentMethodSchema } from "../utils/validationSchemas";
-import { CREDIT_CARDS, DEBIT_CARDS } from "../constants/const";
+import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../constants/const";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { NumericFormat } from "react-number-format";
 import BootstrapInputAdapter from "../utils/numericFormatHelper";
 import { TAX_CONFIG, TaxTable } from "../constants/card_tax";
+import { formatPrice } from '../utils/utils';
 
 interface Props {
   setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethods[]>>;
@@ -83,7 +84,7 @@ const AddPaymentMethod: React.FC<Props> = ({
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>
-            Agregar un método de pago (valor restante: ${paymentsLeftValue})
+            Agregar un método de pago (valor restante: ${formatPrice(paymentsLeftValue)})
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -118,12 +119,14 @@ const AddPaymentMethod: React.FC<Props> = ({
                     value={values.method}
                     isInvalid={touched.method && !!errors.method}
                   >
-                    <option value="">Sin seleccionar método de pago</option>
-                    <option value="Efectivo">Efectivo</option>
-                    <option value="Transferencia">Transferencia</option>
-                    <option value="Cheque">Cheque</option>
-                    <option value="Crédito">Tarjeta de crédito</option>
-                    <option value="Débito">Tarjeta de débito</option>
+                    <option value={""}>Sin seleccionar metodo de pago</option>
+                   {
+                    SALE_CONDITIONS.slice(0, 5).map((method) => (
+                      <option key={method} value={method}>
+                        {method}
+                      </option>
+                    ))
+                   }
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">
                     {errors.method && touched.method && errors.method}
