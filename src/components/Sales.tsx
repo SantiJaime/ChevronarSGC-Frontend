@@ -12,7 +12,7 @@ import {
   type IAuthorizeSale,
   searchSalesValidatorSchema,
 } from "../utils/validationSchemas";
-import { SELLERS, SELLERS_MAP } from "../constants/const";
+import { Role, SELLERS, SELLERS_MAP } from "../constants/const";
 import Swal from "sweetalert2";
 import { formatPrice } from "../utils/utils";
 import useSales from "../hooks/useSales";
@@ -23,6 +23,8 @@ import { deleteSale, printSale } from "../helpers/salesQueries";
 import EditSaleComp from "./EditSaleComp";
 import AuthorizeSaleComp from "./AuthorizeSaleComp";
 import useProducts from "../hooks/useProducts";
+import SalesAmountsComp from "./SalesAmountsComp";
+import useSession from "../hooks/useSession";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -30,7 +32,7 @@ interface FullPaymentsInfo extends IAuthorizeSale {
 
 const Sales = () => {
   const { setProductsInDb } = useProducts();
-
+  const { user } = useSession();
   const formik = useFormik({
     initialValues: {
       authorized: "",
@@ -185,7 +187,10 @@ const Sales = () => {
 
   return (
     <div>
-      <h2>Historial de presupuestos de ventas</h2>
+      <div className="d-flex justify-content-between align-items-center">
+        <h2>Historial de presupuestos de ventas</h2>
+        {user && user.role !== Role.VENDEDOR && <SalesAmountsComp />}
+      </div>
       <hr />
 
       <Form noValidate onSubmit={handleSubmit}>

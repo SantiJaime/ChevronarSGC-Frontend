@@ -404,8 +404,7 @@ export const createNewProduct = yup.object().shape({
     .min(3, "El nombre del producto debe tener al menos 3 caracteres"),
   price: yup
     .number()
-    .required("El precio es requerido")
-    .min(1, "El precio debe ser mayor a 0"),
+    .required("El precio es requerido"),
   barcodes: yup.array().of(yup.string().optional()),
 });
 
@@ -484,6 +483,40 @@ export const getProductSalesSchema = yup.object().shape({
       },
     ),
   sellerId: yup.number().integer().required("El vendedor es requerido"),
+});
+
+export const salesAmountsSchema = yup.object().shape({
+  date: yup
+    .string()
+    .required("La fecha es requerida")
+    .test(
+      "is-valid-date",
+      "La fecha ingresada no es válida o es futura",
+      (value) => {
+        if (!value) return true;
+
+        const [year, month, day] = value.split("-").map(Number);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const currentDay = today.getDate();
+        const currentMonth = today.getMonth() + 1;
+        const currentYear = today.getFullYear();
+
+        if (year > currentYear) return false;
+        if (year === currentYear && month > currentMonth) return false;
+        if (year === currentYear && month === currentMonth && day > currentDay)
+          return false;
+
+        const date = new Date(year, month - 1, day);
+        return (
+          date.getFullYear() === year &&
+          date.getMonth() === month - 1 &&
+          date.getDate() === day
+        );
+      },
+    ),
 });
 
 export type ICreateProduct = yup.InferType<typeof createNewProduct>;
