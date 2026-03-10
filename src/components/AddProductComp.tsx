@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useFormik } from "formik";
@@ -11,14 +11,7 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import {
-  ArrowClockwise,
-  Cart2,
-  CurrencyDollar,
-  Tag,
-  UpcScan,
-  X,
-} from "react-bootstrap-icons";
+import { Cart2, CurrencyDollar, Tag, UpcScan, X } from "react-bootstrap-icons";
 import { addProductSchema, IAddProduct } from "../utils/validationSchemas";
 import { toast } from "sonner";
 import { NumericFormat } from "react-number-format";
@@ -35,17 +28,13 @@ interface Props {
 const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   const [show, setShow] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [product, setProduct] = useState<ProductInDb | null>(null);
   const [unlinkedBarcode, setUnlinkedBarcode] = useState<string | null>(null);
+  const [filteredProducts, setFilteredProducts] = useState<ProductInDb[]>([]);
+  const isSelectingProduct = useRef(false);
 
-  const {
-    searchProducts,
-    handleGetProducts,
-    loadingProducts,
-    productsInDb,
-    handleAddBarcode,
-  } = useProducts();
+  const { handleSearchProducts, loadingProducts, handleAddBarcode } =
+    useProducts();
   const { setProducts } = useInvoiceProducts();
 
   const handleClose = () => {
@@ -83,9 +72,29 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
     }
   }, [product, setFieldValue]);
 
-  const filteredProducts = useMemo(() => {
-    return searchProducts(searchTerm);
-  }, [searchTerm, searchProducts]);
+  useEffect(() => {
+    if (isSelectingProduct.current) {
+      isSelectingProduct.current = false;
+      return;
+    }
+    const term = searchTerm.trim();
+
+    if (!term || term.length < 3) {
+      setFilteredProducts([]);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
+      const products = await handleSearchProducts(term);
+      setFilteredProducts(products);
+
+      if (products.length === 0) {
+        toast.info("No se encontraron productos para la búsqueda ingresada");
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm, handleSearchProducts]);
 
   const addProduct = (values: IAddProduct) => {
     if (product === null) {
@@ -113,7 +122,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
 
   const handleInputChange = (value: string) => {
     setSearchTerm(value);
-    setIsDropdownOpen(true);
+    setProduct(null);
   };
 
   const handleSelect = async (selectedProduct: ProductInDb) => {
@@ -134,27 +143,28 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
         }
       });
     }
+    isSelectingProduct.current = true;
     setProduct({ ...selectedProduct });
     setSearchTerm(
       `${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`,
     );
-    setIsDropdownOpen(false);
+    setFilteredProducts([]);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       const code = searchTerm.trim();
       if (!code) return;
 
-      const foundByBarcode = productsInDb.find((p) =>
-        p.barcodes?.includes(code),
-      );
+      const products = await handleSearchProducts(code);
+      setFilteredProducts(products);
+      const foundByBarcode = products.find((p) => p.barcodes?.includes(code));
 
       if (foundByBarcode) {
         handleSelect(foundByBarcode);
       } else if (filteredProducts.length === 1 && isNaN(Number(code))) {
-        handleSelect(filteredProducts[0]);
+        handleSelect(products[0]);
       } else {
         setUnlinkedBarcode(code);
         toast.info(
@@ -186,7 +196,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                   </InputGroup.Text>
                   <Form.Control
                     type="text"
-                    placeholder="Escriba el nombre o escanee el código de barras..."
+                    placeholder="Escriba el nombre del producto (al menos 3 caracteres) o escanee el código de barras..."
                     value={searchTerm}
                     autoComplete="off"
                     autoFocus
@@ -194,9 +204,15 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     onKeyDown={handleKeyDown}
                   />
                 </InputGroup>
+                {loadingProducts && (
+                  <div className="mt-2 d-flex align-items-center gap-2">
+                    <Spinner animation="border" size="sm" />
+                    <span>Buscando productos...</span>
+                  </div>
+                )}
               </Form.Group>
 
-              {isDropdownOpen && filteredProducts.length > 0 && (
+              {filteredProducts.length > 0 && !loadingProducts && !product && (
                 <Dropdown.Menu show className="position-absolute w-100 top-100">
                   {filteredProducts.map((prod) => (
                     <Dropdown.Item
@@ -230,8 +246,8 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     onValueChange={({ value }) => {
                       const numberValue = Number(value);
                       if (
-                        (product.productId === 962 ||
-                          product.productId === 348) &&
+                        (product.productId === 11438 ||
+                          product.productId === 11439) &&
                         numberValue > 0
                       ) {
                         setFieldValue("price", numberValue * -1);
@@ -275,25 +291,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
               </InputGroup>
             </Form.Group>
 
-            <div className="d-flex justify-content-between">
-              <Button
-                variant="info"
-                onClick={() => handleGetProducts(true)}
-                className="d-flex align-items-center gap-2"
-                disabled={loadingProducts}
-              >
-                {loadingProducts ? (
-                  <>
-                    <Spinner animation="border" variant="dark" size="sm" />
-                    <span>Recargando...</span>
-                  </>
-                ) : (
-                  <>
-                    <ArrowClockwise />
-                    <span>Recargar productos</span>
-                  </>
-                )}
-              </Button>
+            <div className="d-flex justify-content-end gap-2">
               {unlinkedBarcode && (
                 <Badge
                   bg="warning"

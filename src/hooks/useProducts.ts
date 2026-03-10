@@ -1,28 +1,35 @@
-import { useContext, useState } from "react";
-import { ProductsContext } from "../context/ProductsContext";
+import { useCallback, useState } from "react";
 import { ICreateProduct } from "../utils/validationSchemas";
 import {
   addBarcodeToProduct,
   createProduct,
   deleteProduct,
   editProduct,
+  searchProducts,
 } from "../helpers/productsQueries";
 import { toast } from "sonner";
 
 const useProducts = () => {
-  const context = useContext(ProductsContext);
-  if (!context) {
-    throw new Error("El contexto de productos no está definido");
-  }
-
-  const {
-    productsInDb,
-    setProductsInDb,
-    loading: loadingProducts,
-    searchProducts,
-    handleGetProducts,
-  } = context;
   const [loading, setLoading] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+
+  const handleSearchProducts = useCallback(
+    async (search: string): Promise<ProductInDb[]> => {
+      try {
+        setLoadingProducts(true);
+        const res = await searchProducts(search);
+        return res.products;
+      } catch (error) {
+        console.error("Error al buscar productos:", error);
+        const err = error as { error: string };
+        toast.error(err.error);
+        return [];
+      } finally {
+        setLoadingProducts(false);
+      }
+    },
+    [setLoadingProducts],
+  );
 
   const handleCreateProduct = async (
     data: ICreateProduct,
@@ -31,7 +38,6 @@ const useProducts = () => {
       setLoading(true);
       const res = await createProduct(data);
       toast.success(res.msg);
-      setProductsInDb([...productsInDb, { ...res.newProduct, stock: 0 }]);
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
@@ -50,11 +56,6 @@ const useProducts = () => {
       setLoading(true);
       const res = await editProduct(data);
       toast.success(res.msg);
-      setProductsInDb((prevState) =>
-        prevState.map((product) =>
-          product._id === res.product._id ? res.product : product,
-        ),
-      );
       resetForm();
       handleClose();
     } catch (error) {
@@ -71,11 +72,6 @@ const useProducts = () => {
       setLoading(true);
       const res = await addBarcodeToProduct(productId, barcode);
       toast.success(res.msg);
-      setProductsInDb((prevState) =>
-        prevState.map((product) =>
-          product._id === res.product._id ? res.product : product,
-        ),
-      );
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
@@ -91,9 +87,6 @@ const useProducts = () => {
       setLoading(true);
       const res = await deleteProduct(id);
       toast.success(res.msg);
-      setProductsInDb((prevState) =>
-        prevState.filter((product) => product._id !== id),
-      );
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
@@ -104,8 +97,6 @@ const useProducts = () => {
   };
 
   return {
-    productsInDb,
-    setProductsInDb,
     handleCreateProduct,
     loading,
     setLoading,
@@ -113,7 +104,7 @@ const useProducts = () => {
     handleDeleteProduct,
     loadingProducts,
     searchProducts,
-    handleGetProducts,
+    handleSearchProducts,
     handleAddBarcode
   };
 };

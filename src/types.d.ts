@@ -265,15 +265,6 @@ interface ProductInDb {
   stock: number;
 }
 
-interface ProductsContextType {
-  productsInDb: ProductInDb[];
-  setProductsInDb: React.Dispatch<React.SetStateAction<ProductInDb[]>>
-  loading: boolean
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
-  searchProducts: (term: string) => ProductInDb[];
-  handleGetProducts: (reload?: boolean) => Promise<void>;
-}
-
 interface InvoiceProductsContextType {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>
