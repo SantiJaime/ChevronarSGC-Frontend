@@ -22,8 +22,8 @@ interface GetProductSalesResponse {
   result: number;
 }
 
-export const getAllProducts = async (): Promise<GetAllProductsResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/products`, {
+export const searchProducts = async (search: string): Promise<GetAllProductsResponse> => {
+  const response = await fetchWithAuth(`${URL_API}/products?s=${search}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

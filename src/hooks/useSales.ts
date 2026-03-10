@@ -11,7 +11,6 @@ import {
 import { toast } from "sonner";
 import { IAuthorizeSale, IGetProductSales } from "../utils/validationSchemas";
 import { getProductSales } from "../helpers/productsQueries";
-import useProducts from "./useProducts";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -26,7 +25,6 @@ const useSales = () => {
   const [loading, setLoading] = useState(false);
   const [loadingAuthorize, setLoadingAuthorize] = useState(false);
   const { sales, setSales } = context;
-  const { setProductsInDb } = useProducts();
 
   const handleGetSales = async (payload: SaleSearch, page: number) => {
     try {
@@ -64,22 +62,6 @@ const useSales = () => {
       setLoading(true);
       const response = await createSale(sale);
 
-      setProductsInDb((prevProducts) => {
-        return prevProducts.map((dbProduct) => {
-          const productSold = sale.products.find(
-            (p) => p.productId === dbProduct.productId,
-          );
-
-          if (productSold) {
-            return {
-              ...dbProduct,
-              stock: dbProduct.stock - productSold.quantity,
-            };
-          }
-
-          return dbProduct;
-        });
-      });
       return response;
     } catch (error) {
       const err = error as { error: string };

@@ -79,9 +79,6 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
 
       totalValue += totalValue * interest;
     }
-    // if (values.method === "Gastos" && totalValue > 0) {
-    //   totalValue = totalValue * -1;
-    // }
     
     if (values.method === "Múltiples métodos de pago") {
       Swal.fire({

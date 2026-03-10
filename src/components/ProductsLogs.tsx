@@ -2,7 +2,7 @@ import { useFormik } from "formik";
 import { Button, Col, Dropdown, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import { SELLERS, SELLERS_MAP } from "../constants/const";
 import { Search, UpcScan } from "react-bootstrap-icons";
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useProducts from "../hooks/useProducts";
 import {
   getProductSalesSchema,
@@ -18,13 +18,14 @@ interface ProductFormValues {
 }
 
 const ProductsLogs = () => {
-  const { productsInDb, searchProducts } = useProducts(); 
+  const { handleSearchProducts, loadingProducts } = useProducts();
   const { handleGetProductSales, loading } = useSales();
-  
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [product, setProduct] = useState<ProductInDb | null>(null);
+  const [filteredProducts, setFilteredProducts] = useState<ProductInDb[]>([]);
   const [result, setResult] = useState("");
+  const isSelectingProduct = useRef(false);
 
   const formik = useFormik<ProductFormValues>({
     initialValues: {
@@ -35,38 +36,59 @@ const ProductsLogs = () => {
     validationSchema: getProductSalesSchema,
     onSubmit: (values) => handleSearch(values),
   });
-  
+
   const { values, errors, touched, handleChange, handleSubmit, setFieldValue } = formik;
 
-  const filteredProducts = useMemo(() => {
-    if (searchTerm.trim().length < 3) return [];
-    return searchProducts(searchTerm); 
-  }, [searchTerm, searchProducts]);
+  useEffect(() => {
+    if (isSelectingProduct.current) {
+      isSelectingProduct.current = false;
+      return;
+    }
+    const term = searchTerm.trim();
+
+    if (!term || term.length < 3) {
+      setFilteredProducts([]);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
+      const products = await handleSearchProducts(term);
+      setFilteredProducts(products);
+      if (products.length === 0) {
+        toast.info("No se encontraron productos para la búsqueda ingresada");
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm, handleSearchProducts]);
 
   const handleInputChange = (value: string) => {
     setSearchTerm(value);
-    setIsDropdownOpen(true);
+    setProduct(null);
   };
 
   const handleSelect = (selectedProduct: ProductInDb) => {
+    isSelectingProduct.current = true;
     setProduct({ ...selectedProduct });
     setSearchTerm(selectedProduct.productName);
-    setIsDropdownOpen(false);
+    setFilteredProducts([]);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
 
       const code = searchTerm.trim();
       if (!code) return;
 
-      const foundByBarcode = productsInDb.find((p) => p.barcodes?.includes(code));
+      const products = await handleSearchProducts(code);
+      setFilteredProducts(products);
+      const foundByBarcode = products.find((p) => p.barcodes?.includes(code));
 
       if (foundByBarcode) {
         handleSelect(foundByBarcode);
-      } else if (filteredProducts.length === 1 && isNaN(Number(code))) {
-        handleSelect(filteredProducts[0]);
+      } else if (products.length === 1 && isNaN(Number(code))) {
+        handleSelect(products[0]);
       } else {
         toast.warning("Producto no encontrado. Seleccione manualmente.");
       }
@@ -101,16 +123,22 @@ const ProductsLogs = () => {
               <InputGroup.Text><UpcScan /></InputGroup.Text>
               <Form.Control
                 type="text"
-                placeholder="Escriba el nombre o escanee el código de barras..."
+                placeholder="Escriba el nombre o escanee el código de barras (mín. 3 caracteres)..."
                 value={searchTerm}
                 autoComplete="off"
                 onChange={(ev) => handleInputChange(ev.target.value)}
                 onKeyDown={handleKeyDown}
               />
             </InputGroup>
+            {loadingProducts && (
+              <div className="mt-2 d-flex align-items-center gap-2">
+                <Spinner animation="border" size="sm" />
+                <span>Buscando productos...</span>
+              </div>
+            )}
           </Form.Group>
 
-          {isDropdownOpen && filteredProducts.length > 0 && (
+          {filteredProducts.length > 0 && !loadingProducts && !product && (
             <Dropdown.Menu show className="position-absolute w-100 top-100" style={{ zIndex: 1050 }}>
               {filteredProducts.map((prod) => (
                 <Dropdown.Item

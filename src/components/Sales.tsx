@@ -22,7 +22,6 @@ import { toast } from "sonner";
 import { deleteSale, printSale } from "../helpers/salesQueries";
 import EditSaleComp from "./EditSaleComp";
 import AuthorizeSaleComp from "./AuthorizeSaleComp";
-import useProducts from "../hooks/useProducts";
 import SalesAmountsComp from "./SalesAmountsComp";
 import useSession from "../hooks/useSession";
 
@@ -31,7 +30,6 @@ interface FullPaymentsInfo extends IAuthorizeSale {
 }
 
 const Sales = () => {
-  const { setProductsInDb } = useProducts();
   const { user } = useSession();
   const formik = useFormik({
     initialValues: {
@@ -125,21 +123,6 @@ const Sales = () => {
             setSales((prevSales) =>
               prevSales.filter((s) => s._id !== sale._id),
             );
-            setProductsInDb((prevProducts) => {
-              return prevProducts.map((dbProduct) => {
-                const productRestored = sale.products.find(
-                  (p) => p.productId === dbProduct.productId,
-                );
-                if (productRestored) {
-                  return {
-                    ...dbProduct,
-                    stock: dbProduct.stock + productRestored.quantity,
-                  };
-                }
-
-                return dbProduct;
-              });
-            });
             return res.msg;
           },
           error: (err) => {
