@@ -2,26 +2,40 @@ import Table from "react-bootstrap/Table";
 import useProducts from "../hooks/useProducts";
 import { formatPrice } from "../utils/utils";
 import { Button, Container, Form, InputGroup, Spinner } from "react-bootstrap";
-import { useMemo, useState } from "react";
-import { ArrowClockwise, Search, Trash3Fill } from "react-bootstrap-icons";
+import { useEffect, useState } from "react";
+import { Search, Trash3Fill } from "react-bootstrap-icons";
 import EditProductInDbComp from "./EditProductInDbComp";
 import Swal from "sweetalert2";
 
 const ProductsTableComp = () => {
-  const {
-    productsInDb,
-    loadingProducts,
-    searchProducts,
-    handleGetProducts,
-    handleDeleteProduct,
-    loading,
-  } = useProducts();
+  const { handleSearchProducts, loadingProducts, handleDeleteProduct, loading } =
+    useProducts();
   const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState<ProductInDb[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const filteredItems = useMemo(() => {
-    if (!searchTerm || searchTerm.trim().length < 3) return productsInDb;
-    return searchProducts(searchTerm);
-  }, [searchTerm, searchProducts, productsInDb]);
+  useEffect(() => {
+    const term = searchTerm.trim();
+
+    if (!term || term.length < 3) {
+      setProducts([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+
+    const handler = setTimeout(async () => {
+      const results = await handleSearchProducts(term);
+      setProducts(results);
+      setIsSearching(false);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+      setIsSearching(false);
+    };
+  }, [searchTerm, handleSearchProducts]);
 
   const confirmDeleteProduct = async (product: ProductInDb) => {
     Swal.fire({
@@ -40,6 +54,8 @@ const ProductsTableComp = () => {
     });
   };
 
+  const hasSufficientTerm = searchTerm.trim().length >= 3;
+
   return (
     <Container className="mt-5">
       <h2>Productos cargados en la base de datos</h2>
@@ -48,7 +64,7 @@ const ProductsTableComp = () => {
           <InputGroup>
             <Form.Control
               type="search"
-              placeholder="Buscar producto por código de barras o nombre"
+              placeholder="Buscar por código de barras o nombre"
               value={searchTerm}
               onChange={(ev) => setSearchTerm(ev.target.value)}
               autoComplete="off"
@@ -59,34 +75,20 @@ const ProductsTableComp = () => {
             </InputGroup.Text>
           </InputGroup>
         </Form>
-        <Button
-          variant="dark"
-          onClick={() => handleGetProducts(true)}
-          className="d-flex align-items-center gap-2"
-          disabled={loadingProducts}
-        >
-          {loadingProducts ? (
-            <>
-              <Spinner animation="border" variant="dark" size="sm" />
-              <span>Recargando...</span>
-            </>
-          ) : (
-            <>
-              <ArrowClockwise />
-              <span>Recargar productos</span>
-            </>
-          )}
-        </Button>
       </div>
       <hr />
-      {loadingProducts ? (
+      {loadingProducts || isSearching ? (
         <div className="d-flex justify-content-center gap-2">
           <Spinner animation="border" variant="dark" />
-          <h4 className="text-center">Cargando productos...</h4>
+          <h4 className="text-center">Buscando productos...</h4>
         </div>
-      ) : filteredItems.length === 0 ? (
+      ) : !hasSufficientTerm ? (
+        <h5 className="text-center">
+          Escribe al menos tres caracteres para buscar productos
+        </h5>
+      ) : products.length === 0 ? (
         <h4 className="text-center">
-          No se encontraron productos con el nombre "{searchTerm}"
+          No se encontraron productos con el término "{searchTerm}"
         </h4>
       ) : (
         <Table striped bordered hover responsive>
@@ -100,7 +102,7 @@ const ProductsTableComp = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredItems.map((prod) => (
+            {products.map((prod) => (
               <tr key={prod._id}>
                 <td>{prod.productId}</td>
                 <td>{prod.productName}</td>
