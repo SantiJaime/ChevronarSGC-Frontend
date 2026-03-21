@@ -8,11 +8,14 @@ import EditProductInDbComp from "./EditProductInDbComp";
 import Swal from "sweetalert2";
 
 const ProductsTableComp = () => {
-  const { handleSearchProducts, loadingProducts, handleDeleteProduct, loading } =
+  const { handleSearchProducts, loadingProducts, handleDeleteProduct } =
     useProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState<ProductInDb[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     const term = searchTerm.trim();
@@ -49,12 +52,21 @@ const ProductsTableComp = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await handleDeleteProduct(product._id);
+        setDeletingProductId(product._id);
+        try {
+          const ok = await handleDeleteProduct(product._id);
+          if (ok) {
+            setProducts((prev) => prev.filter((p) => p._id !== product._id));
+          }
+        } finally {
+          setDeletingProductId(null);
+        }
       }
     });
   };
 
   const hasSufficientTerm = searchTerm.trim().length >= 3;
+  const deleteInProgress = deletingProductId !== null;
 
   return (
     <Container className="mt-5">
@@ -102,7 +114,9 @@ const ProductsTableComp = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((prod) => (
+            {products.map((prod) => {
+              const isThisRowDeleting = deletingProductId === prod._id;
+              return (
               <tr key={prod._id}>
                 <td>{prod.productId}</td>
                 <td>{prod.productName}</td>
@@ -110,13 +124,23 @@ const ProductsTableComp = () => {
                 <td>{prod.stock} unidades</td>
                 <td>
                   <div className="d-flex justify-content-center gap-1">
-                    <EditProductInDbComp product={prod} />
+                    <EditProductInDbComp
+                      product={prod}
+                      onProductUpdated={(updated) =>
+                        setProducts((prev) =>
+                          prev.map((p) =>
+                            p._id === updated._id ? updated : p,
+                          ),
+                        )
+                      }
+                    />
                     <Button
                       variant="danger"
                       className="d-flex align-items-center gap-1"
                       onClick={() => confirmDeleteProduct(prod)}
+                      disabled={deleteInProgress}
                     >
-                      {loading ? (
+                      {isThisRowDeleting ? (
                         <>
                           <Spinner
                             animation="border"
@@ -135,7 +159,8 @@ const ProductsTableComp = () => {
                   </div>
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </Table>
       )}

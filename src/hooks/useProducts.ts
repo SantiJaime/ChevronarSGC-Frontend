@@ -51,11 +51,13 @@ const useProducts = () => {
     data: ProductInDb,
     resetForm: () => void,
     handleClose: () => void,
+    onSuccess?: (product: ProductInDb) => void,
   ) => {
     try {
       setLoading(true);
       const res = await editProduct(data);
       toast.success(res.msg);
+      onSuccess?.(res.product);
       resetForm();
       handleClose();
     } catch (error) {
@@ -82,15 +84,17 @@ const useProducts = () => {
     }
   };
 
-  const handleDeleteProduct = async (id: string) => {
+  const handleDeleteProduct = async (id: string): Promise<boolean> => {
     try {
       setLoading(true);
       const res = await deleteProduct(id);
       toast.success(res.msg);
+      return true;
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
       console.error("Error al eliminar el producto:", error);
+      return false;
     } finally {
       setLoading(false);
     }
