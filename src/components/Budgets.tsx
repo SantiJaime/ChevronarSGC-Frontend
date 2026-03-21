@@ -52,6 +52,7 @@ const Budgets = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null);
 
   const handleSearch = (paramPage?: number) => {
     validateSearchInvoice(values);
@@ -113,6 +114,7 @@ const Budgets = () => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
+        setDeletingBudgetId(id);
         const promise = deleteBudget(id)
           .then((res) => {
             setBudgets((prevBudgets) =>
@@ -122,7 +124,8 @@ const Budgets = () => {
           })
           .catch((err) => {
             throw err;
-          });
+          })
+          .finally(() => setDeletingBudgetId(null));
 
         toast.promise(promise, {
           loading: "Eliminando presupuesto...",
@@ -132,6 +135,8 @@ const Budgets = () => {
       }
     });
   };
+
+  const deleteInProgress = deletingBudgetId !== null;
 
   return (
     <div>
@@ -397,7 +402,9 @@ const Budgets = () => {
               </tr>
             </thead>
             <tbody>
-              {budgets.map((budget) => (
+              {budgets.map((budget) => {
+                const isThisRowDeleting = deletingBudgetId === budget._id;
+                return (
                 <tr key={budget._id}>
                   <td>
                     {budget.client.name} | {budget.client.document}
@@ -436,14 +443,29 @@ const Budgets = () => {
                         variant="danger"
                         className="d-flex align-items-center gap-1"
                         onClick={() => handleDelete(budget._id)}
+                        disabled={deleteInProgress}
                       >
-                        <Trash3Fill />
-                        <span>Eliminar</span>
+                        {isThisRowDeleting ? (
+                          <>
+                            <Spinner
+                              animation="border"
+                              variant="light"
+                              size="sm"
+                            />
+                            <span>Eliminando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Trash3Fill />
+                            <span>Eliminar</span>
+                          </>
+                        )}
                       </Button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </Table>
           <div className="d-flex justify-content-center align-items-center gap-2 mb-3">

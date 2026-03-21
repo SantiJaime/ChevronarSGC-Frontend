@@ -24,9 +24,13 @@ import useProducts from "../hooks/useProducts";
 
 interface Props {
   product: ProductInDb;
+  onProductUpdated?: (product: ProductInDb) => void;
 }
 
-const EditProductInDbComp: React.FC<Props> = ({ product }) => {
+const EditProductInDbComp: React.FC<Props> = ({
+  product,
+  onProductUpdated,
+}) => {
   const { handleEditProduct, loading } = useProducts();
   const [show, setShow] = useState(false);
   const [barcodeInput, setBarcodeInput] = useState("");
@@ -48,7 +52,12 @@ const EditProductInDbComp: React.FC<Props> = ({ product }) => {
     validationSchema: editProductSchema,
     enableReinitialize: true,
     onSubmit: (values, { resetForm }) => {
-      handleEditProduct({ ...product, ...values }, resetForm, handleClose);
+      handleEditProduct(
+        { ...product, ...values },
+        resetForm,
+        handleClose,
+        onProductUpdated,
+      );
     },
   });
 
