@@ -110,6 +110,7 @@ const Invoices = () => {
   const handleCancelInvoice = (data: FullInvoice) => {
     const payload: NewCreditNote = {
       ...data,
+      date: data.date.toString().split("T")[0],
       client: {
         ...data.client,
         document: data.client.document.toString(),
@@ -118,7 +119,7 @@ const Invoices = () => {
       paymentsQuantity: data.paymentsQuantity.toString(),
       assocInvoiceNumber: data.invoiceNumber.toString(),
       assocInvoiceCae: data.cae.toString(),
-      assocInvoiceDate: data.date.toString(),
+      assocInvoiceDate: data.date.toString().split("T")[0],
       cuitOption: values.cuitOption,
     };
     Swal.fire({
