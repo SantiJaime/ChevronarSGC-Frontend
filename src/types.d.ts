@@ -148,6 +148,7 @@ interface BudgetSearch {
 }
 
 interface NewCreditNote {
+  date: string;
   cuitOption: string;
   client: Client;
   products: Product[];
