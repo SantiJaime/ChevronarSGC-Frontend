@@ -189,10 +189,6 @@ export const SELLERS = [
     label: "Marcos",
   },
   {
-    value: 3,
-    label: "José Luis",
-  },
-  {
     value: 4,
     label: "Josecito",
   },
