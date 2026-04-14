@@ -1,20 +1,11 @@
 import { URL } from '../constants/const';
 
-const fetchMe = () =>
-  fetch(`${URL}/users/me`, {
-    method: "GET",
-    credentials: "include",
-  });
-
 const parseUserFromMeResponse = async (
   response: Response,
 ): Promise<UserInfo | null> => {
-  const data: MeResponse | UserInfo = await response.json();
-  if ("user" in data && data.user) {
+  const data: MeResponse = await response.json();
+  if (data.user) {
     return data.user;
-  }
-  if ("username" in data && "role" in data) {
-    return data as UserInfo;
   }
   return null;
 };
@@ -38,23 +29,14 @@ export const refreshAccessToken = async () => {
 };
 
 export const fetchCurrentUser = async (): Promise<UserInfo | null> => {
-  let response = await fetchMe();
+  const response = await fetchWithAuth(`${URL}/users/me`, {
+    method: "GET",
+    credentials: "include",
+  });
 
-  if (response.status === 401) {
-    try {
-      await refreshAccessToken();
-      response = await fetchMe();
-    } catch {
-      return null;
-    }
-  }
-
-  if (response.status === 401 || response.status === 403) {
-    return null;
-  }
-
-  if (!response.ok) {
-    return null;
+  if (response.status === 403 || !response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
   }
 
   return parseUserFromMeResponse(response);
