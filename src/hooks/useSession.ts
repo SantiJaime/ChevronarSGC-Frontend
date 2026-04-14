@@ -11,15 +11,13 @@ const useSession = () => {
   }
 
   const navigate = useNavigate();
-  const { session, setSession, user, setUser } = context;
+  const { session, sessionReady, setSession, user, setUser } = context;
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (data: UserLogin) => {
     try {
       setLoading(true);
       const res = await loginUser(data);
-      sessionStorage.setItem("session", JSON.stringify(true));
-      sessionStorage.setItem("user", JSON.stringify(res.user));
       setSession(true);
       setUser(res.user);
       return res;
@@ -36,8 +34,6 @@ const useSession = () => {
       setLoading(true);
       await logoutUser();
       setSession(false);
-      sessionStorage.removeItem("session");
-      sessionStorage.removeItem("user");
       setUser(null);
       navigate("/");
     } catch (error) {
@@ -47,7 +43,15 @@ const useSession = () => {
     }
   };
 
-  return { session, setSession, handleLogout, loading, handleLogin, user };
+  return {
+    session,
+    sessionReady,
+    setSession,
+    handleLogout,
+    loading,
+    handleLogin,
+    user,
+  };
 };
 
 export default useSession;

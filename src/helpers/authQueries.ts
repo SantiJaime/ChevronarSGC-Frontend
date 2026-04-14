@@ -1,5 +1,24 @@
 import { URL } from '../constants/const';
 
+const fetchMe = () =>
+  fetch(`${URL}/users/me`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+const parseUserFromMeResponse = async (
+  response: Response,
+): Promise<UserInfo | null> => {
+  const data: MeResponse | UserInfo = await response.json();
+  if ("user" in data && data.user) {
+    return data.user;
+  }
+  if ("username" in data && "role" in data) {
+    return data as UserInfo;
+  }
+  return null;
+};
+
 export const refreshAccessToken = async () => {
   const response = await fetch(`${URL}/users/refresh-token`, {
     method: "POST",
@@ -18,10 +37,33 @@ export const refreshAccessToken = async () => {
   return true;
 };
 
+export const fetchCurrentUser = async (): Promise<UserInfo | null> => {
+  let response = await fetchMe();
+
+  if (response.status === 401) {
+    try {
+      await refreshAccessToken();
+      response = await fetchMe();
+    } catch {
+      return null;
+    }
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    return null;
+  }
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return parseUserFromMeResponse(response);
+};
+
 export const fetchWithAuth = async (
   url: string,
   options: RequestInit = {},
-  maxRetries: number = 5 
+  maxRetries: number = 3 
 ): Promise<Response> => {
   let attempts = 0;
 
@@ -62,5 +104,4 @@ export const logoutUser = async () => {
   }
 
   await response.json();
-  sessionStorage.removeItem("session");
-}
+};

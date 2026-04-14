@@ -56,9 +56,14 @@ interface ClientContextType {
 }
 interface SessionContextType {
   session: boolean;
+  sessionReady: boolean;
   setSession: React.Dispatch<React.SetStateAction<boolean>>;
   user: UserInfo | null;
   setUser: React.Dispatch<React.SetStateAction<UserInfo | null>>;
+}
+
+interface MeResponse {
+  user: UserInfo;
 }
 interface SalesContextType {
   sales: FullSaleWithPayments[];
