@@ -1,38 +1,40 @@
 import { useEffect, useState } from "react";
 import { SessionContext } from "../SessionContext";
+import { fetchCurrentUser } from "../../helpers/authQueries";
+
 interface Props {
   children: JSX.Element;
 }
 const SessionProvider: React.FC<Props> = ({ children }) => {
-  const [session, setSession] = useState<boolean>(() => {
-    const storedSession = sessionStorage.getItem("session");
-    return storedSession ? JSON.parse(storedSession) === true : false;
-  });
-
-  const [user, setUser] = useState<UserInfo | null>(() => {
-    const user = sessionStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
-  });
+  const [sessionReady, setSessionReady] = useState(false);
+  const [session, setSession] = useState(false);
+  const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
-    if (session) {
-      sessionStorage.setItem("session", "true");
-    } else {
-      sessionStorage.removeItem("session");
-    }
-  }, [session]);
-
-  useEffect(() => {
-    if (user) {
-      sessionStorage.setItem("user", JSON.stringify(user));
-    } else {
-      sessionStorage.removeItem("user");
-    }
-  }, [user]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const current = await fetchCurrentUser();
+        if (cancelled) return;
+        if (current) {
+          setUser(current);
+          setSession(true);
+        } else {
+          setUser(null);
+          setSession(false);
+        }
+      } finally {
+        if (!cancelled) setSessionReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <SessionContext.Provider
-      value={{ session, setSession, user, setUser }}
+      value={{ session, sessionReady, setSession, user, setUser }}
     >
       {children}
     </SessionContext.Provider>
