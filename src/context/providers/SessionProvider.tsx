@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SessionContext } from "../SessionContext";
 import { fetchCurrentUser } from "../../helpers/authQueries";
+import { toast } from "sonner";
 
 interface Props {
   children: JSX.Element;
@@ -23,6 +24,13 @@ const SessionProvider: React.FC<Props> = ({ children }) => {
           setUser(null);
           setSession(false);
         }
+      } catch (error) {
+        if (cancelled) return;
+        const err = error as ErrorMessage
+        console.error("Error al validar sesión:", error);
+        toast.error(err.error || "Error al validar sesión");
+        setUser(null);
+        setSession(false);
       } finally {
         if (!cancelled) setSessionReady(true);
       }
