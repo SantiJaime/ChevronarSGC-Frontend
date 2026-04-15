@@ -1,5 +1,15 @@
 import { URL } from '../constants/const';
 
+const parseUserFromMeResponse = async (
+  response: Response,
+): Promise<UserInfo | null> => {
+  const data: MeResponse = await response.json();
+  if (data.user) {
+    return data.user;
+  }
+  return null;
+};
+
 export const refreshAccessToken = async () => {
   const response = await fetch(`${URL}/users/refresh-token`, {
     method: "POST",
@@ -18,10 +28,24 @@ export const refreshAccessToken = async () => {
   return true;
 };
 
+export const fetchCurrentUser = async (): Promise<UserInfo | null> => {
+  const response = await fetchWithAuth(`${URL}/users/me`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (response.status === 403 || !response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+
+  return parseUserFromMeResponse(response);
+};
+
 export const fetchWithAuth = async (
   url: string,
   options: RequestInit = {},
-  maxRetries: number = 5 
+  maxRetries: number = 3 
 ): Promise<Response> => {
   let attempts = 0;
 
@@ -62,5 +86,4 @@ export const logoutUser = async () => {
   }
 
   await response.json();
-  sessionStorage.removeItem("session");
-}
+};
