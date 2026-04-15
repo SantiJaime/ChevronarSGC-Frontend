@@ -28,13 +28,34 @@ export const refreshAccessToken = async () => {
   return true;
 };
 
+/**
+ * Valida sesión al cargar la app. No lanza si simplemente no hay sesión o el refresh
+ * no está disponible (evita toasts molestos en la pantalla de login).
+ * Lanza ErrorMessage solo ante respuestas de error “reales” (p. ej. 5xx) o fallos de red.
+ */
 export const fetchCurrentUser = async (): Promise<UserInfo | null> => {
-  const response = await fetchWithAuth(`${URL}/users/me`, {
-    method: "GET",
-    credentials: "include",
-  });
+  const fetchMe = () =>
+    fetch(`${URL}/users/me`, {
+      method: "GET",
+      credentials: "include",
+    });
 
-  if (response.status === 403 || !response.ok) {
+  let response = await fetchMe();
+
+  if (response.status === 401) {
+    try {
+      await refreshAccessToken();
+      response = await fetchMe();
+    } catch {
+      return null;
+    }
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    return null;
+  }
+
+  if (!response.ok) {
     const error: ErrorMessage = await response.json();
     throw error;
   }
