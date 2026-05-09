@@ -55,7 +55,7 @@ export const getInvoices = async (
   payload: InvoiceSearch,
   page: number
 ): Promise<GetInvoicesResponse> => {
-  const url = new URL(`${URL_API}/invoices`);
+  const url = new URL(`${URL_API}/invoices`, window.location.origin);
   const params = new URLSearchParams({ page: page.toString() });
 
   Object.entries(payload).forEach(([key, value]) => {
@@ -80,7 +80,7 @@ export const getBudgets = async (
   payload: BudgetSearch,
   page: number
 ): Promise<GetBudgetsResponse> => {
-  const url = new URL(`${URL_API}/budgets`);
+  const url = new URL(`${URL_API}/budgets`, window.location.origin);
   const params = new URLSearchParams({ page: page.toString() });
 
   Object.entries(payload).forEach(([key, value]) => {
