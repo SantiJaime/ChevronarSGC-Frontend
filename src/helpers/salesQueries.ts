@@ -10,7 +10,7 @@ export const getSales = async (
   payload: SaleSearch,
   page: number,
 ): Promise<GetSalesResponse> => {
-  const url = new URL(`${URL_API}/sales`);
+  const url = new URL(`${URL_API}/sales`, window.location.origin);
   const params = new URLSearchParams({ page: page.toString() });
 
   Object.entries(payload).forEach(([key, value]) => {

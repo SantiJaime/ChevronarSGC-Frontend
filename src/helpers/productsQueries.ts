@@ -43,7 +43,7 @@ export const getProductSales = async (
 ): Promise<GetProductSalesResponse> => {
   const { fromDate, toDate } = data;
 
-  const url = new URL(`${URL_API}/sales/product/${productId}`);
+  const url = new URL(`${URL_API}/sales/product/${productId}`, window.location.origin);
   const params = new URLSearchParams({ fromDate, toDate });
   if (data.sellerId) params.append("sellerId", data.sellerId.toString());
 
