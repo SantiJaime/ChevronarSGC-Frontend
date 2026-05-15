@@ -1,25 +1,14 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
-import {
-  Form,
-  Row,
-  Col,
-  InputGroup,
-  Button,
-  Spinner,
-  Badge,
-} from "react-bootstrap";
-import {
-  Tag,
-  CurrencyDollar,
-  BagPlusFill,
-  UpcScan,
-  X,
-} from "react-bootstrap-icons";
 import { NumericFormat } from "react-number-format";
 import { createNewProduct } from "../utils/validationSchemas";
 import useProducts from "../hooks/useProducts";
-import BootstrapInputAdapter from "../utils/numericFormatHelper";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Spinner } from "./ui/Spinner";
+import { Badge } from "./ui/Badge";
+import { Tag, DollarSign, Barcode, Plus, X } from "lucide-react";
 
 const NewProductComp = () => {
   const { handleCreateProduct, loading } = useProducts();
@@ -70,128 +59,136 @@ const NewProductComp = () => {
   };
 
   return (
-    <Form noValidate onSubmit={handleSubmit}>
-      <Row className="mb-3">
-        <Form.Group
-          as={Col}
-          md="6"
-          controlId="productNameId"
-          className="mb-3 mb-md-0"
-        >
-          <Form.Label>Nombre del producto</Form.Label>
-          <InputGroup>
-            <InputGroup.Text>
-              <Tag />
-            </InputGroup.Text>
-            <Form.Control
-              value={values.productName}
-              placeholder="Ej: Kit de distribución GM"
-              type="text"
-              name="productName"
-              onChange={handleChange}
-              isInvalid={touched.productName && !!errors.productName}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.productName && touched.productName
-                ? errors.productName
-                : ""}
-            </Form.Control.Feedback>
-          </InputGroup>
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="priceId">
-          <Form.Label>Precio unitario</Form.Label>
-          <InputGroup>
-            <InputGroup.Text>
-              <CurrencyDollar />
-            </InputGroup.Text>
-            <NumericFormat
-              thousandSeparator="."
-              decimalSeparator=","
-              decimalScale={2}
-              prefix="$"
-              name="price"
-              placeholder="10.000"
-              value={values.price}
-              onValueChange={({ value }) => setFieldValue("price", value)}
-              className={`form-control ${touched.price && errors.price ? "is-invalid" : ""}`}
-              customInput={BootstrapInputAdapter}
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.price && touched.price ? errors.price : ""}
-            </Form.Control.Feedback>
-          </InputGroup>
-        </Form.Group>
-      </Row>
-      <Row className="mb-4">
-        <Form.Group as={Col} md="12" controlId="barcodeId">
-          <Form.Label>Códigos de barras (opcional)</Form.Label>
-          <InputGroup>
-            <InputGroup.Text>
-              <UpcScan />
-            </InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder="Escanea el código con la pistola o ingresa el código manualmente"
-              value={barcodeInput}
-              onChange={(e) => setBarcodeInput(e.target.value)}
-              onKeyDown={handleBarcodeKeyDown}
-              autoComplete="off"
-            />
+    <>
+      <h3 className="text-lg font-semibold mt-8">
+        ¿El producto que estás buscando no se encuentra en la lista? Crealo
+        aquí:
+      </h3>
+      <hr className="my-4 border-border" />
+      <form noValidate onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <Label htmlFor="productNameId">Nombre del producto</Label>
+            <div className="relative mt-1">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <Tag className="h-4 w-4" />
+              </div>
+              <Input
+                id="productNameId"
+                value={values.productName}
+                placeholder="Ej: Kit de distribución GM"
+                type="text"
+                name="productName"
+                onChange={handleChange}
+                error={touched.productName && !!errors.productName}
+                className="pl-10"
+              />
+            </div>
+            {errors.productName && touched.productName && (
+              <span className="text-sm text-destructive">
+                {errors.productName}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="priceId">Precio unitario</Label>
+            <div className="relative mt-1">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <DollarSign className="h-4 w-4" />
+              </div>
+              <NumericFormat
+                id="priceId"
+                thousandSeparator="."
+                decimalSeparator=","
+                decimalScale={2}
+                prefix="$"
+                name="price"
+                placeholder="10.000"
+                value={values.price}
+                onValueChange={({ value }) => setFieldValue("price", value)}
+                className={`flex h-10 w-full rounded-lg border bg-background pl-10 pr-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  touched.price && errors.price
+                    ? "border-destructive"
+                    : "border-input"
+                }`}
+              />
+            </div>
+            {errors.price && touched.price && (
+              <span className="text-sm text-destructive">{errors.price}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <Label htmlFor="barcodeId">Códigos de barras (opcional)</Label>
+          <div className="flex gap-2 mt-1">
+            <div className="relative flex-1">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <Barcode className="h-4 w-4" />
+              </div>
+              <Input
+                id="barcodeId"
+                type="text"
+                placeholder="Escanea el código con la pistola o ingresa el código manualmente"
+                value={barcodeInput}
+                onChange={(e) => setBarcodeInput(e.target.value)}
+                onKeyDown={handleBarcodeKeyDown}
+                autoComplete="off"
+                className="pl-10"
+              />
+            </div>
             <Button
+              type="button"
               variant="secondary"
-              onClick={addCurrentBarcode} 
+              onClick={addCurrentBarcode}
             >
               Agregar
             </Button>
-          </InputGroup>
-          <Form.Text className="text-muted">
-            La pistola agrega los códigos automáticamente. Podés escanear cajas
-            diferentes del mismo repuesto.
-          </Form.Text>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            La pistola agrega los códigos automáticamente. En caso de cargarlos con el teclado, recordá darle al botón de "Agregar", caso contrario el código no se guardará.
+          </p>
 
           {values.barcodes.length > 0 && (
-            <div className="mt-2 d-flex flex-wrap gap-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {values.barcodes.map((code) => (
                 <Badge
                   key={code}
-                  bg="dark"
-                  className="d-flex align-items-center p-2"
-                  style={{ fontSize: "0.9rem" }}
+                  variant="default"
+                  className="flex items-center gap-1 px-3 py-1.5"
                 >
                   {code}
-                  <X
-                    style={{ cursor: "pointer", marginLeft: "5px" }}
-                    size={18}
+                  <button
+                    type="button"
                     onClick={() => removeBarcode(code)}
-                  />
+                    className="ml-1 hover:text-destructive transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </Badge>
               ))}
             </div>
           )}
-        </Form.Group>
-      </Row>
+        </div>
 
-      <div className="d-flex justify-content-end">
-        <Button
-          type="submit"
-          variant="dark"
-          className="d-flex align-items-center gap-2"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Spinner animation="border" size="sm" variant="light" />
-              <span>Cargando...</span>
-            </>
-          ) : (
-            <>
-              <BagPlusFill />
-              <span>Crear producto</span>
-            </>
-          )}
-        </Button>
-      </div>
-    </Form>
+        <div className="flex justify-end">
+          <Button type="submit" variant="dark" disabled={loading}>
+            {loading ? (
+              <>
+                <Spinner size="sm" variant="light" />
+                <span>Cargando...</span>
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                <span>Crear producto</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </>
   );
 };
 

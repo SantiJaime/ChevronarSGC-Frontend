@@ -1,13 +1,4 @@
 import { useFormik } from "formik";
-import { Button, Col, Form, Row, Spinner } from "react-bootstrap";
-import Table from "react-bootstrap/Table";
-import {
-  ArrowLeftCircleFill,
-  ArrowRightCircleFill,
-  Printer,
-  Search,
-  Trash3Fill,
-} from "react-bootstrap-icons";
 import {
   type IAuthorizeSale,
   searchSalesValidatorSchema,
@@ -24,6 +15,13 @@ import EditSaleComp from "./EditSaleComp";
 import AuthorizeSaleComp from "./AuthorizeSaleComp";
 import SalesAmountsComp from "./SalesAmountsComp";
 import useSession from "../hooks/useSession";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
+import { Spinner } from "./ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Search, ChevronLeft, ChevronRight, Printer, Trash2 } from "lucide-react";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -42,11 +40,9 @@ const Sales = () => {
     validationSchema: searchSalesValidatorSchema,
     onSubmit: () => handleSearch(),
   });
-  const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
-    formik;
+  const { values, errors, touched, setFieldValue, handleChange, handleSubmit } = formik;
 
-  const { sales, loading, handleGetSales, setSales, handleAuthorize } =
-    useSales();
+  const { sales, loading, handleGetSales, setSales, handleAuthorize } = useSales();
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -76,6 +72,7 @@ const Sales = () => {
 
     setTotalPages(res.totalPages);
   };
+  
   const goToNextPage = () => {
     if (page < totalPages) {
       handleSearch(page + 1);
@@ -106,8 +103,8 @@ const Sales = () => {
 
   const handleDelete = (sale: FullSale) => {
     Swal.fire({
-      title: "¿Estás seguro de eliminar este presupuesto de venta?",
-      text: "Esta acción no se puede deshacer",
+      title: "Estas seguro de eliminar este presupuesto de venta?",
+      text: "Esta accion no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -176,239 +173,220 @@ const Sales = () => {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center">
-        <h2>Historial de presupuestos de ventas</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Historial de presupuestos de ventas</h2>
         {user && user.role !== Role.VENDEDOR && <SalesAmountsComp />}
       </div>
-      <hr />
+      <hr className="border-border mb-4" />
 
-      <Form noValidate onSubmit={handleSubmit}>
-        <Row>
-          <Form.Group as={Col} md={3} controlId="isSaleAuthId">
-            <Form.Label>Estado *</Form.Label>
-            <Form.Select
+      <form noValidate onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <Label htmlFor="isSaleAuthId">Estado *</Label>
+            <Select
+              id="isSaleAuthId"
               name="authorized"
               value={values.authorized}
               onChange={handleChange}
-              isInvalid={touched.authorized && !!errors.authorized}
+              error={touched.authorized && !!errors.authorized}
+              className="mt-1"
             >
               <option value="">Estado no seleccionado</option>
-              <option value={"true"}>Autorizado</option>
-              <option value={"false"}>Pendiente de autorización</option>
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-              {errors.authorized && touched.authorized ? errors.authorized : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="saleSellerId">
-            <Form.Label>Vendedor</Form.Label>
-            <Form.Select
+              <option value="true">Autorizado</option>
+              <option value="false">Pendiente de autorizacion</option>
+            </Select>
+            {errors.authorized && touched.authorized && (
+              <span className="text-sm text-destructive">{errors.authorized}</span>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="saleSellerId">Vendedor</Label>
+            <Select
+              id="saleSellerId"
               name="sellerId"
               value={values.sellerId}
               onChange={handleChange}
-              isInvalid={touched.sellerId && !!errors.sellerId}
+              className="mt-1"
             >
               <option value={0}>Vendedor no seleccionado</option>
               {SELLERS.map(({ label, value }) => (
-                <option value={value} key={value}>
-                  {label}
-                </option>
+                <option value={value} key={value}>{label}</option>
               ))}
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-              {errors.sellerId && touched.sellerId ? errors.sellerId : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="saleFromDateId">
-            <Form.Label>Desde</Form.Label>
-            <Form.Control
+            </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="saleFromDateId">Desde</Label>
+            <Input
+              id="saleFromDateId"
               type="text"
               name="fromDate"
               value={values.fromDate}
               onChange={(ev) => {
                 let value = ev.target.value.replace(/[^0-9]/g, "");
-
-                if (value.length > 4)
-                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7)
-                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-
+                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
                 setFieldValue("fromDate", value);
               }}
               placeholder="YYYY-MM-DD"
-              isInvalid={touched.fromDate && !!errors.fromDate}
+              error={touched.fromDate && !!errors.fromDate}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="saleToDateId">
-            <Form.Label>Hasta</Form.Label>
-            <Form.Control
+          </div>
+          
+          <div>
+            <Label htmlFor="saleToDateId">Hasta</Label>
+            <Input
+              id="saleToDateId"
               type="text"
               name="toDate"
               value={values.toDate}
               onChange={(ev) => {
                 let value = ev.target.value.replace(/[^0-9]/g, "");
-
-                if (value.length > 4)
-                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7)
-                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-
+                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
                 setFieldValue("toDate", value);
               }}
               placeholder="YYYY-MM-DD"
-              isInvalid={touched.toDate && !!errors.toDate}
+              error={touched.toDate && !!errors.toDate}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.toDate && touched.toDate ? errors.toDate : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="saleNumberId" className="mt-3">
-            <Form.Label>Número de presupuesto</Form.Label>
-            <Form.Control
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <Label htmlFor="saleNumberId">Número de presupuesto</Label>
+            <Input
+              id="saleNumberId"
               type="text"
               name="saleNumber"
               value={values.saleNumber}
               onChange={handleChange}
               placeholder="Ej: 20"
               autoComplete="off"
-              isInvalid={touched.saleNumber && !!errors.saleNumber}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.saleNumber && touched.saleNumber ? errors.saleNumber : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-        </Row>
-        <div className="d-flex justify-content-end mt-3">
-          <Button
-            type="submit"
-            variant="dark"
-            className="d-flex align-items-center gap-1"
-          >
-            <Search />
+          </div>
+        </div>
+        
+        <div className="flex justify-end">
+          <Button type="submit" variant="dark">
+            <Search className="h-4 w-4" />
             <span>Buscar</span>
           </Button>
         </div>
-      </Form>
-      <hr />
+      </form>
+      
+      <hr className="border-border my-4" />
+      
       {loading ? (
-        <div className="d-flex flex-column align-items-center justify-content-center">
-          <Spinner animation="border" variant="dark" />
-          <h4>Cargando...</h4>
+        <div className="flex flex-col items-center justify-center py-8">
+          <Spinner size="lg" />
+          <h4 className="mt-4 text-lg font-medium">Cargando...</h4>
         </div>
       ) : sales.length === 0 ? (
-        <h4 className="text-center">
+        <h4 className="text-center text-lg text-muted-foreground py-8">
           No se encontraron presupuestos de ventas
         </h4>
       ) : (
         <>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Vendedor</th>
-                <th>Nro. de presupuesto</th>
-                <th>Fecha de emisión</th>
-                <th>Método de pago</th>
-                <th>Importes</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table responsive>
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell>Cliente</TableHeaderCell>
+                <TableHeaderCell>Vendedor</TableHeaderCell>
+                <TableHeaderCell>Nro. de presupuesto</TableHeaderCell>
+                <TableHeaderCell>Fecha de emisión</TableHeaderCell>
+                <TableHeaderCell>Método de pago</TableHeaderCell>
+                <TableHeaderCell>Importes</TableHeaderCell>
+                <TableHeaderCell>Estado</TableHeaderCell>
+                <TableHeaderCell>Acciones</TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody striped hover>
               {sales.map((sale) => {
                 const isThisRowDeleting = deletingSaleId === sale._id;
                 return (
-                <tr key={sale._id}>
-                  <td>{sale.clientName}</td>
-                  <td>{SELLERS_MAP[sale.sellerId]}</td>
-                  <td>Presupuesto Nº {sale.saleNumber}</td>
-                  <td>{sale.date}</td>
-                  <td>{sale.payments}</td>
-                  <td>
-                    <div>
-                      <div>
-                        <strong>Subtotal: </strong>${formatPrice(sale.total)}
+                  <TableRow key={sale._id}>
+                    <TableCell>{sale.clientName}</TableCell>
+                    <TableCell>{SELLERS_MAP[sale.sellerId]}</TableCell>
+                    <TableCell>Presupuesto Nro. {sale.saleNumber}</TableCell>
+                    <TableCell>{sale.date}</TableCell>
+                    <TableCell>{sale.payments}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">
+                          <strong>Subtotal:</strong> ${formatPrice(sale.total)}
+                        </div>
+                        <div className="text-sm">
+                          <strong>Total:</strong> ${formatPrice(sale.totalWithInterest)}
+                        </div>
                       </div>
-                      <div>
-                        <strong>Total: </strong>$
-                        {formatPrice(sale.totalWithInterest)}
-                      </div>
-                    </div>
-                  </td>
-                  <td>{sale.authorized ? "Autorizado" : "Pendiente"}</td>
-                  <td>
-                    <div className="d-flex justify-content-center gap-1">
-                      {!sale.authorized ? (
-                        <>
-                          <EditSaleComp sale={sale} />
-                          <AuthorizeSaleComp
-                            sale={sale}
-                            handleAuthorizeSale={handleAuthorizeSale}
-                          />
-                        </>
-                      ) : (
-                        <Button
-                          variant="success"
-                          className="d-flex align-items-center gap-1"
-                          onClick={() => handlePrint(sale._id)}
-                        >
-                          <Printer />
-                          <span>Imprimir</span>
-                        </Button>
-                      )}
-                      <Button
-                        variant="danger"
-                        className="d-flex align-items-center gap-1"
-                        onClick={() => handleDelete(sale)}
-                        disabled={deleteInProgress}
-                      >
-                        {isThisRowDeleting ? (
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                        sale.authorized 
+                          ? "bg-success/10 text-success" 
+                          : "bg-warning/10 text-warning"
+                      }`}>
+                        {sale.authorized ? "Autorizado" : "Pendiente"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {!sale.authorized ? (
                           <>
-                            <Spinner
-                              animation="border"
-                              variant="light"
-                              size="sm"
+                            <EditSaleComp sale={sale} />
+                            <AuthorizeSaleComp
+                              sale={sale}
+                              handleAuthorizeSale={handleAuthorizeSale}
                             />
-                            <span>Eliminando...</span>
                           </>
                         ) : (
-                          <>
-                            <Trash3Fill />
-                            <span>Eliminar</span>
-                          </>
+                          <Button variant="success" size="sm" onClick={() => handlePrint(sale._id)}>
+                            <Printer className="h-4 w-4" />
+                            <span>Imprimir</span>
+                          </Button>
                         )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(sale)}
+                          disabled={deleteInProgress}
+                        >
+                          {isThisRowDeleting ? (
+                            <>
+                              <Spinner size="sm" variant="light" />
+                              <span>Eliminando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="h-4 w-4" />
+                              <span>Eliminar</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
               })}
-            </tbody>
+            </TableBody>
           </Table>
-          <div className="d-flex justify-content-center align-items-center gap-2 mb-3">
-            <Button
-              onClick={goToPreviousPage}
-              disabled={page === 1}
-              variant="dark"
-              className="d-flex align-items-center gap-1"
-            >
-              <ArrowLeftCircleFill />
+          
+          <div className="flex justify-center items-center gap-4 mt-4 mb-4">
+            <Button onClick={goToPreviousPage} disabled={page === 1} variant="dark" size="sm">
+              <ChevronLeft className="h-4 w-4" />
               <span>Anterior</span>
             </Button>
-            <span>
-              Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+            <span className="text-sm">
+              Pagina <strong>{page}</strong> de <strong>{totalPages}</strong>
             </span>
-            <Button
-              onClick={goToNextPage}
-              disabled={page === totalPages}
-              variant="dark"
-              className="d-flex align-items-center gap-1"
-            >
+            <Button onClick={goToNextPage} disabled={page === totalPages} variant="dark" size="sm">
               <span>Siguiente</span>
-              <ArrowRightCircleFill />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </>

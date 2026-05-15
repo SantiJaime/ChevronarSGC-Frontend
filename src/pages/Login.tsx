@@ -1,13 +1,17 @@
 import { Formik } from "formik";
-import Form from "react-bootstrap/Form";
-import { Button, Container, Image, InputGroup, Spinner } from "react-bootstrap";
-import { Key, PersonCircle } from "react-bootstrap-icons";
 import { loginSchema } from "../utils/validationSchemas";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
 import useSession from "../hooks/useSession";
 import { Role } from "../constants/const";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Label } from "../components/ui/Label";
+import { Spinner } from "../components/ui/Spinner";
+import { Card, CardContent, CardHeader } from "../components/ui/Card";
+import { User, KeyRound } from "lucide-react";
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -40,80 +44,93 @@ const Login = () => {
   };
 
   return (
-    <Container className="mt-5 d-flex flex-column align-items-center gap-5">
-      <div className="d-flex justify-content-center flex-column align-items-center">
-        <Image src="/logoChevronar.webp" alt="Logo Chevronar" fluid />
-        <h1>Sistema de gestión comercial</h1>
+    <div className="min-h-[80vh] flex flex-col items-center justify-center gap-8 p-4">
+      <div className="flex flex-col items-center gap-4">
+        <img 
+          src="/logoChevronar.webp" 
+          alt="Logo Chevronar" 
+          className="w-72 h-auto"
+        />
+        <h1 className="text-2xl font-bold text-foreground">Sistema de gestión comercial</h1>
       </div>
-      <div className="w-75">
-        <Formik
-          validationSchema={loginSchema}
-          onSubmit={(values) => login(values)}
-          initialValues={{
-            username: "",
-            password: "",
-          }}
-        >
-          {({ values, errors, touched, handleChange, handleSubmit }) => (
-            <Form
-              onSubmit={handleSubmit}
-              className="bg-dark p-3 rounded-4 text-light"
-            >
-              <Form.Group className="mb-3" controlId="usernameId">
-                <Form.Label>Nombre de usuario</Form.Label>
-                <InputGroup>
-                  <InputGroup.Text>
-                    <PersonCircle />
-                  </InputGroup.Text>
-                  <Form.Control
-                    placeholder="Ej: Martin"
-                    type="text"
-                    name="username"
-                    value={values.username}
-                    onChange={handleChange}
-                    isInvalid={touched.username && !!errors.username}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.username && touched.username && errors.username}
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="passwordId">
-                <Form.Label>Contraseña</Form.Label>
-                <InputGroup>
-                  <InputGroup.Text>
-                    <Key />
-                  </InputGroup.Text>
-                  <Form.Control
-                    placeholder="**************"
-                    type="password"
-                    name="password"
-                    value={values.password}
-                    onChange={handleChange}
-                    isInvalid={touched.password && !!errors.password}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.password && touched.password && errors.password}
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
-              <div className="d-flex justify-content-end">
-                <Button variant="light" type="submit" disabled={loading}>
-                  {loading ? (
-                    <div className="d-flex justify-content-center align-items-center gap-2">
-                      <Spinner size="sm" />
-                      <span>Cargando...</span>
+      
+      <Card className="w-full max-w-md">
+        <CardHeader className="pb-4">
+          <h2 className="text-xl font-semibold text-center">Iniciar sesión</h2>
+        </CardHeader>
+        <CardContent>
+          <Formik
+            validationSchema={loginSchema}
+            onSubmit={(values) => login(values)}
+            initialValues={{
+              username: "",
+              password: "",
+            }}
+          >
+            {({ values, errors, touched, handleChange, handleSubmit }) => (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="usernameId">Nombre de usuario</Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <User className="h-4 w-4" />
                     </div>
-                  ) : (
-                    <span>Iniciar sesión</span>
+                    <Input
+                      id="usernameId"
+                      placeholder="Ej: Martin"
+                      type="text"
+                      name="username"
+                      value={values.username}
+                      onChange={handleChange}
+                      error={touched.username && !!errors.username}
+                      className="pl-10"
+                    />
+                  </div>
+                  {errors.username && touched.username && (
+                    <span className="text-sm text-destructive">{errors.username}</span>
                   )}
-                </Button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </div>
-    </Container>
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="passwordId">Contraseña</Label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <KeyRound className="h-4 w-4" />
+                    </div>
+                    <Input
+                      id="passwordId"
+                      placeholder="**************"
+                      type="password"
+                      name="password"
+                      value={values.password}
+                      onChange={handleChange}
+                      error={touched.password && !!errors.password}
+                      className="pl-10"
+                    />
+                  </div>
+                  {errors.password && touched.password && (
+                    <span className="text-sm text-destructive">{errors.password}</span>
+                  )}
+                </div>
+                
+                <div className="flex justify-end pt-2">
+                  <Button type="submit" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Spinner size="sm" variant="light" />
+                        <span>Cargando...</span>
+                      </>
+                    ) : (
+                      <span>Iniciar sesión</span>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </Formik>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

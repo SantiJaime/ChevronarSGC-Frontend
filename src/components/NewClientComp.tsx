@@ -1,10 +1,13 @@
 import { Formik } from "formik";
-import { Button, Col, Form, Row } from "react-bootstrap";
 import { createClientSchema } from "../utils/validationSchemas";
 import { createClient } from "../helpers/clientsQueries";
 import { toast } from "sonner";
 import useClients from "../hooks/useClients";
 import useCities from "../hooks/useCities";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
 
 const NewClientComp = () => {
   const { setClients } = useClients();
@@ -51,31 +54,36 @@ const NewClientComp = () => {
       }}
     >
       {({ values, errors, touched, handleChange, handleSubmit }) => (
-        <Form noValidate onSubmit={handleSubmit}>
-          <h4>Crear nuevo cliente</h4>
-          <Row className="mb-3">
-            <Form.Group as={Col} md="3" controlId="documentTypeId">
-              <Form.Label>Tipo de documento</Form.Label>
-              <Form.Select
+        <form noValidate onSubmit={handleSubmit}>
+          <h4 className="text-lg font-semibold mb-4">Crear nuevo cliente</h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div>
+              <Label htmlFor="documentTypeId">Tipo de documento</Label>
+              <Select
+                id="documentTypeId"
                 onChange={handleChange}
                 value={values.documentType}
                 name="documentType"
-                isInvalid={touched.documentType && !!errors.documentType}
+                error={touched.documentType && !!errors.documentType}
+                className="mt-1"
               >
-                <option value={""}>Tipo de documento no seleccionado</option>
+                <option value="">Tipo de documento no seleccionado</option>
                 {DOCUMENT_TYPES.map((type) => (
                   <option key={type} value={type}>
                     {type}
                   </option>
                 ))}
-              </Form.Select>
-            </Form.Group>
-            {values.documentType ? (
-              <Form.Group as={Col} md="3" controlId="documentId">
-                <Form.Label>
+              </Select>
+            </div>
+            
+            {values.documentType && (
+              <div>
+                <Label htmlFor="documentId">
                   {values.documentType} (sin guiones ni puntos)
-                </Form.Label>
-                <Form.Control
+                </Label>
+                <Input
+                  id="documentId"
                   type="text"
                   placeholder="12345678912"
                   value={values.document}
@@ -88,54 +96,62 @@ const NewClientComp = () => {
                     e.target.value = value.slice(0, 11);
                   }}
                   name="document"
-                  isInvalid={touched.document && !!errors.document}
+                  error={touched.document && !!errors.document}
+                  className="mt-1"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.document && touched.document ? errors.document : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-            ) : (
-              ""
+                {errors.document && touched.document && (
+                  <span className="text-sm text-destructive">{errors.document}</span>
+                )}
+              </div>
             )}
-            <Form.Group as={Col} md="3" controlId="nameId">
-              <Form.Label>Nombre completo | Razón social</Form.Label>
-              <Form.Control
+            
+            <div>
+              <Label htmlFor="nameId">Nombre completo | Razón social</Label>
+              <Input
+                id="nameId"
                 type="text"
                 placeholder="Ej: Juan Martinez"
                 value={values.name}
                 onChange={handleChange}
                 name="name"
-                isInvalid={touched.name && !!errors.name}
+                error={touched.name && !!errors.name}
+                className="mt-1"
               />
-              <Form.Control.Feedback type="invalid">
-                {errors.name && touched.name ? errors.name : ""}
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group as={Col} md="3" controlId="adressId">
-              <Form.Label>Domicilio</Form.Label>
-              <Form.Control
+              {errors.name && touched.name && (
+                <span className="text-sm text-destructive">{errors.name}</span>
+              )}
+            </div>
+            
+            <div>
+              <Label htmlFor="adressId">Domicilio</Label>
+              <Input
+                id="adressId"
                 type="text"
                 placeholder="Ej: Av. Siempreviva 742"
                 value={values.address}
                 onChange={handleChange}
                 name="address"
-                isInvalid={touched.address && !!errors.address}
+                error={touched.address && !!errors.address}
+                className="mt-1"
               />
-              <Form.Control.Feedback type="invalid">
-                {errors.address && touched.address ? errors.address : ""}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <Row className="mb-3">
-            <Form.Group as={Col} md="6" controlId="cityId">
-              <Form.Label>Localidad</Form.Label>
-              <Form.Select
+              {errors.address && touched.address && (
+                <span className="text-sm text-destructive">{errors.address}</span>
+              )}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label htmlFor="cityId">Localidad</Label>
+              <Select
+                id="cityId"
                 onChange={handleChange}
                 value={values.city}
                 name="city"
-                isInvalid={touched.city && !!errors.city}
+                error={touched.city && !!errors.city}
+                className="mt-1"
               >
-                <option value={""}>Localidad no seleccionada</option>
+                <option value="">Localidad no seleccionada</option>
                 {cities.map((city) => (
                   <option
                     key={city._id}
@@ -144,39 +160,41 @@ const NewClientComp = () => {
                     {`${city.city} - ${city.province}`}
                   </option>
                 ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.city && touched.city ? errors.city : ""}
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group as={Col} md="3" controlId="ivaConditionId">
-              <Form.Label>Condición IVA</Form.Label>
-              <Form.Select
+              </Select>
+              {errors.city && touched.city && (
+                <span className="text-sm text-destructive">{errors.city}</span>
+              )}
+            </div>
+            
+            <div>
+              <Label htmlFor="ivaConditionId">Condición IVA</Label>
+              <Select
+                id="ivaConditionId"
                 onChange={handleChange}
                 value={values.ivaCond}
                 name="ivaCond"
-                isInvalid={touched.ivaCond && !!errors.ivaCond}
+                error={touched.ivaCond && !!errors.ivaCond}
+                className="mt-1"
               >
-                <option value={""}>
-                  Condición frente al IVA no seleccionada
-                </option>
+                <option value="">Condición frente al IVA no seleccionada</option>
                 {IVA_CONDITIONS.map((condition) => (
                   <option key={condition} value={condition}>
                     {condition}
                   </option>
                 ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.ivaCond && touched.ivaCond ? errors.ivaCond : ""}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Row>
-          <div className="d-flex justify-content-end">
+              </Select>
+              {errors.ivaCond && touched.ivaCond && (
+                <span className="text-sm text-destructive">{errors.ivaCond}</span>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex justify-end">
             <Button variant="success" type="submit">
               Crear cliente
             </Button>
           </div>
-        </Form>
+        </form>
       )}
     </Formik>
   );

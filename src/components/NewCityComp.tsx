@@ -1,10 +1,13 @@
 import { Formik } from "formik";
-import { Button, Col, Form, Row } from "react-bootstrap";
 import { createCitySchema } from "../utils/validationSchemas";
 import { toast } from "sonner";
 import { createCity } from "../helpers/citiesQueries";
 import { ARG_PROVINCES } from "../constants/const";
 import useCities from "../hooks/useCities";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
 
 const NewCityComp = () => {
   const { setCities } = useCities();
@@ -28,51 +31,58 @@ const NewCityComp = () => {
       }}
     >
       {({ values, errors, touched, handleChange, handleSubmit }) => (
-        <Form noValidate onSubmit={handleSubmit}>
-          <h4>Crear nueva localidad</h4>
-          <Row className="mb-3">
-            <Form.Group as={Col} md="6" controlId="provinceId">
-              <Form.Label>Provincia</Form.Label>
-              <Form.Select
+        <form noValidate onSubmit={handleSubmit}>
+          <h4 className="text-lg font-semibold mb-4">Crear nueva localidad</h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label htmlFor="provinceId">Provincia</Label>
+              <Select
+                id="provinceId"
                 onChange={handleChange}
                 value={values.province}
                 name="province"
-                isInvalid={touched.province && !!errors.province}
+                error={touched.province && !!errors.province}
+                className="mt-1"
               >
-                <option value={""}>Provincia no seleccionada</option>
+                <option value="">Provincia no seleccionada</option>
                 {ARG_PROVINCES.map((province) => (
                   <option key={province} value={province}>
                     {province}
                   </option>
                 ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.province && touched.province ? errors.province : ""}
-              </Form.Control.Feedback>
-            </Form.Group>
+              </Select>
+              {errors.province && touched.province && (
+                <span className="text-sm text-destructive">{errors.province}</span>
+              )}
+            </div>
+            
             {values.province && (
-              <Form.Group as={Col} md="6" controlId="cityId">
-                <Form.Label>Localidad</Form.Label>
-                <Form.Control
+              <div>
+                <Label htmlFor="cityId">Localidad</Label>
+                <Input
+                  id="cityId"
                   type="text"
-                  placeholder="Ej: San Miguel de Tucumán"
+                  placeholder="Ej: San Miguel de Tucuman"
                   value={values.city}
                   onChange={handleChange}
                   name="city"
-                  isInvalid={touched.city && !!errors.city}
+                  error={touched.city && !!errors.city}
+                  className="mt-1"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.city && touched.city ? errors.city : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
+                {errors.city && touched.city && (
+                  <span className="text-sm text-destructive">{errors.city}</span>
+                )}
+              </div>
             )}
-          </Row>
-          <div className="d-flex justify-content-end">
-            <Button variant="primary" type="submit">
+          </div>
+          
+          <div className="flex justify-end">
+            <Button type="submit">
               Crear localidad
             </Button>
           </div>
-        </Form>
+        </form>
       )}
     </Formik>
   );

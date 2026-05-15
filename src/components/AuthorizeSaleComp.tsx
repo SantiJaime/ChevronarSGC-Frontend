@@ -1,15 +1,5 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
-import { Form, InputGroup, Spinner } from "react-bootstrap";
-import {
-  CashCoin,
-  CreditCard,
-  CreditCard2Back,
-  PatchCheck,
-  Wallet,
-} from "react-bootstrap-icons";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../constants/const";
 import {
   authorizeSaleSchema,
@@ -22,6 +12,13 @@ import { validateAuthorizeSale } from "../utils/validationFunctions";
 import { formatPrice } from "../utils/utils";
 import AddPaymentMethod from "./AddPaymentMethod";
 import MultiplePaymentsTable from "./MultiplePaymentsTable";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
+import { Spinner } from "./ui/Spinner";
+import { BadgeCheck, DollarSign, CreditCard, Wallet } from "lucide-react";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -110,8 +107,8 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
     }
 
     Swal.fire({
-      title: "¿Estás seguro de autorizar?",
-      text: `Interés: ${(interest ?? 0) * 100}% - Valor total: $${formatPrice(totalValue)}`,
+      title: "Estas seguro de autorizar?",
+      text: `Interes: ${(interest ?? 0) * 100}% - Valor total: $${formatPrice(totalValue)}`,
       icon: "info",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -164,12 +161,8 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
 
   return (
     <>
-      <Button
-        variant="info"
-        className="d-flex align-items-center gap-1"
-        onClick={handleShow}
-      >
-        <PatchCheck />
+      <Button variant="info" size="sm" onClick={handleShow}>
+        <BadgeCheck className="h-4 w-4" />
         <span>Autorizar</span>
       </Button>
 
@@ -198,109 +191,105 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
               touched,
               setFieldValue,
             }) => (
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="methodId">
-                  <Form.Label>Método de pago</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>
-                      <CashCoin />
-                    </InputGroup.Text>
-                    <Form.Select
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <Label htmlFor="methodId">Método de pago</Label>
+                  <div className="relative mt-1">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
+                      <DollarSign className="h-4 w-4" />
+                    </div>
+                    <Select
+                      id="methodId"
                       name="method"
                       value={values.method}
                       onChange={handleChange}
-                      isInvalid={touched.method && !!errors.method}
+                      error={touched.method && !!errors.method}
+                      className="pl-10"
                     >
-                      <option value={""}>Método de pago no seleccionado</option>
+                      <option value="">Método de pago no seleccionado</option>
                       {SALE_CONDITIONS.map((cond) => (
-                        <option key={cond} value={cond}>
-                          {cond}
-                        </option>
+                        <option key={cond} value={cond}>{cond}</option>
                       ))}
-                    </Form.Select>
-                    <Form.Control.Feedback type="invalid">
-                      {errors.method && touched.method ? errors.method : ""}
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
+                    </Select>
+                  </div>
+                  {errors.method && touched.method && (
+                    <span className="text-sm text-destructive">{errors.method}</span>
+                  )}
+                </div>
+                
                 {values.method === "Crédito" && (
                   <>
-                    <Form.Group className="mb-3" controlId="creditCardId">
-                      <Form.Label>Tarjeta de crédito</Form.Label>
-                      <InputGroup>
-                        <InputGroup.Text>
-                          <CreditCard />
-                        </InputGroup.Text>
-                        <Form.Select
+                    <div className="mb-4">
+                      <Label htmlFor="creditCardId">Tarjeta de crédito</Label>
+                      <div className="relative mt-1">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
+                          <CreditCard className="h-4 w-4" />
+                        </div>
+                        <Select
+                          id="creditCardId"
                           name="creditCard"
                           value={values.creditCard}
                           onChange={(ev) => {
                             setFieldValue("creditCard", ev.target.value);
                           }}
+                          className="pl-10"
                         >
-                          <option value={""}>
-                            Tarjeta de crédito no seleccionada
-                          </option>
+                          <option value="">Tarjeta de crédito no seleccionada</option>
                           {CREDIT_CARDS.map((card) => (
-                            <option key={card} value={card}>
-                              {card}
-                            </option>
+                            <option key={card} value={card}>{card}</option>
                           ))}
-                        </Form.Select>
-                      </InputGroup>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="paymentsQuantityId">
-                      <Form.Label>Cantidad de cuotas</Form.Label>
-                      <InputGroup>
-                        <InputGroup.Text>
-                          <Wallet />
-                        </InputGroup.Text>
-                        <Form.Control
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
+                      <div className="relative mt-1">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          <Wallet className="h-4 w-4" />
+                        </div>
+                        <Input
+                          id="paymentsQuantityId"
                           type="text"
                           name="paymentsQuantity"
                           value={values.paymentsQuantity}
                           onChange={handleChange}
-                          isInvalid={
-                            touched.paymentsQuantity &&
-                            !!errors.paymentsQuantity
-                          }
+                          error={touched.paymentsQuantity && !!errors.paymentsQuantity}
+                          className="pl-10"
                         />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.paymentsQuantity && touched.paymentsQuantity
-                            ? errors.paymentsQuantity
-                            : ""}
-                        </Form.Control.Feedback>
-                      </InputGroup>
-                    </Form.Group>
+                      </div>
+                      {errors.paymentsQuantity && touched.paymentsQuantity && (
+                        <span className="text-sm text-destructive">{errors.paymentsQuantity}</span>
+                      )}
+                    </div>
                   </>
                 )}
+                
                 {values.method === "Débito" && (
-                  <Form.Group className="mb-3" controlId="debitCardId">
-                    <Form.Label>Tarjeta de débito</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <CreditCard2Back />
-                      </InputGroup.Text>
-                      <Form.Select
+                  <div className="mb-4">
+                    <Label htmlFor="debitCardId">Tarjeta de débito</Label>
+                    <div className="relative mt-1">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
+                        <CreditCard className="h-4 w-4" />
+                      </div>
+                      <Select
+                        id="debitCardId"
                         name="debitCard"
                         value={values.debitCard}
                         onChange={handleChange}
+                        className="pl-10"
                       >
-                        <option value={""}>
-                          Tarjeta de débito no seleccionada
-                        </option>
+                        <option value="">Tarjeta de débito no seleccionada</option>
                         {DEBIT_CARDS.map((card) => (
-                          <option key={card} value={card}>
-                            {card}
-                          </option>
+                          <option key={card} value={card}>{card}</option>
                         ))}
-                      </Form.Select>
-                    </InputGroup>
-                  </Form.Group>
+                      </Select>
+                    </div>
+                  </div>
                 )}
+                
                 {values.method === "Múltiples métodos de pago" && (
                   <>
-                    <div className="d-flex justify-content-end mb-3">
+                    <div className="flex justify-end mb-4">
                       <AddPaymentMethod
                         setPaymentMethods={setPaymentMethods}
                         setPaymentsLeftValue={setPaymentsLeftValue}
@@ -313,29 +302,26 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
                     />
                   </>
                 )}
-                <hr />
-                <div className="d-flex justify-content-between">
-                  <h6>Subtotal a pagar: ${formatPrice(sale.total)}</h6>
-                  <Button
-                    variant="dark"
-                    type="submit"
-                    className="d-flex align-items-center gap-1"
-                    disabled={loading}
-                  >
+                
+                <hr className="border-border my-4" />
+                
+                <div className="flex justify-between items-center">
+                  <h6 className="font-medium">Subtotal a pagar: ${formatPrice(sale.total)}</h6>
+                  <Button variant="dark" type="submit" disabled={loading}>
                     {loading ? (
                       <>
-                        <Spinner animation="border" variant="light" size="sm" />
+                        <Spinner size="sm" variant="light" />
                         <span>Cargando...</span>
                       </>
                     ) : (
                       <>
-                        <PatchCheck />
+                        <BadgeCheck className="h-4 w-4" />
                         <span>Autorizar</span>
                       </>
                     )}
                   </Button>
                 </div>
-              </Form>
+              </form>
             )}
           </Formik>
         </Modal.Body>

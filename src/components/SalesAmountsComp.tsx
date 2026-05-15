@@ -1,14 +1,16 @@
 import { useFormik } from "formik";
 import { useState } from "react";
-import { Form, Spinner } from "react-bootstrap";
-import { CalculatorFill, Coin, Table } from "react-bootstrap-icons";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import { salesAmountsSchema } from "../utils/validationSchemas";
 import { formatPrice } from "../utils/utils";
 import useSales from "../hooks/useSales";
 import { NUMBER_STRING_PAYMENTS } from "../constants/const";
 import { toast } from "sonner";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Spinner } from "./ui/Spinner";
+import { Coins, Calculator, Table } from "lucide-react";
 
 interface FormValues {
   date: string;
@@ -86,12 +88,8 @@ const SalesAmountsComp = () => {
 
   return (
     <>
-      <Button
-        variant="dark"
-        className="d-flex align-items-center gap-2"
-        onClick={handleShow}
-      >
-        <Coin />
+      <Button variant="dark" onClick={handleShow}>
+        <Coins className="h-4 w-4" />
         <span>Planillas de ventas</span>
       </Button>
 
@@ -100,65 +98,62 @@ const SalesAmountsComp = () => {
           <Modal.Title>Planilla de ventas</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form noValidate onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Fecha del día a exportar y/o calcular las ventas</Form.Label>
-              <Form.Control
+          <form noValidate onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <Label htmlFor="dateId">Fecha del dia a exportar y/o calcular las ventas</Label>
+              <Input
+                id="dateId"
                 type="date"
                 name="date"
                 value={values.date}
                 onChange={handleChange}
-                isInvalid={touched.date && !!errors.date}
+                error={touched.date && !!errors.date}
+                className="mt-1"
               />
-              <Form.Control.Feedback type="invalid">
-                {errors.date && touched.date ? errors.date : ""}
-              </Form.Control.Feedback>
-            </Form.Group>
-            <div className="d-flex justify-content-end gap-2">
+              {errors.date && touched.date && (
+                <span className="text-sm text-destructive">{errors.date}</span>
+              )}
+            </div>
+            
+            <div className="flex justify-end gap-2">
               <Button
+                type="button"
                 variant="success"
-                className="d-flex align-items-center gap-2"
                 disabled={loading}
                 onClick={handleClickSheets}
               >
-                <Table />
+                <Table className="h-4 w-4" />
                 <span>Exportar a Excel</span>
               </Button>
-              <Button
-                variant="dark"
-                type="submit"
-                className="d-flex align-items-center gap-2"
-                disabled={loading}
-              >
-                <CalculatorFill />
+              <Button variant="dark" type="submit" disabled={loading}>
+                <Calculator className="h-4 w-4" />
                 <span>Calcular montos de ventas</span>
               </Button>
             </div>
-          </Form>
+          </form>
+          
           {loading && (
-            <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
-              <Spinner animation="border" variant="dark" />
-              <h5>Cargando...</h5>
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <Spinner size="lg" />
+              <h5 className="text-lg font-medium">Cargando...</h5>
             </div>
           )}
+          
           {overall && !loading && (
             <>
-              <hr />
-              <h5>Resumen general del día {date}</h5>
-              <p>
-                <strong>Total recaudado: </strong> $
-                {formatPrice(overall.totalCollected)}
+              <hr className="border-border my-4" />
+              <h5 className="font-semibold">Resumen general del dia {date}</h5>
+              <p className="mt-2">
+                <strong>Total recaudado:</strong> ${formatPrice(overall.totalCollected)}
               </p>
               <p>
-                <strong>Cantidad de ventas: </strong> {overall.salesQuantity}
+                <strong>Cantidad de ventas:</strong> {overall.salesQuantity}
               </p>
-              <h5>Resumen por método de pago</h5>
-              <ul>
+              <h5 className="font-semibold mt-4">Resumen por método de pago</h5>
+              <ul className="list-disc list-inside mt-2">
                 {byPaymentMethodId.map((paymentMethod) => (
                   <li key={paymentMethod.paymentMethodId}>
-                    <strong>
-                      {NUMBER_STRING_PAYMENTS[paymentMethod.paymentMethodId]}:
-                    </strong>{" "}
+                    <strong>{NUMBER_STRING_PAYMENTS[paymentMethod.paymentMethodId]}:</strong>{" "}
                     ${formatPrice(paymentMethod.totalCollected)}
                   </li>
                 ))}

@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
 import useSession from "../hooks/useSession";
 import { Role } from "../constants/const";
+import { Spinner } from "./ui/Spinner";
 
 interface Props {
   children: JSX.Element;
@@ -13,8 +13,8 @@ export const PrivateRoutes: React.FC<Props> = ({ children, role }) => {
 
   if (!sessionReady) {
     return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <Spinner animation="grow" />
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -34,8 +34,8 @@ export const PublicRoutes: React.FC<Props> = ({ children }) => {
 
   if (!sessionReady) {
     return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <Spinner animation="grow" />
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" />
       </div>
     );
   }

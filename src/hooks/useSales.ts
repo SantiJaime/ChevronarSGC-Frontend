@@ -105,6 +105,7 @@ const useSales = () => {
       );
       return res;
     } catch (error) {
+      console.log("entre aqui")
       const err = error as { error: string };
       toast.error(err.error);
     } finally {
