@@ -25,7 +25,7 @@ export const SALE_CONDITIONS = [
   "Transferencia",
   "Cheque",
   "Múltiples métodos de pago",
-  "Gastos"
+  "Gastos",
 ];
 
 export const ARG_PROVINCES = [
@@ -196,6 +196,10 @@ export const SELLERS = [
     value: 5,
     label: "Alejandro",
   },
+  {
+    value: 6,
+    label: "Facundo",
+  },
 ];
 
 type SellerId = (typeof SELLERS)[number]["value"];
@@ -227,5 +231,5 @@ export const NUMBER_STRING_PAYMENTS: Record<number, string> = {
   3: "Transferencia",
   4: "Cheque",
   5: "Múltiples métodos de pago",
-  6: "Gastos"
-}
+  6: "Gastos",
+};
