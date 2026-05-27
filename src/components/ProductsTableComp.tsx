@@ -1,21 +1,20 @@
-import Table from "react-bootstrap/Table";
 import useProducts from "../hooks/useProducts";
 import { formatPrice } from "../utils/utils";
-import { Button, Container, Form, InputGroup, Spinner } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { Search, Trash3Fill } from "react-bootstrap-icons";
 import EditProductInDbComp from "./EditProductInDbComp";
 import Swal from "sweetalert2";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Spinner } from "./ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Search, Trash2 } from "lucide-react";
 
 const ProductsTableComp = () => {
-  const { handleSearchProducts, loadingProducts, handleDeleteProduct } =
-    useProducts();
+  const { handleSearchProducts, loadingProducts, handleDeleteProduct } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState<ProductInDb[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [deletingProductId, setDeletingProductId] = useState<string | null>(
-    null,
-  );
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
 
   useEffect(() => {
     const term = searchTerm.trim();
@@ -42,8 +41,8 @@ const ProductsTableComp = () => {
 
   const confirmDeleteProduct = async (product: ProductInDb) => {
     Swal.fire({
-      title: `¿Estás seguro de eliminar el producto "${product.productName}"?`,
-      text: "Esta acción no se puede deshacer",
+      title: `Estas seguro de eliminar el producto "${product.productName}"?`,
+      text: "Esta accion no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -69,102 +68,102 @@ const ProductsTableComp = () => {
   const deleteInProgress = deletingProductId !== null;
 
   return (
-    <Container className="mt-5">
-      <h2>Productos cargados en la base de datos</h2>
-      <div className="d-flex justify-content-between mt-3">
-        <Form className="w-50" onSubmit={(ev) => ev.preventDefault()}>
-          <InputGroup>
-            <Form.Control
+    <div className="mt-4">
+      <h2 className="text-xl font-bold mb-4">Productos cargados en la base de datos</h2>
+      
+      <div className="flex justify-between mt-4">
+        <form className="w-1/2" onSubmit={(ev) => ev.preventDefault()}>
+          <div className="relative">
+            <Input
               type="search"
-              placeholder="Buscar por código de barras o nombre"
+              placeholder="Buscar por código de barras o nombre"
               value={searchTerm}
               onChange={(ev) => setSearchTerm(ev.target.value)}
               autoComplete="off"
               autoFocus
+              className="pr-10"
             />
-            <InputGroup.Text>
-              <Search />
-            </InputGroup.Text>
-          </InputGroup>
-        </Form>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Search className="h-4 w-4" />
+            </div>
+          </div>
+        </form>
       </div>
-      <hr />
+      
+      <hr className="border-border my-4" />
+      
       {loadingProducts || isSearching ? (
-        <div className="d-flex justify-content-center gap-2">
-          <Spinner animation="border" variant="dark" />
-          <h4 className="text-center">Buscando productos...</h4>
+        <div className="flex justify-center items-center gap-2 py-8">
+          <Spinner size="lg" />
+          <h4 className="text-lg font-medium">Buscando productos...</h4>
         </div>
       ) : !hasSufficientTerm ? (
-        <h5 className="text-center">
+        <h5 className="text-center text-muted-foreground py-8">
           Escribe al menos tres caracteres para buscar productos
         </h5>
       ) : products.length === 0 ? (
-        <h4 className="text-center">
-          No se encontraron productos con el término "{searchTerm}"
+        <h4 className="text-center text-muted-foreground py-8">
+          No se encontraron productos con el termino "{searchTerm}"
         </h4>
       ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>ID (identificador)</th>
-              <th>Nombre del producto</th>
-              <th>Precio unitario</th>
-              <th>Stock</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table responsive>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>ID (identificador)</TableHeaderCell>
+              <TableHeaderCell>Nombre del producto</TableHeaderCell>
+              <TableHeaderCell>Precio unitario</TableHeaderCell>
+              <TableHeaderCell>Stock</TableHeaderCell>
+              <TableHeaderCell>Acciones</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody striped hover>
             {products.map((prod) => {
               const isThisRowDeleting = deletingProductId === prod._id;
               return (
-              <tr key={prod._id}>
-                <td>{prod.productId}</td>
-                <td>{prod.productName}</td>
-                <td>${formatPrice(prod.price)}</td>
-                <td>{prod.stock} unidades</td>
-                <td>
-                  <div className="d-flex justify-content-center gap-1">
-                    <EditProductInDbComp
-                      product={prod}
-                      onProductUpdated={(updated) =>
-                        setProducts((prev) =>
-                          prev.map((p) =>
-                            p._id === updated._id ? updated : p,
-                          ),
-                        )
-                      }
-                    />
-                    <Button
-                      variant="danger"
-                      className="d-flex align-items-center gap-1"
-                      onClick={() => confirmDeleteProduct(prod)}
-                      disabled={deleteInProgress}
-                    >
-                      {isThisRowDeleting ? (
-                        <>
-                          <Spinner
-                            animation="border"
-                            variant="light"
-                            size="sm"
-                          />
-                          <span>Eliminando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Trash3Fill />
-                          <span>Eliminar</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            );
+                <TableRow key={prod._id}>
+                  <TableCell>{prod.productId}</TableCell>
+                  <TableCell>{prod.productName}</TableCell>
+                  <TableCell>${formatPrice(prod.price)}</TableCell>
+                  <TableCell>{prod.stock} unidades</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <EditProductInDbComp
+                        product={prod}
+                        onProductUpdated={(updated) =>
+                          setProducts((prev) =>
+                            prev.map((p) =>
+                              p._id === updated._id ? updated : p,
+                            ),
+                          )
+                        }
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => confirmDeleteProduct(prod)}
+                        disabled={deleteInProgress}
+                      >
+                        {isThisRowDeleting ? (
+                          <>
+                            <Spinner size="sm" variant="light" />
+                            <span>Eliminando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4" />
+                            <span>Eliminar</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
             })}
-          </tbody>
+          </TableBody>
         </Table>
       )}
-    </Container>
+    </div>
   );
 };
 

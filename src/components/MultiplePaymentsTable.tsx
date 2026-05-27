@@ -1,6 +1,7 @@
-import { Button, Table } from "react-bootstrap";
-import { Trash3Fill } from "react-bootstrap-icons";
 import { formatPrice } from "../utils/utils";
+import { Button } from "./ui/Button";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Trash2 } from "lucide-react";
 
 interface Props {
   paymentMethods: PaymentMethods[];
@@ -14,38 +15,38 @@ const MultiplePaymentsTable: React.FC<Props> = ({
   return (
     <>
       {paymentMethods.length > 0 && (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Método de pago</th>
-              <th>Valor a pagar</th>
-              <th>Tarjeta de crédito</th>
-              <th>Tarjeta de débito</th>
-              <th>Cantidad de cuotas</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table responsive>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Método de pago</TableHeaderCell>
+              <TableHeaderCell>Valor a pagar</TableHeaderCell>
+              <TableHeaderCell>Tarjeta de crédito</TableHeaderCell>
+              <TableHeaderCell>Tarjeta de débito</TableHeaderCell>
+              <TableHeaderCell>Cantidad de cuotas</TableHeaderCell>
+              <TableHeaderCell>Acciones</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody striped hover>
             {paymentMethods.map((method) => (
-              <tr key={method.id}>
-                <td>{method.method}</td>
-                <td>${formatPrice(method.valueWithInterest)}</td>
-                <td>{method.creditCard || "-"}</td>
-                <td>{method.debitCard || "-"}</td>
-                <td>{method.paymentsQuantity}</td>
-                <td className="d-flex justify-content-center">
+              <TableRow key={method.id}>
+                <TableCell>{method.method}</TableCell>
+                <TableCell>${formatPrice(method.valueWithInterest)}</TableCell>
+                <TableCell>{method.creditCard || "-"}</TableCell>
+                <TableCell>{method.debitCard || "-"}</TableCell>
+                <TableCell>{method.paymentsQuantity}</TableCell>
+                <TableCell>
                   <Button
-                    className="d-flex align-items-center gap-1"
-                    variant="danger"
+                    variant="destructive"
+                    size="sm"
                     onClick={() => handleDeletePaymentMethod(method.id)}
                   >
-                    <Trash3Fill />
+                    <Trash2 className="h-4 w-4" />
                     <span>Eliminar</span>
                   </Button>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
+          </TableBody>
         </Table>
       )}
     </>

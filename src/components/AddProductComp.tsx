@@ -1,25 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import { useFormik } from "formik";
-import Form from "react-bootstrap/Form";
-import {
-  Badge,
-  Col,
-  Dropdown,
-  InputGroup,
-  Row,
-  Spinner,
-} from "react-bootstrap";
-import { Cart2, CurrencyDollar, Tag, UpcScan, X } from "react-bootstrap-icons";
 import { addProductSchema, IAddProduct } from "../utils/validationSchemas";
 import { toast } from "sonner";
 import { NumericFormat } from "react-number-format";
-import BootstrapInputAdapter from "../utils/numericFormatHelper";
 import useProducts from "../hooks/useProducts";
 import useInvoiceProducts from "../hooks/useInvoiceProducts";
 import { formatPrice } from "../utils/utils";
 import Swal from "sweetalert2";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Spinner } from "./ui/Spinner";
+import { Badge } from "./ui/Badge";
+import { Dropdown } from "./ui/Dropdown";
+import { Tag, DollarSign, ShoppingCart, Barcode, X } from "lucide-react";
 
 interface Props {
   setEditProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -89,7 +84,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
       setFilteredProducts(products);
 
       if (products.length === 0) {
-        toast.info("No se encontraron productos para la búsqueda ingresada");
+        toast.info("No se encontraron productos para la busqueda ingresada");
       }
     }, 500);
 
@@ -186,56 +181,60 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
           <Modal.Title>Agregar un producto</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <Row className="mb-3 position-relative">
-              <Form.Group as={Col} md="12" controlId="productSearchId">
-                <Form.Label>Buscar producto o escanear código</Form.Label>
-                <InputGroup>
-                  <InputGroup.Text>
-                    <Tag />
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="text"
-                    placeholder="Escriba el nombre del producto (al menos 3 caracteres) o escanee el código de barras..."
-                    value={searchTerm}
-                    autoComplete="off"
-                    autoFocus
-                    onChange={(ev) => handleInputChange(ev.target.value)}
-                    onKeyDown={handleKeyDown}
-                  />
-                </InputGroup>
-                {loadingProducts && (
-                  <div className="mt-2 d-flex align-items-center gap-2">
-                    <Spinner animation="border" size="sm" />
-                    <span>Buscando productos...</span>
-                  </div>
-                )}
-              </Form.Group>
-
-              {filteredProducts.length > 0 && !loadingProducts && !product && (
-                <Dropdown.Menu show className="position-absolute w-100 top-100">
-                  {filteredProducts.map((prod) => (
-                    <Dropdown.Item
-                      key={prod.productId}
-                      onClick={() => handleSelect(prod)}
-                    >
-                      {prod.productName} - ${formatPrice(prod.price)}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
+          <div className="flex flex-col">
+            <div className="mb-4 relative">
+              <Label htmlFor="productSearchId">
+                Buscar producto o escanear código
+              </Label>
+              <div className="relative mt-1">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  <Tag className="h-4 w-4" />
+                </div>
+                <Input
+                  id="productSearchId"
+                  type="text"
+                  placeholder="Escriba el nombre del producto (al menos 3 caracteres) o escanee el código de barras..."
+                  value={searchTerm}
+                  autoComplete="off"
+                  autoFocus
+                  onChange={(ev) => handleInputChange(ev.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="pl-10"
+                />
+              </div>
+              {loadingProducts && (
+                <div className="mt-2 flex items-center gap-2">
+                  <Spinner size="sm" />
+                  <span className="text-sm">Buscando productos...</span>
+                </div>
               )}
-            </Row>
+
+              <Dropdown.Menu
+                show={
+                  filteredProducts.length > 0 && !loadingProducts && !product
+                }
+                className="mt-1"
+              >
+                {filteredProducts.map((prod) => (
+                  <Dropdown.Item
+                    key={prod.productId}
+                    onClick={() => handleSelect(prod)}
+                  >
+                    {prod.productName} - ${formatPrice(prod.price)}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </div>
 
             {product && (
-              <Form.Group className="mb-3" controlId="priceId">
-                <Form.Label>Precio unitario</Form.Label>
-
-                <InputGroup>
-                  <InputGroup.Text>
-                    <CurrencyDollar />
-                  </InputGroup.Text>
-
+              <div className="mb-4">
+                <Label htmlFor="priceId">Precio unitario</Label>
+                <div className="relative mt-1">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <DollarSign className="h-4 w-4" />
+                  </div>
                   <NumericFormat
+                    id="priceId"
                     thousandSeparator="."
                     decimalSeparator=","
                     decimalScale={2}
@@ -243,6 +242,12 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     name="price"
                     placeholder="10.000"
                     value={values.price}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        void handleSubmit();
+                      }
+                    }}
                     onValueChange={({ value }) => {
                       const numberValue = Number(value);
                       if (
@@ -255,67 +260,82 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                       }
                       setFieldValue("price", numberValue);
                     }}
-                    className={`form-control ${
-                      touched.price && errors.price ? "is-invalid" : ""
+                    className={`flex h-10 w-full rounded-lg border bg-background pl-10 pr-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      touched.price && errors.price
+                        ? "border-destructive"
+                        : "border-input"
                     }`}
-                    customInput={BootstrapInputAdapter}
                   />
-
-                  <Form.Control.Feedback type="invalid">
-                    {errors.price && touched.price && errors.price}
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
+                </div>
+                {errors.price && touched.price && (
+                  <span className="text-sm text-destructive">
+                    {errors.price}
+                  </span>
+                )}
+              </div>
             )}
 
-            <Form.Group className="mb-3" controlId="quantityId">
-              <Form.Label>Cantidad</Form.Label>
-
-              <InputGroup>
-                <InputGroup.Text>
-                  <Cart2 />
-                </InputGroup.Text>
-
-                <Form.Control
+            <div className="mb-4">
+              <Label htmlFor="quantityId">Cantidad</Label>
+              <div className="relative mt-1">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  <ShoppingCart className="h-4 w-4" />
+                </div>
+                <Input
+                  id="quantityId"
                   placeholder="Ej: 1"
                   type="number"
                   name="quantity"
                   value={values.quantity}
                   onChange={handleChange}
-                  isInvalid={touched.quantity && !!errors.quantity}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void handleSubmit();
+                    }
+                  }}
+                  error={touched.quantity && !!errors.quantity}
+                  className="pl-10"
                 />
+              </div>
+              {errors.quantity && touched.quantity && (
+                <span className="text-sm text-destructive">
+                  {errors.quantity}
+                </span>
+              )}
+            </div>
 
-                <Form.Control.Feedback type="invalid">
-                  {errors.quantity && touched.quantity && errors.quantity}
-                </Form.Control.Feedback>
-              </InputGroup>
-            </Form.Group>
-
-            <div className="d-flex justify-content-end gap-2">
+            <div className="flex justify-end items-center gap-2">
               {unlinkedBarcode && (
                 <Badge
-                  bg="warning"
-                  text="dark"
-                  className="d-flex align-items-center p-2"
-                  style={{ fontSize: "0.85rem", border: "1px solid #ffc107" }}
+                  variant="warning"
+                  className="flex items-center gap-2 px-3 py-2"
                 >
-                  <UpcScan className="me-2" />
+                  <Barcode className="h-4 w-4" />
                   <span>
                     Código a vincular: <strong>{unlinkedBarcode}</strong>
                   </span>
-                  <X
-                    style={{ cursor: "pointer", marginLeft: "8px" }}
-                    size={20}
+                  <button
+                    type="button"
                     onClick={() => setUnlinkedBarcode(null)}
-                    title="Cancelar vinculación"
-                  />
+                    className="ml-1 hover:text-destructive transition-colors"
+                    title="Cancelar vinculacion"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </Badge>
               )}
-              <Button variant="dark" type="submit">
+              <Button
+                variant="dark"
+                type="button"
+                onClick={() => {
+                  handleSubmit();
+                }}
+              >
                 Agregar producto
               </Button>
             </div>
-          </Form>
+          </div>
         </Modal.Body>
       </Modal>
     </>

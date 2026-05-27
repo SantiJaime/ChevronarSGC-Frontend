@@ -1,13 +1,4 @@
 import { useFormik } from "formik";
-import { Button, Col, Form, Row, Spinner } from "react-bootstrap";
-import Table from "react-bootstrap/Table";
-import {
-  ArrowLeftCircleFill,
-  ArrowRightCircleFill,
-  Printer,
-  Search,
-  Trash3Fill,
-} from "react-bootstrap-icons";
 import { searchBudgetSchema } from "../utils/validationSchemas";
 import { useState } from "react";
 import {
@@ -24,7 +15,14 @@ import {
 } from "../constants/const";
 import { validateSearchInvoice } from "../utils/validationFunctions";
 import Swal from "sweetalert2";
-import { formatPrice } from '../utils/utils';
+import { formatPrice } from "../utils/utils";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
+import { Spinner } from "./ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Search, ChevronLeft, ChevronRight, Printer, Trash2 } from "lucide-react";
 
 const Budgets = () => {
   const formik = useFormik({
@@ -45,8 +43,7 @@ const Budgets = () => {
     onSubmit: () => handleSearch(),
   });
 
-  const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
-    formik;
+  const { values, errors, touched, setFieldValue, handleChange, handleSubmit } = formik;
 
   const [budgets, setBudgets] = useState<FullBudget[]>([]);
   const [page, setPage] = useState(1);
@@ -104,8 +101,8 @@ const Budgets = () => {
 
   const handleDelete = async (id: string) => {
     Swal.fire({
-      title: "¿Estás seguro de eliminar este presupuesto?",
-      text: "Esta acción no se puede deshacer",
+      title: "Estas seguro de eliminar este presupuesto?",
+      text: "Esta accion no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -140,355 +137,300 @@ const Budgets = () => {
 
   return (
     <div>
-      <h2>Historial de presupuestos</h2>
-      <hr />
+      <h2 className="text-xl font-bold mb-4">Historial de presupuestos</h2>
+      <hr className="border-border mb-4" />
 
-      <Form noValidate onSubmit={handleSubmit}>
-        <Row>
-          <Form.Group as={Col} md={3} controlId="budgetFromDateId">
-            <Form.Label>Desde *</Form.Label>
-            <Form.Control
+      <form noValidate onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <Label htmlFor="budgetFromDateId">Desde *</Label>
+            <Input
+              id="budgetFromDateId"
               type="text"
               name="fromDate"
               value={values.fromDate}
               onChange={(ev) => {
                 let value = ev.target.value.replace(/[^0-9]/g, "");
-
-                if (value.length > 4)
-                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7)
-                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-
+                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
                 setFieldValue("fromDate", value);
               }}
               placeholder="YYYY-MM-DD"
-              isInvalid={touched.fromDate && !!errors.fromDate}
+              error={touched.fromDate && !!errors.fromDate}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="budgetToDateId">
-            <Form.Label>Hasta *</Form.Label>
-            <Form.Control
+            {errors.fromDate && touched.fromDate && (
+              <span className="text-sm text-destructive">{errors.fromDate}</span>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="budgetToDateId">Hasta *</Label>
+            <Input
+              id="budgetToDateId"
               type="text"
               name="toDate"
               value={values.toDate}
               onChange={(ev) => {
                 let value = ev.target.value.replace(/[^0-9]/g, "");
-
-                if (value.length > 4)
-                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7)
-                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-
+                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
                 setFieldValue("toDate", value);
               }}
               placeholder="YYYY-MM-DD"
-              isInvalid={touched.toDate && !!errors.toDate}
+              error={touched.toDate && !!errors.toDate}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.toDate && touched.toDate ? errors.toDate : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="budgetSalePointId">
-            <Form.Label>Punto de venta *</Form.Label>
-            <Form.Select
+            {errors.toDate && touched.toDate && (
+              <span className="text-sm text-destructive">{errors.toDate}</span>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="budgetSalePointId">Punto de venta *</Label>
+            <Select
+              id="budgetSalePointId"
               name="salePoint"
               value={values.salePoint}
               onChange={handleChange}
-              isInvalid={touched.salePoint && !!errors.salePoint}
+              error={touched.salePoint && !!errors.salePoint}
+              className="mt-1"
             >
               <option value="">Punto de venta no seleccionado</option>
               {BUDGET_SALE_POINTS.map((point) => (
-                <option value={point.value} key={point.name}>
-                  {point.name}
-                </option>
+                <option value={point.value} key={point.name}>{point.name}</option>
               ))}
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-              {errors.salePoint && touched.salePoint ? errors.salePoint : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="budgetClientDocumentId">
-            <Form.Label>Documento del cliente</Form.Label>
-            <Form.Control
+            </Select>
+            {errors.salePoint && touched.salePoint && (
+              <span className="text-sm text-destructive">{errors.salePoint}</span>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="budgetClientDocumentId">Documento del cliente</Label>
+            <Input
+              id="budgetClientDocumentId"
               type="text"
               name="clientDocument"
               value={values.clientDocument}
               onChange={handleChange}
               placeholder="Ej: 12345678912"
               autoComplete="off"
-              isInvalid={touched.clientDocument && !!errors.clientDocument}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.clientDocument && touched.clientDocument
-                ? errors.clientDocument
-                : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-        </Row>
-        <Row className="mt-3">
-          <Form.Group as={Col} md={3} controlId="budgetClientNameId">
-            <Form.Label>Nombre del cliente</Form.Label>
-            <Form.Control
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <Label htmlFor="budgetClientNameId">Nombre del cliente</Label>
+            <Input
+              id="budgetClientNameId"
               type="text"
               name="clientName"
               value={values.clientName}
               onChange={handleChange}
-              placeholder="Ej: Juan Pérez"
+              placeholder="Ej: Juan Perez"
               autoComplete="off"
-              isInvalid={touched.clientName && !!errors.clientName}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.clientName && touched.clientName ? errors.clientName : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={3} controlId="budgetNumberId">
-            <Form.Label>Número de presupuesto</Form.Label>
-            <Form.Control
+          </div>
+          
+          <div>
+            <Label htmlFor="budgetNumberId">Número de presupuesto</Label>
+            <Input
+              id="budgetNumberId"
               type="text"
               name="budgetNumber"
               value={values.budgetNumber}
               onChange={handleChange}
               placeholder="Ej: 20"
               autoComplete="off"
-              isInvalid={touched.budgetNumber && !!errors.budgetNumber}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.budgetNumber && touched.budgetNumber
-                ? errors.budgetNumber
-                : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-        </Row>
-        <Row className="mt-3">
-          <Form.Group as={Col} md={4} controlId="budgetSaleConditionId">
-            <Form.Label>Condición de venta</Form.Label>
-            <Form.Select
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <Label htmlFor="budgetSaleConditionId">Condición de venta</Label>
+            <Select
+              id="budgetSaleConditionId"
               name="saleCond"
               value={values.saleCond}
               onChange={handleChange}
-              isInvalid={touched.saleCond && !!errors.saleCond}
+              className="mt-1"
             >
               <option value="">Condición de venta no seleccionada</option>
               {SALE_CONDITIONS.map((cond) => (
-                <option value={cond} key={cond}>
-                  {cond}
-                </option>
+                <option value={cond} key={cond}>{cond}</option>
               ))}
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-              {errors.saleCond && touched.saleCond ? errors.saleCond : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          {values.saleCond === "Crédito" ? (
+            </Select>
+          </div>
+          
+          {values.saleCond === "Crédito" && (
             <>
-              <Form.Group as={Col} md={4} controlId="budgetCreditCardId">
-                <Form.Label>Tarjeta de crédito</Form.Label>
-                <Form.Select
+              <div>
+                <Label htmlFor="budgetCreditCardId">Tarjeta de crédito</Label>
+                <Select
+                  id="budgetCreditCardId"
                   onChange={handleChange}
                   value={values.creditCard}
                   name="creditCard"
-                  isInvalid={touched.creditCard && !!errors.creditCard}
+                  className="mt-1"
                 >
-                  <option value={""}>Tarjeta no seleccionada</option>
+                  <option value="">Tarjeta no seleccionada</option>
                   {CREDIT_CARDS.map((card) => (
-                    <option key={card} value={card}>
-                      {card}
-                    </option>
+                    <option key={card} value={card}>{card}</option>
                   ))}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group
-                as={Col}
-                md={4}
-                controlId="budgetCreditPaymentsQuantityId"
-              >
-                <Form.Label>Cantidad de cuotas</Form.Label>
-                <Form.Control
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="budgetCreditPaymentsQuantityId">Cantidad de cuotas</Label>
+                <Input
+                  id="budgetCreditPaymentsQuantityId"
                   type="text"
                   name="paymentsQuantity"
                   value={values.paymentsQuantity}
                   onChange={handleChange}
                   placeholder="Ej: 3"
                   autoComplete="off"
-                  isInvalid={
-                    touched.paymentsQuantity && !!errors.paymentsQuantity
-                  }
+                  className="mt-1"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.paymentsQuantity && touched.paymentsQuantity
-                    ? errors.paymentsQuantity
-                    : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
+              </div>
             </>
-          ) : values.saleCond === "Débito" ? (
+          )}
+          
+          {values.saleCond === "Débito" && (
             <>
-              <Form.Group as={Col} md={4} controlId="budgetDebitCardId">
-                <Form.Label>Tarjeta de débito</Form.Label>
-                <Form.Select
+              <div>
+                <Label htmlFor="budgetDebitCardId">Tarjeta de débito</Label>
+                <Select
+                  id="budgetDebitCardId"
                   onChange={handleChange}
                   value={values.debitCard}
                   name="debitCard"
-                  isInvalid={touched.debitCard && !!errors.debitCard}
+                  className="mt-1"
                 >
-                  <option value={""}>Tarjeta no seleccionada</option>
+                  <option value="">Tarjeta no seleccionada</option>
                   {DEBIT_CARDS.map((card) => (
-                    <option key={card} value={card}>
-                      {card}
-                    </option>
+                    <option key={card} value={card}>{card}</option>
                   ))}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group
-                as={Col}
-                md={4}
-                controlId="budgetDebitPaymentsQuantityId"
-              >
-                <Form.Label>Cantidad de cuotas</Form.Label>
-                <Form.Control
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="budgetDebitPaymentsQuantityId">Cantidad de cuotas</Label>
+                <Input
+                  id="budgetDebitPaymentsQuantityId"
                   type="text"
                   name="paymentsQuantity"
                   value={values.paymentsQuantity}
                   onChange={handleChange}
                   placeholder="Ej: 3"
                   autoComplete="off"
-                  isInvalid={
-                    touched.paymentsQuantity && !!errors.paymentsQuantity
-                  }
+                  className="mt-1"
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.paymentsQuantity && touched.paymentsQuantity
-                    ? errors.paymentsQuantity
-                    : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
+              </div>
             </>
-          ) : (
-            ""
           )}
-        </Row>
-        <div className="d-flex justify-content-end mt-3">
-          <Button
-            type="submit"
-            variant="dark"
-            className="d-flex align-items-center gap-1"
-          >
-            <Search />
+        </div>
+        
+        <div className="flex justify-end">
+          <Button type="submit" variant="dark">
+            <Search className="h-4 w-4" />
             <span>Buscar</span>
           </Button>
         </div>
-      </Form>
-      <hr />
+      </form>
+      
+      <hr className="border-border my-4" />
+      
       {loading ? (
-        <div className="d-flex flex-column align-items-center justify-content-center">
-          <Spinner animation="border" variant="dark" />
-          <h4>Cargando...</h4>
+        <div className="flex flex-col items-center justify-center py-8">
+          <Spinner size="lg" />
+          <h4 className="mt-4 text-lg font-medium">Cargando...</h4>
         </div>
       ) : budgets.length === 0 ? (
-        <h4 className="text-center">No se encontraron presupuestos</h4>
+        <h4 className="text-center text-lg text-muted-foreground py-8">No se encontraron presupuestos</h4>
       ) : (
         <>
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Nro. de presupuesto</th>
-                <th>Importes | Condición de venta</th>
-                <th>Punto de venta</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table responsive>
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell>Cliente</TableHeaderCell>
+                <TableHeaderCell>Nro. de presupuesto</TableHeaderCell>
+                <TableHeaderCell>Importes | Condición de venta</TableHeaderCell>
+                <TableHeaderCell>Punto de venta</TableHeaderCell>
+                <TableHeaderCell>Acciones</TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody striped hover>
               {budgets.map((budget) => {
                 const isThisRowDeleting = deletingBudgetId === budget._id;
                 return (
-                <tr key={budget._id}>
-                  <td>
-                    {budget.client.name} | {budget.client.document}
-                  </td>
-                  <td>Presupuesto Nº {budget.budgetNumber}</td>
-                  <td>
-                    <div>
-                      <div>
-                        <strong>Total: </strong>${formatPrice(budget.amounts.total)} |
-                        <strong> IVA: </strong>${formatPrice(budget.amounts.iva)} |
-                        <strong> Precio sin IVA: </strong>$
-                        {formatPrice(budget.amounts.precioSinIva)}
+                  <TableRow key={budget._id}>
+                    <TableCell>{budget.client.name} | {budget.client.document}</TableCell>
+                    <TableCell>Presupuesto No {budget.budgetNumber}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">
+                          <strong>Total:</strong> ${formatPrice(budget.amounts.total)} |
+                          <strong> IVA:</strong> ${formatPrice(budget.amounts.iva)} |
+                          <strong> Precio sin IVA:</strong> ${formatPrice(budget.amounts.precioSinIva)}
+                        </div>
+                        <div className="text-sm">
+                          <strong>{budget.saleCond}</strong>
+                          {(budget.debitCard || budget.creditCard) && ` - ${budget.debitCard || budget.creditCard}`}
+                          {" "}- {budget.paymentsQuantity} pago(s)
+                        </div>
                       </div>
-                      <strong>{budget.saleCond}</strong>{" "}
-                      {(budget.debitCard || budget.creditCard) &&
-                        `- ${budget.debitCard || budget.creditCard}`}{" "}
-                      - {budget.paymentsQuantity} pago(s)
-                    </div>
-                  </td>
-                  <td>
-                    {budget.salePoint === "00002"
-                      ? "Av. San Martín 112"
-                      : "Av. Colón 315"}
-                  </td>
-                  <td>
-                    <div className="d-flex justify-content-center gap-1">
-                      <Button
-                        variant="success"
-                        className="d-flex align-items-center gap-1"
-                        onClick={() => handlePrint(budget)}
-                      >
-                        <Printer />
-                        <span>Imprimir</span>
-                      </Button>
-                      <Button
-                        variant="danger"
-                        className="d-flex align-items-center gap-1"
-                        onClick={() => handleDelete(budget._id)}
-                        disabled={deleteInProgress}
-                      >
-                        {isThisRowDeleting ? (
-                          <>
-                            <Spinner
-                              animation="border"
-                              variant="light"
-                              size="sm"
-                            />
-                            <span>Eliminando...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Trash3Fill />
-                            <span>Eliminar</span>
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
+                    </TableCell>
+                    <TableCell>
+                      {budget.salePoint === "00002" ? "Av. San Martin 112" : "Av. Colon 315"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button variant="success" size="sm" onClick={() => handlePrint(budget)}>
+                          <Printer className="h-4 w-4" />
+                          <span>Imprimir</span>
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(budget._id)}
+                          disabled={deleteInProgress}
+                        >
+                          {isThisRowDeleting ? (
+                            <>
+                              <Spinner size="sm" variant="light" />
+                              <span>Eliminando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="h-4 w-4" />
+                              <span>Eliminar</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
               })}
-            </tbody>
+            </TableBody>
           </Table>
-          <div className="d-flex justify-content-center align-items-center gap-2 mb-3">
-            <Button
-              onClick={goToPreviousPage}
-              disabled={page === 1}
-              variant="dark"
-              className="d-flex align-items-center gap-1"
-            >
-              <ArrowLeftCircleFill />
+          
+          <div className="flex justify-center items-center gap-4 mt-4 mb-4">
+            <Button onClick={goToPreviousPage} disabled={page === 1} variant="dark" size="sm">
+              <ChevronLeft className="h-4 w-4" />
               <span>Anterior</span>
             </Button>
-            <span>
-              Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+            <span className="text-sm">
+              Pagina <strong>{page}</strong> de <strong>{totalPages}</strong>
             </span>
-            <Button
-              onClick={goToNextPage}
-              disabled={page === totalPages}
-              variant="dark"
-              className="d-flex align-items-center gap-1"
-            >
+            <Button onClick={goToNextPage} disabled={page === totalPages} variant="dark" size="sm">
               <span>Siguiente</span>
-              <ArrowRightCircleFill />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </>

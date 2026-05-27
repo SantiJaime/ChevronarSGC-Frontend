@@ -1,13 +1,12 @@
 import { useState } from "react";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import { Formik } from "formik";
-import Form from "react-bootstrap/Form";
-import { InputGroup } from "react-bootstrap";
-import { Cart2, CurrencyDollar, PencilFill, Tag } from "react-bootstrap-icons";
 import { addProductSchema } from "../utils/validationSchemas";
-import { NumericFormat } from 'react-number-format';
-import BootstrapInputAdapter from '../utils/numericFormatHelper';
+import { NumericFormat } from "react-number-format";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Pencil, Tag, DollarSign, ShoppingCart } from "lucide-react";
 
 interface Props {
   product: Product;
@@ -32,12 +31,8 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
 
   return (
     <>
-      <Button
-        variant="info"
-        onClick={handleShow}
-        className="d-flex align-items-center gap-1"
-      >
-        <PencilFill />
+      <Button variant="info" size="sm" onClick={handleShow}>
+        <Pencil className="h-4 w-4" />
         <span>Editar</span>
       </Button>
 
@@ -65,35 +60,37 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
             }}
           >
             {({ values, errors, touched, handleChange, handleSubmit, setFieldValue }) => (
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="productNameId">
-                  <Form.Label>Nombre</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>
-                      <Tag />
-                    </InputGroup.Text>
-                    <Form.Control
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <Label htmlFor="productNameId">Nombre</Label>
+                  <div className="relative mt-1">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <Tag className="h-4 w-4" />
+                    </div>
+                    <Input
+                      id="productNameId"
                       placeholder="Ej: Kit de distribución"
                       type="text"
                       name="productName"
                       value={values.productName}
                       onChange={handleChange}
-                      isInvalid={touched.productName && !!errors.productName}
+                      error={touched.productName && !!errors.productName}
+                      className="pl-10"
                     />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.productName &&
-                        touched.productName &&
-                        errors.productName}
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="priceId">
-                  <Form.Label>Precio unitario</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>
-                      <CurrencyDollar />
-                    </InputGroup.Text>
+                  </div>
+                  {errors.productName && touched.productName && (
+                    <span className="text-sm text-destructive">{errors.productName}</span>
+                  )}
+                </div>
+                
+                <div className="mb-4">
+                  <Label htmlFor="priceId">Precio unitario</Label>
+                  <div className="relative mt-1">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <DollarSign className="h-4 w-4" />
+                    </div>
                     <NumericFormat
+                      id="priceId"
                       thousandSeparator="."
                       decimalSeparator=","
                       decimalScale={2}
@@ -104,41 +101,44 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
                       onValueChange={({ value }) =>
                         setFieldValue("price", value)
                       }
-                      className={`form-control ${
-                        touched.price && errors.price ? "is-invalid" : ""
+                      className={`flex h-10 w-full rounded-lg border bg-background pl-10 pr-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                        touched.price && errors.price ? "border-destructive" : "border-input"
                       }`}
-                      customInput={BootstrapInputAdapter}
                     />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.price && touched.price && errors.price}
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="quantityId">
-                  <Form.Label>Cantidad</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>
-                      <Cart2 />
-                    </InputGroup.Text>
-                    <Form.Control
+                  </div>
+                  {errors.price && touched.price && (
+                    <span className="text-sm text-destructive">{errors.price}</span>
+                  )}
+                </div>
+                
+                <div className="mb-4">
+                  <Label htmlFor="quantityId">Cantidad</Label>
+                  <div className="relative mt-1">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <ShoppingCart className="h-4 w-4" />
+                    </div>
+                    <Input
+                      id="quantityId"
                       placeholder="Ej: 1"
                       type="number"
                       name="quantity"
                       value={values.quantity}
                       onChange={handleChange}
-                      isInvalid={touched.quantity && !!errors.quantity}
+                      error={touched.quantity && !!errors.quantity}
+                      className="pl-10"
                     />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.quantity && touched.quantity && errors.quantity}
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-                <div className="d-flex justify-content-end">
+                  </div>
+                  {errors.quantity && touched.quantity && (
+                    <span className="text-sm text-destructive">{errors.quantity}</span>
+                  )}
+                </div>
+                
+                <div className="flex justify-end">
                   <Button variant="dark" type="submit">
                     Guardar cambios
                   </Button>
                 </div>
-              </Form>
+              </form>
             )}
           </Formik>
         </Modal.Body>

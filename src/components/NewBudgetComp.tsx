@@ -1,14 +1,5 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  Dropdown,
-  Form,
-  Row,
-  Spinner,
-  Table,
-} from "react-bootstrap";
 import { createBudget } from "../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProductComp from "./AddProductComp";
@@ -21,12 +12,19 @@ import {
 } from "../constants/const";
 import { validateInvoice } from "../utils/validationFunctions";
 import AddPaymentMethod from "./AddPaymentMethod";
-import { CheckLg, Trash3Fill } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { createBudgetSchema } from "../utils/validationSchemas";
 import { formatPrice } from "../utils/utils";
 import useInvoiceProducts from "../hooks/useInvoiceProducts";
-import NewProductComp from './NewProductComp';
+import NewProductComp from "./NewProductComp";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
+import { Spinner } from "./ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Dropdown } from "./ui/Dropdown";
+import { Check, Trash2 } from "lucide-react";
 
 const NewBudgetComp = () => {
   const [loading, setLoading] = useState(false);
@@ -77,6 +75,7 @@ const NewBudgetComp = () => {
     setFilteredItems(filtered);
     setShowDropdown(filtered.length > 0);
   };
+  
   const handleSelect = (client: Client) => {
     setSearchTerm(`${client.name} - ${client.document}`);
     setClient({ ...client, document: client.document.toString() });
@@ -97,8 +96,8 @@ const NewBudgetComp = () => {
 
   const handleDelete = (productId: number) => {
     Swal.fire({
-      title: "¿Estás seguro de eliminar este producto?",
-      text: "Esta acción no se puede deshacer",
+      title: "Estas seguro de eliminar este producto?",
+      text: "Esta accion no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -168,6 +167,7 @@ const NewBudgetComp = () => {
       finally: () => setLoading(false),
     });
   };
+  
   return (
     <>
       <Formik
@@ -182,255 +182,251 @@ const NewBudgetComp = () => {
         }}
       >
         {({ values, errors, touched, handleChange, handleSubmit }) => (
-          <Form noValidate onSubmit={handleSubmit}>
-            <h4>Datos del cliente</h4>
-            <Row className="mb-3 position-relative">
-              <Form.Group as={Col} md="12" controlId="clientSearchId">
-                <Form.Label>Buscar cliente</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Escriba el CUIT o nombre del cliente (al menos 3 caracteres)"
-                  value={searchTerm}
-                  autoComplete="off"
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
-
-              {showDropdown && (
-                <Dropdown.Menu show className="position-absolute w-100 top-100">
-                  {filteredItems.map((client) => (
-                    <Dropdown.Item
-                      key={client.document}
-                      onClick={() => handleSelect(client)}
-                    >
-                      {client.name} - {client.document}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              )}
-            </Row>
-            <Row className="mb-3">
-              <Form.Group as={Col} md="4" controlId="saleConditionId">
-                <Form.Label>Condición de venta</Form.Label>
-                <Form.Select
+          <form noValidate onSubmit={handleSubmit}>
+            <h4 className="text-lg font-semibold mb-4">Datos del cliente</h4>
+            
+            <div className="mb-4 relative">
+              <Label htmlFor="clientSearchId">Buscar cliente</Label>
+              <Input
+                id="clientSearchId"
+                type="text"
+                placeholder="Escriba el CUIT o nombre del cliente (al menos 3 caracteres)"
+                value={searchTerm}
+                autoComplete="off"
+                onChange={handleInputChange}
+                className="mt-1"
+              />
+              
+              <Dropdown.Menu show={showDropdown} className="mt-1">
+                {filteredItems.map((client) => (
+                  <Dropdown.Item
+                    key={client.document}
+                    onClick={() => handleSelect(client)}
+                  >
+                    {client.name} - {client.document}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label htmlFor="saleConditionId">Condición de venta</Label>
+                <Select
+                  id="saleConditionId"
                   onChange={handleChange}
                   value={values.saleCond}
                   name="saleCond"
-                  isInvalid={touched.saleCond && !!errors.saleCond}
+                  error={touched.saleCond && !!errors.saleCond}
+                  className="mt-1"
                 >
-                  <option value={""}>Condición de venta no seleccionada</option>
+                  <option value="">Condición de venta no seleccionada</option>
                   {SALE_CONDITIONS.map((cond) => (
                     <option key={cond} value={cond}>
                       {cond}
                     </option>
                   ))}
-                </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {errors.saleCond && touched.saleCond ? errors.saleCond : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md="4" controlId="salePointId">
-                <Form.Label>Punto de venta</Form.Label>
-                <Form.Select
+                </Select>
+                {errors.saleCond && touched.saleCond && (
+                  <span className="text-sm text-destructive">{errors.saleCond}</span>
+                )}
+              </div>
+              
+              <div>
+                <Label htmlFor="salePointId">Punto de venta</Label>
+                <Select
+                  id="salePointId"
                   onChange={handleChange}
                   value={values.salePoint}
                   name="salePoint"
-                  isInvalid={touched.salePoint && !!errors.salePoint}
+                  error={touched.salePoint && !!errors.salePoint}
+                  className="mt-1"
                 >
-                  <option value={""}>Punto de venta no seleccionado</option>
+                  <option value="">Punto de venta no seleccionado</option>
                   {BUDGET_SALE_POINTS.map((point) => (
                     <option key={point.name} value={point.value}>
                       {point.name}
                     </option>
                   ))}
-                </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {errors.salePoint && touched.salePoint
-                    ? errors.salePoint
-                    : ""}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <Row>
-              {values.saleCond === "Crédito" ? (
-                <Form.Group as={Col} md="4" controlId="creditCardId">
-                  <Form.Label>Tarjeta de crédito</Form.Label>
-                  <Form.Select
+                </Select>
+                {errors.salePoint && touched.salePoint && (
+                  <span className="text-sm text-destructive">{errors.salePoint}</span>
+                )}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {values.saleCond === "Crédito" && (
+                <div>
+                  <Label htmlFor="creditCardId">Tarjeta de crédito</Label>
+                  <Select
+                    id="creditCardId"
                     onChange={handleChange}
                     value={values.creditCard}
                     name="creditCard"
-                    isInvalid={touched.creditCard && !!errors.creditCard}
+                    className="mt-1"
                   >
-                    <option value={""}>Tarjeta no seleccionada</option>
+                    <option value="">Tarjeta no seleccionada</option>
                     {CREDIT_CARDS.map((card) => (
                       <option key={card} value={card}>
                         {card}
                       </option>
                     ))}
-                  </Form.Select>
-                </Form.Group>
-              ) : values.saleCond === "Débito" ? (
-                <Form.Group as={Col} md="4" controlId="debitCardId">
-                  <Form.Label>Tarjeta de débito</Form.Label>
-                  <Form.Select
+                  </Select>
+                </div>
+              )}
+              
+              {values.saleCond === "Débito" && (
+                <div>
+                  <Label htmlFor="debitCardId">Tarjeta de débito</Label>
+                  <Select
+                    id="debitCardId"
                     onChange={handleChange}
                     value={values.debitCard}
                     name="debitCard"
-                    isInvalid={touched.debitCard && !!errors.debitCard}
+                    className="mt-1"
                   >
-                    <option value={""}>Tarjeta no seleccionada</option>
+                    <option value="">Tarjeta no seleccionada</option>
                     {DEBIT_CARDS.map((card) => (
                       <option key={card} value={card}>
                         {card}
                       </option>
                     ))}
-                  </Form.Select>
-                </Form.Group>
-              ) : (
-                ""
+                  </Select>
+                </div>
               )}
-              {values.saleCond === "Crédito" || values.saleCond === "Débito" ? (
-                <Form.Group as={Col} md="4" controlId="paymentsQuantityId">
-                  <Form.Label>Cantidad de cuotas</Form.Label>
-                  <Form.Control
+              
+              {(values.saleCond === "Crédito" || values.saleCond === "Débito") && (
+                <div>
+                  <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
+                  <Input
+                    id="paymentsQuantityId"
                     type="text"
                     placeholder="Ej: 6"
                     value={values.paymentsQuantity}
                     onChange={handleChange}
                     name="paymentsQuantity"
+                    className="mt-1"
                   />
-                </Form.Group>
-              ) : (
-                ""
+                </div>
               )}
-            </Row>
-            {values.saleCond === "Múltiples métodos de pago" &&
-            products.length > 0 ? (
-              <Row>
-                <Col md="4">
-                  <AddPaymentMethod
-                    setPaymentMethods={setPaymentMethods}
-                    setPaymentsLeftValue={setPaymentsLeftValue}
-                    paymentsLeftValue={paymentsLeftValue}
-                  />
-                </Col>
-              </Row>
-            ) : (
-              ""
+            </div>
+            
+            {values.saleCond === "Múltiples métodos de pago" && products.length > 0 && (
+              <div className="mb-4">
+                <AddPaymentMethod
+                  setPaymentMethods={setPaymentMethods}
+                  setPaymentsLeftValue={setPaymentsLeftValue}
+                  paymentsLeftValue={paymentsLeftValue}
+                />
+              </div>
             )}
+            
             {paymentMethods.length > 0 && (
-              <Table striped bordered hover responsive className="mt-3">
-                <thead>
-                  <tr>
-                    <th>Método de pago</th>
-                    <th>Valor a pagar</th>
-                    <th>Tarjeta de crédito</th>
-                    <th>Tarjeta de débito</th>
-                    <th>Cantidad de cuotas</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table responsive className="mt-4">
+                <TableHead>
+                  <TableRow>
+                    <TableHeaderCell>Método de pago</TableHeaderCell>
+                    <TableHeaderCell>Valor a pagar</TableHeaderCell>
+                    <TableHeaderCell>Tarjeta de crédito</TableHeaderCell>
+                    <TableHeaderCell>Tarjeta de débito</TableHeaderCell>
+                    <TableHeaderCell>Cantidad de cuotas</TableHeaderCell>
+                    <TableHeaderCell>Acciones</TableHeaderCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody striped hover>
                   {paymentMethods.map((method) => (
-                    <tr key={method.id}>
-                      <td>{method.method}</td>
-                      <td>${method.valueToPay}</td>
-                      <td>{method.creditCard || "-"}</td>
-                      <td>{method.debitCard || "-"}</td>
-                      <td>{method.paymentsQuantity}</td>
-                      <td className="d-flex justify-content-center">
+                    <TableRow key={method.id}>
+                      <TableCell>{method.method}</TableCell>
+                      <TableCell>${method.valueToPay}</TableCell>
+                      <TableCell>{method.creditCard || "-"}</TableCell>
+                      <TableCell>{method.debitCard || "-"}</TableCell>
+                      <TableCell>{method.paymentsQuantity}</TableCell>
+                      <TableCell>
                         <Button
-                          className="d-flex align-items-center gap-1"
-                          variant="danger"
+                          variant="destructive"
+                          size="sm"
                           onClick={() => handleDeletePaymentMethod(method.id)}
                         >
-                          <Trash3Fill />
-                          <span>Eliminar</span>
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Eliminar
                         </Button>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
+                </TableBody>
               </Table>
             )}
-            <hr />
-            <div className="d-flex justify-content-between">
-              <h4>Productos</h4>
+            
+            <hr className="my-6 border-border" />
+            
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="text-lg font-semibold">Productos</h4>
               <AddProductComp />
             </div>
+            
             {products.length === 0 ? (
-              <p>No hay productos agregados</p>
+              <p className="text-muted-foreground">No hay productos agregados</p>
             ) : (
               <>
-                <Table striped bordered hover responsive className="mt-3">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Precio unitario</th>
-                      <th>Cantidad</th>
-                      <th>Subtotal</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table responsive className="mt-4">
+                  <TableHead>
+                    <TableRow>
+                      <TableHeaderCell>Producto</TableHeaderCell>
+                      <TableHeaderCell>Precio unitario</TableHeaderCell>
+                      <TableHeaderCell>Cantidad</TableHeaderCell>
+                      <TableHeaderCell>Subtotal</TableHeaderCell>
+                      <TableHeaderCell>Acciones</TableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody striped hover>
                     {products.map((product) => (
-                      <tr key={product.productId}>
-                        <td>{product.productName}</td>
-                        <td>${formatPrice(product.price)}</td>
-                        <td>{product.quantity}</td>
-                        <td>
-                          ${formatPrice(product.price * product.quantity)}
-                        </td>
-                        <td className="d-flex justify-content-center gap-2">
+                      <TableRow key={product.productId}>
+                        <TableCell>{product.productName}</TableCell>
+                        <TableCell>${formatPrice(product.price)}</TableCell>
+                        <TableCell>{product.quantity}</TableCell>
+                        <TableCell>${formatPrice(product.price * product.quantity)}</TableCell>
+                        <TableCell>
                           <Button
-                            className="d-flex align-items-center gap-1"
-                            variant="danger"
+                            variant="destructive"
+                            size="sm"
                             onClick={() => handleDelete(product.productId)}
                           >
-                            <Trash3Fill />
-                            <span>Eliminar</span>
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Eliminar
                           </Button>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
+                  </TableBody>
                 </Table>
-                <div className="d-flex justify-content-end flex-column align-items-end">
-                  <h5>IVA: ${formatPrice(productsTotal.iva)}</h5>
-                  <h5>
-                    Precio s/ IVA: ${formatPrice(productsTotal.precioSinIva)}
-                  </h5>
-                  <h4>Total: ${formatPrice(productsTotal.total)}</h4>
+                
+                <div className="flex flex-col items-end mt-4 gap-1">
+                  <p className="text-lg">IVA: <span className="font-semibold">${formatPrice(productsTotal.iva)}</span></p>
+                  <p className="text-lg">Precio s/ IVA: <span className="font-semibold">${formatPrice(productsTotal.precioSinIva)}</span></p>
+                  <p className="text-xl font-bold">Total: ${formatPrice(productsTotal.total)}</p>
                 </div>
               </>
             )}
-            <div className="d-flex justify-content-end mb-4">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="d-flex justify-content-center align-items-center gap-1"
-              >
+            
+            <div className="flex justify-end mt-6 mb-4">
+              <Button type="submit" disabled={loading}>
                 {loading ? (
-                  <div className="d-flex justify-content-center align-items-center gap-2">
-                    <Spinner size="sm" />
+                  <>
+                    <Spinner size="sm" variant="light" />
                     <span>Cargando...</span>
-                  </div>
+                  </>
                 ) : (
                   <>
-                    <CheckLg />
+                    <Check className="h-4 w-4" />
                     <span>Generar presupuesto</span>
                   </>
                 )}
               </Button>
             </div>
-          </Form>
+          </form>
         )}
       </Formik>
-      <h3>
-        ¿El producto que estás buscando no se encuentra en la lista? Crealo
-        aquí:
-      </h3>
-      <hr />
       <NewProductComp />
     </>
   );

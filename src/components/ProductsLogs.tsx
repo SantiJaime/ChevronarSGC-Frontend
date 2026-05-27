@@ -1,7 +1,5 @@
 import { useFormik } from "formik";
-import { Button, Col, Dropdown, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import { SELLERS, SELLERS_MAP } from "../constants/const";
-import { Search, UpcScan } from "react-bootstrap-icons";
 import { useEffect, useRef, useState } from "react";
 import useProducts from "../hooks/useProducts";
 import {
@@ -10,6 +8,13 @@ import {
 } from "../utils/validationSchemas";
 import { toast } from "sonner";
 import useSales from "../hooks/useSales";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
+import { Spinner } from "./ui/Spinner";
+import { Dropdown } from "./ui/Dropdown";
+import { Search, Barcode } from "lucide-react";
 
 interface ProductFormValues {
   fromDate: string;
@@ -55,7 +60,7 @@ const ProductsLogs = () => {
       const products = await handleSearchProducts(term);
       setFilteredProducts(products);
       if (products.length === 0) {
-        toast.info("No se encontraron productos para la búsqueda ingresada");
+        toast.info("No se encontraron productos para la busqueda ingresada");
       }
     }, 500);
 
@@ -115,115 +120,117 @@ const ProductsLogs = () => {
 
   return (
     <>
-      <Form noValidate onSubmit={handleSubmit}>
-        <Row className="position-relative mb-3">
-          <Form.Group as={Col} md="12" controlId="productSearchId">
-            <Form.Label>Buscar producto *</Form.Label>
-            <InputGroup>
-              <InputGroup.Text><UpcScan /></InputGroup.Text>
-              <Form.Control
-                type="text"
-                placeholder="Escriba el nombre o escanee el código de barras (mín. 3 caracteres)..."
-                value={searchTerm}
-                autoComplete="off"
-                onChange={(ev) => handleInputChange(ev.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-            </InputGroup>
-            {loadingProducts && (
-              <div className="mt-2 d-flex align-items-center gap-2">
-                <Spinner animation="border" size="sm" />
-                <span>Buscando productos...</span>
-              </div>
-            )}
-          </Form.Group>
-
-          {filteredProducts.length > 0 && !loadingProducts && !product && (
-            <Dropdown.Menu show className="position-absolute w-100 top-100" style={{ zIndex: 1050 }}>
-              {filteredProducts.map((prod) => (
-                <Dropdown.Item
-                  key={prod.productId}
-                  onClick={() => handleSelect(prod)}
-                >
-                  {prod.productName}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
+      <form noValidate onSubmit={handleSubmit}>
+        <div className="mb-4 relative">
+          <Label htmlFor="productSearchId">Buscar producto *</Label>
+          <div className="relative mt-1">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Barcode className="h-4 w-4" />
+            </div>
+            <Input
+              id="productSearchId"
+              type="text"
+              placeholder="Escriba el nombre o escanee el código de barras (min. 3 caracteres)..."
+              value={searchTerm}
+              autoComplete="off"
+              onChange={(ev) => handleInputChange(ev.target.value)}
+              onKeyDown={handleKeyDown}
+              className="pl-10"
+            />
+          </div>
+          {loadingProducts && (
+            <div className="mt-2 flex items-center gap-2">
+              <Spinner size="sm" />
+              <span className="text-sm">Buscando productos...</span>
+            </div>
           )}
-        </Row>
-        <Row>
-          <Form.Group as={Col} md={4} controlId="saleFromDateId">
-            <Form.Label>Desde *</Form.Label>
-            <Form.Control
+          
+          <Dropdown.Menu 
+            show={filteredProducts.length > 0 && !loadingProducts && !product} 
+            className="mt-1 z-50"
+          >
+            {filteredProducts.map((prod) => (
+              <Dropdown.Item
+                key={prod.productId}
+                onClick={() => handleSelect(prod)}
+              >
+                {prod.productName}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <Label htmlFor="saleFromDateId">Desde *</Label>
+            <Input
+              id="saleFromDateId"
               type="date"
               name="fromDate"
               value={values.fromDate}
               onChange={handleChange}
-              isInvalid={touched.fromDate && !!errors.fromDate}
+              error={touched.fromDate && !!errors.fromDate}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.fromDate && touched.fromDate ? errors.fromDate : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} md={4} controlId="saleToDateId">
-            <Form.Label>Hasta *</Form.Label>
-            <Form.Control
+            {errors.fromDate && touched.fromDate && (
+              <span className="text-sm text-destructive">{errors.fromDate}</span>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="saleToDateId">Hasta *</Label>
+            <Input
+              id="saleToDateId"
               type="date"
               name="toDate"
               value={values.toDate}
               onChange={handleChange}
-              isInvalid={touched.toDate && !!errors.toDate}
+              error={touched.toDate && !!errors.toDate}
+              className="mt-1"
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.toDate && touched.toDate ? errors.toDate : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-
-          <Form.Group as={Col} md={4} controlId="saleSellerId">
-            <Form.Label>Vendedor</Form.Label>
-            <Form.Select
+            {errors.toDate && touched.toDate && (
+              <span className="text-sm text-destructive">{errors.toDate}</span>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="saleSellerId">Vendedor</Label>
+            <Select
+              id="saleSellerId"
               name="sellerId"
               value={values.sellerId}
               onChange={(ev) => setFieldValue("sellerId", Number(ev.target.value))}
-              isInvalid={touched.sellerId && !!errors.sellerId}
+              className="mt-1"
             >
               <option value={0}>Vendedor no seleccionado</option>
               {SELLERS.map(({ label, value }) => (
-                <option value={value} key={value}>
-                  {label}
-                </option>
+                <option value={value} key={value}>{label}</option>
               ))}
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-              {errors.sellerId && touched.sellerId ? errors.sellerId : ""}
-            </Form.Control.Feedback>
-          </Form.Group>
-        </Row>
-        <div className="d-flex justify-content-end mt-3">
-          <Button
-            type="submit"
-            variant="dark"
-            className="d-flex align-items-center gap-2"
-            disabled={loading}
-          >
+            </Select>
+          </div>
+        </div>
+        
+        <div className="flex justify-end">
+          <Button type="submit" variant="dark" disabled={loading}>
             {loading ? (
               <>
-                <Spinner animation="border" variant="light" size="sm" />
+                <Spinner size="sm" variant="light" />
                 <span>Buscando...</span>
               </>
             ) : (
               <>
-                <Search />
+                <Search className="h-4 w-4" />
                 <span>Buscar ventas</span>
               </>
             )}
           </Button>
         </div>
-      </Form>
+      </form>
+      
       {result && (
         <>
-          <hr />
-          <h4 className="text-center mt-4">{result}</h4>
+          <hr className="border-border my-4" />
+          <h4 className="text-center text-lg font-medium mt-4">{result}</h4>
         </>
       )}
     </>

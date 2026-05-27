@@ -1,16 +1,17 @@
 import { useState } from "react";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 import { Formik } from "formik";
-import Form from "react-bootstrap/Form";
 import { addPaymentMethodSchema } from "../utils/validationSchemas";
 import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../constants/const";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { NumericFormat } from "react-number-format";
-import BootstrapInputAdapter from "../utils/numericFormatHelper";
 import { TAX_CONFIG, TaxTable } from "../constants/card_tax";
-import { formatPrice } from '../utils/utils';
+import { formatPrice } from "../utils/utils";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import { Label } from "./ui/Label";
+import { Input } from "./ui/Input";
+import { Select } from "./ui/Select";
 
 interface Props {
   setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethods[]>>;
@@ -36,7 +37,7 @@ const AddPaymentMethod: React.FC<Props> = ({
     const remainingAfterPayment = paymentsLeftValue - Number(values.valueToPay);
 
     if (remainingAfterPayment < 0) {
-      toast.error("No se pueden agregar más métodos de pago", {
+      toast.error("No se pueden agregar mas métodos de pago", {
         description: "El valor total de la factura ya se ha alcanzado",
       });
       return;
@@ -77,7 +78,7 @@ const AddPaymentMethod: React.FC<Props> = ({
 
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
+      <Button onClick={handleShow}>
         Agregar método de pago
       </Button>
 
@@ -110,102 +111,101 @@ const AddPaymentMethod: React.FC<Props> = ({
               handleSubmit,
               setFieldValue,
             }) => (
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="methodId">
-                  <Form.Label>Método de pago</Form.Label>
-                  <Form.Select
+              <div className="flex flex-col">
+                <div className="mb-4">
+                  <Label htmlFor="methodId">Método de pago</Label>
+                  <Select
+                    id="methodId"
                     onChange={handleChange}
                     name="method"
                     value={values.method}
-                    isInvalid={touched.method && !!errors.method}
+                    error={touched.method && !!errors.method}
+                    className="mt-1"
                   >
-                    <option value={""}>Sin seleccionar metodo de pago</option>
-                   {
-                    SALE_CONDITIONS.slice(0, 5).map((method) => (
+                    <option value="">Sin seleccionar método de pago</option>
+                    {SALE_CONDITIONS.slice(0, 5).map((method) => (
                       <option key={method} value={method}>
                         {method}
                       </option>
-                    ))
-                   }
-                  </Form.Select>
-                  <Form.Control.Feedback type="invalid">
-                    {errors.method && touched.method && errors.method}
-                  </Form.Control.Feedback>
-                </Form.Group>
-                {values.method === "Crédito" ? (
+                    ))}
+                  </Select>
+                  {errors.method && touched.method && (
+                    <span className="text-sm text-destructive">{errors.method}</span>
+                  )}
+                </div>
+                
+                {values.method === "Crédito" && (
                   <>
-                    <Form.Group className="mb-3" controlId="creditCardId">
-                      <Form.Label>Tarjeta de crédito</Form.Label>
-                      <Form.Select
+                    <div className="mb-4">
+                      <Label htmlFor="creditCardId">Tarjeta de crédito</Label>
+                      <Select
+                        id="creditCardId"
                         name="creditCard"
                         value={values.creditCard}
                         onChange={handleChange}
-                        isInvalid={touched.creditCard && !!errors.creditCard}
+                        error={touched.creditCard && !!errors.creditCard}
+                        className="mt-1"
                       >
-                        <option value="">
-                          Sin seleccionar tarjeta de crédito
-                        </option>
+                        <option value="">Sin seleccionar tarjeta de crédito</option>
                         {CREDIT_CARDS.map((card) => (
-                          <option key={card} value={card}>
-                            {card}
-                          </option>
+                          <option key={card} value={card}>{card}</option>
                         ))}
-                      </Form.Select>
-                      <Form.Control.Feedback type="invalid">
-                        {errors.creditCard &&
-                          touched.creditCard &&
-                          errors.creditCard}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="paymentsQuantityId">
-                      <Form.Label>Cantidad de cuotas</Form.Label>
-                      <Form.Control
+                      </Select>
+                      {errors.creditCard && touched.creditCard && (
+                        <span className="text-sm text-destructive">{errors.creditCard}</span>
+                      )}
+                    </div>
+                    <div className="mb-4">
+                      <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
+                      <Input
+                        id="paymentsQuantityId"
                         placeholder="Ej: 3"
                         type="text"
                         name="paymentsQuantity"
                         value={values.paymentsQuantity}
                         onChange={handleChange}
-                        isInvalid={
-                          touched.paymentsQuantity && !!errors.paymentsQuantity
-                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            void handleSubmit();
+                          }
+                        }}
+                        error={touched.paymentsQuantity && !!errors.paymentsQuantity}
+                        className="mt-1"
                       />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.paymentsQuantity &&
-                          touched.paymentsQuantity &&
-                          errors.paymentsQuantity}
-                      </Form.Control.Feedback>
-                    </Form.Group>
+                      {errors.paymentsQuantity && touched.paymentsQuantity && (
+                        <span className="text-sm text-destructive">{errors.paymentsQuantity}</span>
+                      )}
+                    </div>
                   </>
-                ) : values.method === "Tarjeta de débito" ? (
-                  <Form.Group className="mb-3" controlId="debitCardId">
-                    <Form.Label>Tarjeta de débito</Form.Label>
-                    <Form.Select
+                )}
+                
+                {values.method === "Tarjeta de débito" && (
+                  <div className="mb-4">
+                    <Label htmlFor="debitCardId">Tarjeta de débito</Label>
+                    <Select
+                      id="debitCardId"
                       name="debitCard"
                       value={values.debitCard}
                       onChange={handleChange}
-                      isInvalid={touched.debitCard && !!errors.debitCard}
+                      error={touched.debitCard && !!errors.debitCard}
+                      className="mt-1"
                     >
-                      <option value="">
-                        Sin seleccionar tarjeta de débito
-                      </option>
+                      <option value="">Sin seleccionar tarjeta de débito</option>
                       {DEBIT_CARDS.map((card) => (
-                        <option key={card} value={card}>
-                          {card}
-                        </option>
+                        <option key={card} value={card}>{card}</option>
                       ))}
-                    </Form.Select>
-                    <Form.Control.Feedback type="invalid">
-                      {errors.debitCard &&
-                        touched.debitCard &&
-                        errors.debitCard}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                ) : (
-                  ""
+                    </Select>
+                    {errors.debitCard && touched.debitCard && (
+                      <span className="text-sm text-destructive">{errors.debitCard}</span>
+                    )}
+                  </div>
                 )}
-                <Form.Group className="mb-3" controlId="valueToPayId">
-                  <Form.Label>Valor a pagar</Form.Label>
+                
+                <div className="mb-4">
+                  <Label htmlFor="valueToPayId">Valor a pagar</Label>
                   <NumericFormat
+                    id="valueToPayId"
                     thousandSeparator="."
                     decimalSeparator=","
                     decimalScale={2}
@@ -213,28 +213,34 @@ const AddPaymentMethod: React.FC<Props> = ({
                     name="price"
                     placeholder="10.000"
                     value={values.valueToPay}
-                    onValueChange={({ value }) =>
-                      setFieldValue("valueToPay", value)
-                    }
-                    className={`form-control ${
-                      touched.valueToPay && errors.valueToPay
-                        ? "is-invalid"
-                        : ""
+                    onValueChange={({ value }) => setFieldValue("valueToPay", value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        void handleSubmit();
+                      }
+                    }}
+                    className={`flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring mt-1 ${
+                      touched.valueToPay && errors.valueToPay ? "border-destructive" : "border-input"
                     }`}
-                    customInput={BootstrapInputAdapter}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.valueToPay &&
-                      touched.valueToPay &&
-                      errors.valueToPay}
-                  </Form.Control.Feedback>
-                </Form.Group>
-                <div className="d-flex justify-content-end">
-                  <Button variant="dark" type="submit">
-                    Agregar método
+                  {errors.valueToPay && touched.valueToPay && (
+                    <span className="text-sm text-destructive">{errors.valueToPay}</span>
+                  )}
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button
+                    variant="dark"
+                    type="button"
+                    onClick={() => {
+                      void handleSubmit();
+                    }}
+                  >
+                    Agregar método de pago
                   </Button>
                 </div>
-              </Form>
+              </div>
             )}
           </Formik>
         </Modal.Body>

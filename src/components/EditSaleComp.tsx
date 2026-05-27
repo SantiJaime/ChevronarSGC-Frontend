@@ -1,21 +1,5 @@
 import { Formik } from "formik";
 import { useState } from "react";
-import {
-  Button,
-  Form,
-  InputGroup,
-  Modal,
-  Spinner,
-  Table,
-} from "react-bootstrap";
-import {
-  FloppyFill,
-  PencilFill,
-  PersonCircle,
-  PersonFillGear,
-  Trash3Fill,
-  XCircleFill,
-} from "react-bootstrap-icons";
 import { SELLERS } from "../constants/const";
 import AddProductComp from "./AddProductComp";
 import { formatPrice } from "../utils/utils";
@@ -23,6 +7,14 @@ import { newSaleSchema } from "../utils/validationSchemas";
 import Swal from "sweetalert2";
 import useSales from "../hooks/useSales";
 import { toast } from "sonner";
+import { Modal } from "./ui/Modal";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Select } from "./ui/Select";
+import { Spinner } from "./ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Pencil, User, Users, Trash2, X, Save } from "lucide-react";
 
 interface FormValues {
   clientName: string;
@@ -64,22 +56,12 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
 
   return (
     <>
-      <Button
-        variant="primary"
-        className="d-flex justify-content-center align-items-center gap-1"
-        onClick={handleShow}
-      >
-        <PencilFill />
+      <Button variant="primary" size="sm" onClick={handleShow}>
+        <Pencil className="h-4 w-4" />
         <span>Editar</span>
       </Button>
 
-      <Modal
-        show={show}
-        onHide={handleClose}
-        size="lg"
-        backdrop="static"
-        keyboard={false}
-      >
+      <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Editar presupuesto</Modal.Title>
         </Modal.Header>
@@ -118,8 +100,8 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
 
               const handleDeleteProduct = (productId: number) => {
                 Swal.fire({
-                  title: "¿Estás seguro de eliminar este producto?",
-                  text: "Esta acción no se puede deshacer",
+                  title: "Estas seguro de eliminar este producto?",
+                  text: "Esta accion no se puede deshacer",
                   icon: "warning",
                   showCancelButton: true,
                   confirmButtonColor: "#05b000",
@@ -137,132 +119,121 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
               };
 
               return (
-                <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3" controlId="editSaleClientNameId">
-                    <Form.Label>Nombre del cliente o vehículo</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <PersonCircle />
-                      </InputGroup.Text>
-                      <Form.Control
-                        placeholder="Ej: Juan Pérez | Corsa 1.6"
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-4">
+                    <Label htmlFor="editSaleClientNameId">Nombre del cliente o vehiculo</Label>
+                    <div className="relative mt-1">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        <User className="h-4 w-4" />
+                      </div>
+                      <Input
+                        id="editSaleClientNameId"
+                        placeholder="Ej: Juan Perez | Corsa 1.6"
                         type="text"
                         name="clientName"
                         value={values.clientName}
                         onChange={handleChange}
-                        isInvalid={touched.clientName && !!errors.clientName}
+                        error={touched.clientName && !!errors.clientName}
+                        className="pl-10"
                       />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.clientName &&
-                          touched.clientName &&
-                          errors.clientName}
-                      </Form.Control.Feedback>
-                    </InputGroup>
-                  </Form.Group>
+                    </div>
+                    {errors.clientName && touched.clientName && (
+                      <span className="text-sm text-destructive">{errors.clientName}</span>
+                    )}
+                  </div>
 
-                  <Form.Group className="mb-3" controlId="editSaleSellerId">
-                    <Form.Label>Vendedor</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <PersonFillGear />
-                      </InputGroup.Text>
-                      <Form.Select
+                  <div className="mb-4">
+                    <Label htmlFor="editSaleSellerId">Vendedor</Label>
+                    <div className="relative mt-1">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
+                        <Users className="h-4 w-4" />
+                      </div>
+                      <Select
+                        id="editSaleSellerId"
                         onChange={(ev) => {
                           setFieldValue("sellerId", Number(ev.target.value));
                         }}
                         value={values.sellerId}
                         name="sellerId"
-                        isInvalid={touched.sellerId && !!errors.sellerId}
+                        error={touched.sellerId && !!errors.sellerId}
+                        className="pl-10"
                       >
                         {SELLERS.map((seller) => (
                           <option key={seller.value} value={seller.value}>
                             {seller.label}
                           </option>
                         ))}
-                      </Form.Select>
-                      <Form.Control.Feedback type="invalid">
-                        {errors.sellerId && touched.sellerId && errors.sellerId}
-                      </Form.Control.Feedback>
-                    </InputGroup>
-                  </Form.Group>
-                  <hr />
-                  <div className="d-flex justify-content-end">
+                      </Select>
+                    </div>
+                    {errors.sellerId && touched.sellerId && (
+                      <span className="text-sm text-destructive">{errors.sellerId}</span>
+                    )}
+                  </div>
+                  
+                  <hr className="border-border my-4" />
+                  
+                  <div className="flex justify-end mb-4">
                     <AddProductComp setEditProducts={handleProductsUpdate} />
                   </div>
+                  
                   {values.products.length === 0 ? (
-                    <h5 className="text-center">No se agregaron productos</h5>
+                    <h5 className="text-center text-muted-foreground">No se agregaron productos</h5>
                   ) : (
-                    <Table striped bordered hover responsive className="mt-3">
-                      <thead>
-                        <tr>
-                          <th>Producto</th>
-                          <th>Precio unitario</th>
-                          <th>Cantidad</th>
-                          <th>Subtotal</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                    <Table responsive className="mt-4">
+                      <TableHead>
+                        <TableRow>
+                          <TableHeaderCell>Producto</TableHeaderCell>
+                          <TableHeaderCell>Precio unitario</TableHeaderCell>
+                          <TableHeaderCell>Cantidad</TableHeaderCell>
+                          <TableHeaderCell>Subtotal</TableHeaderCell>
+                          <TableHeaderCell>Acciones</TableHeaderCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody striped hover>
                         {values.products.map((product) => (
-                          <tr key={product.productId}>
-                            <td>{product.productName}</td>
-                            <td>${formatPrice(product.price)}</td>
-                            <td>{product.quantity}</td>
-                            <td>
-                              ${formatPrice(product.price * product.quantity)}
-                            </td>
-                            <td className="d-flex justify-content-center gap-2">
+                          <TableRow key={product.productId}>
+                            <TableCell>{product.productName}</TableCell>
+                            <TableCell>${formatPrice(product.price)}</TableCell>
+                            <TableCell>{product.quantity}</TableCell>
+                            <TableCell>${formatPrice(product.price * product.quantity)}</TableCell>
+                            <TableCell>
                               <Button
-                                className="d-flex align-items-center gap-1"
-                                variant="danger"
-                                onClick={() =>
-                                  handleDeleteProduct(product.productId)
-                                }
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeleteProduct(product.productId)}
                               >
-                                <Trash3Fill />
+                                <Trash2 className="h-4 w-4" />
                                 <span>Eliminar</span>
                               </Button>
-                            </td>
-                          </tr>
+                            </TableCell>
+                          </TableRow>
                         ))}
-                      </tbody>
+                      </TableBody>
                     </Table>
                   )}
 
-                  <hr />
-                  <div className="d-flex justify-content-end gap-2">
-                    <Button
-                      variant="secondary"
-                      onClick={handleClose}
-                      className="d-flex align-items-center gap-2"
-                    >
-                      <XCircleFill />
+                  <hr className="border-border my-4" />
+                  
+                  <div className="flex justify-end gap-2">
+                    <Button variant="secondary" onClick={handleClose}>
+                      <X className="h-4 w-4" />
                       <span>Cancelar</span>
                     </Button>
-                    <Button
-                      variant="dark"
-                      type="submit"
-                      className="d-flex align-items-center gap-2"
-                      disabled={loading}
-                    >
+                    <Button variant="dark" type="submit" disabled={loading}>
                       {loading ? (
                         <>
-                          <Spinner
-                            animation="border"
-                            size="sm"
-                            variant="light"
-                          />
+                          <Spinner size="sm" variant="light" />
                           <span>Guardando...</span>
                         </>
                       ) : (
                         <>
-                          <FloppyFill />
+                          <Save className="h-4 w-4" />
                           <span>Guardar cambios</span>
                         </>
                       )}
                     </Button>
                   </div>
-                </Form>
+                </form>
               );
             }}
           </Formik>

@@ -1,4 +1,3 @@
-import { Container } from "react-bootstrap";
 import NewClientComp from "./NewClientComp";
 import NewInvoiceComp from "./NewInvoiceComp";
 import NewCityComp from "./NewCityComp";
@@ -10,6 +9,7 @@ import NewSaleComp from "./NewSaleComp";
 import Sales from "./Sales";
 import ProductsTableComp from "./ProductsTableComp";
 import ProductsLogs from "./ProductsLogs";
+import { Card, CardContent } from "./ui/Card";
 
 type TabKey = (typeof NAV_LINKS)[number];
 
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const TabsComp: React.FC<Props> = ({ activeTab }) => {
-  const TabContentMap = {
+  const tabContentMap = {
     "Creación de facturas": <NewInvoiceComp />,
     "Creación de presupuestos": <NewBudgetComp />,
     "Historial de facturas": <Invoices />,
@@ -29,10 +29,14 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
     "Historial de presupuestos de ventas": <Sales />,
     "Tabla de productos": <ProductsTableComp />,
     "Consultar ventas de productos": <ProductsLogs />,
-  };
+  } satisfies Record<TabKey, React.ReactElement>;
 
   return (
-    <Container className="mt-5">{TabContentMap[activeTab] || ""}</Container>
+    <Card className="mt-4 bg-gray-300/90">
+      <CardContent className="p-6">
+        {tabContentMap[activeTab]}
+      </CardContent>
+    </Card>
   );
 };
 
