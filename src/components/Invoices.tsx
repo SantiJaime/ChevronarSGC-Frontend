@@ -93,22 +93,7 @@ const Invoices = () => {
     }
   };
 
-  const handleCancelInvoice = (data: FullInvoice) => {
-    const payload: NewCreditNote = {
-      ...data,
-      date: data.date.toString().split("T")[0],
-      client: {
-        ...data.client,
-        document: data.client.document.toString(),
-      },
-      assocInvoiceCaeExpiringDate: data.caeExpiringDate.toString(),
-      paymentsQuantity: data.paymentsQuantity.toString(),
-      assocInvoiceNumber: data.invoiceNumber.toString(),
-      assocInvoiceCae: data.cae.toString(),
-      assocInvoiceDate: data.date.toString().split("T")[0],
-      cuitOption: values.cuitOption,
-    };
-    
+  const handleCancelInvoice = (id: string) => {
     Swal.fire({
       title: "Estas seguro de anular esta factura?",
       text: "Esta accion no se puede deshacer",
@@ -121,13 +106,13 @@ const Invoices = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setLoadingCancel(true);
-        const promise = cancelInvoice(payload)
+        const promise = cancelInvoice(values.cuitOption, id)
           .then((res) => {
             open(res.result, "_blank");
 
             setInvoices((prevState) => {
               const updatedInvoices = prevState.map((invoice) =>
-                invoice._id === data._id
+                invoice._id === id
                   ? { ...invoice, cancelled: true }
                   : invoice,
               );
@@ -166,12 +151,8 @@ const Invoices = () => {
     });
   };
 
-  const handlePrint = (invoiceData: FullInvoice) => {
-    const invoice = {
-      ...invoiceData,
-      date: invoiceData.date.split("T")[0],
-    }
-    const promise = printInvoice(invoice)
+  const handlePrint = (id: string) => {
+    const promise = printInvoice(id)
       .then((res) => {
         open(res.result, "_blank");
         return res;
@@ -497,7 +478,7 @@ const Invoices = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <InvoiceDetails invoice={invoice} />
-                      <Button variant="success" size="sm" onClick={() => handlePrint(invoice)}>
+                      <Button variant="success" size="sm" onClick={() => handlePrint(invoice._id)}>
                         <Printer className="h-4 w-4" />
                         <span>Imprimir</span>
                       </Button>
@@ -506,7 +487,7 @@ const Invoices = () => {
                           variant="destructive"
                           size="sm"
                           disabled={loadingCancel}
-                          onClick={() => handleCancelInvoice(invoice)}
+                          onClick={() => handleCancelInvoice(invoice._id)}
                         >
                           {loadingCancel ? (
                             <>

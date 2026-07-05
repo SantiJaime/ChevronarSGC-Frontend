@@ -82,8 +82,8 @@ const Budgets = () => {
     }
   };
 
-  const handlePrint = (budgetData: FullBudget) => {
-    const promise = printBudget(budgetData)
+  const handlePrint = (id: string) => {
+    const promise = printBudget(id)
       .then((res) => {
         open(res.result, "_blank");
         return res;
@@ -390,7 +390,7 @@ const Budgets = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button variant="success" size="sm" onClick={() => handlePrint(budget)}>
+                        <Button variant="success" size="sm" onClick={() => handlePrint(budget._id)}>
                           <Printer className="h-4 w-4" />
                           <span>Imprimir</span>
                         </Button>
