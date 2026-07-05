@@ -149,15 +149,13 @@ export const createInvoice = async (
 };
 
 export const cancelInvoice = async (
-  payload: NewCreditNote
+  cuitOption: string, assocInvoiceId: string
 ): Promise<CancelInvoiceResponse> => {
-  const { cuitOption, ...rest } = payload;
-  const response = await fetchWithAuth(`${URL_API}/invoices/new-credit-note?cuitOption=${cuitOption}`, {
+  const response = await fetchWithAuth(`${URL_API}/invoices/new-credit-note/${assocInvoiceId}?cuitOption=${cuitOption}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(rest),
     credentials: "include",
   });
   if (!response.ok) {
@@ -168,15 +166,13 @@ export const cancelInvoice = async (
 };
 
 export const printInvoice = async (
-  invoice: FullInvoice
+  id: string
 ): Promise<PrintInvoiceResponse> => {
-  console.log(invoice)
-  const response = await fetchWithAuth(`${URL_API}/invoices/print-invoice`, {
-    method: "POST",
+  const response = await fetchWithAuth(`${URL_API}/invoices/print/${id}`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(invoice),
     credentials: "include",
   });
   if (!response.ok) {
@@ -187,14 +183,13 @@ export const printInvoice = async (
 };
 
 export const printBudget = async (
-  budget: FullBudget
+  id: string
 ): Promise<PrintInvoiceResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/budgets/print`, {
-    method: "POST",
+  const response = await fetchWithAuth(`${URL_API}/budgets/print/${id}`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(budget),
     credentials: "include",
   });
   if (!response.ok) {
