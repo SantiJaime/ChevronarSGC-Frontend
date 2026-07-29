@@ -11,7 +11,7 @@ interface Sale {
   products: Product[];
 }
 interface ErrorMessage {
-  msg: string;
+  status: string;
   error: string | string[];
 }
 interface InvoiceData {
