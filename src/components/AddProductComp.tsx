@@ -326,11 +326,9 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                 </Badge>
               )}
               <Button
-                variant="dark"
+                variant="default"
                 type="button"
-                onClick={() => {
-                  handleSubmit();
-                }}
+                onClick={() => handleSubmit()}
               >
                 Agregar producto
               </Button>

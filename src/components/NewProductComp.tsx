@@ -119,7 +119,6 @@ const NewProductComp = () => {
             )}
           </div>
         </div>
-
         <div className="mb-4">
           <Label htmlFor="barcodeId">Códigos de barras (opcional)</Label>
           <div className="flex gap-2 mt-1">
@@ -130,7 +129,7 @@ const NewProductComp = () => {
               <Input
                 id="barcodeId"
                 type="text"
-                placeholder="Escanea el código con la pistola o ingresa el código manualmente"
+                placeholder="Escanea el código con la pistola o ingresalo manualmente"
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
                 onKeyDown={handleBarcodeKeyDown}
@@ -173,10 +172,10 @@ const NewProductComp = () => {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" variant="dark" disabled={loading}>
+          <Button type="submit" variant="default" disabled={loading}>
             {loading ? (
               <>
-                <Spinner size="sm" variant="light" />
+                <Spinner size="sm" variant="dark" />
                 <span>Cargando...</span>
               </>
             ) : (

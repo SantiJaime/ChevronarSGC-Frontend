@@ -211,10 +211,10 @@ const ProductsLogs = () => {
         </div>
         
         <div className="flex justify-end">
-          <Button type="submit" variant="dark" disabled={loading}>
+          <Button type="submit" variant="default" disabled={loading}>
             {loading ? (
               <>
-                <Spinner size="sm" variant="light" />
+                <Spinner size="sm" variant="dark" />
                 <span>Buscando...</span>
               </>
             ) : (

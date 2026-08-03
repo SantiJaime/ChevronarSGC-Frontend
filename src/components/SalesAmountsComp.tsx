@@ -88,7 +88,7 @@ const SalesAmountsComp = () => {
 
   return (
     <>
-      <Button variant="dark" onClick={handleShow}>
+      <Button variant="default" onClick={handleShow}>
         <Coins className="h-4 w-4" />
         <span>Planillas de ventas</span>
       </Button>
@@ -125,7 +125,7 @@ const SalesAmountsComp = () => {
                 <Table className="h-4 w-4" />
                 <span>Exportar a Excel</span>
               </Button>
-              <Button variant="dark" type="submit" disabled={loading}>
+              <Button variant="default" type="submit" disabled={loading}>
                 <Calculator className="h-4 w-4" />
                 <span>Calcular montos de ventas</span>
               </Button>

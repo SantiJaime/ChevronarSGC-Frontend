@@ -502,10 +502,10 @@ const NewInvoiceComp = () => {
             )}
 
             <div className="flex justify-end mt-6 mb-4">
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} variant="default">
                 {loading ? (
                   <>
-                    <Spinner size="sm" variant="light" />
+                    <Spinner size="sm" variant="dark" />
                     <span>Cargando...</span>
                   </>
                 ) : (
