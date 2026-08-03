@@ -32,7 +32,7 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
   } satisfies Record<TabKey, React.ReactElement>;
 
   return (
-    <Card className="mt-4 bg-gray-300/90">
+    <Card className="mt-4 bg-slate-800/90">
       <CardContent className="p-6">
         {tabContentMap[activeTab]}
       </CardContent>

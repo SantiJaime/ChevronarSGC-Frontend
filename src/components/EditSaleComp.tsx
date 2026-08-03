@@ -219,10 +219,10 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                       <X className="h-4 w-4" />
                       <span>Cancelar</span>
                     </Button>
-                    <Button variant="dark" type="submit" disabled={loading}>
+                    <Button variant="default" type="submit" disabled={loading}>
                       {loading ? (
                         <>
-                          <Spinner size="sm" variant="light" />
+                          <Spinner size="sm" variant="dark" />
                           <span>Guardando...</span>
                         </>
                       ) : (

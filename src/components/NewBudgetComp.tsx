@@ -413,7 +413,7 @@ const NewBudgetComp = () => {
               <Button type="submit" disabled={loading}>
                 {loading ? (
                   <>
-                    <Spinner size="sm" variant="light" />
+                    <Spinner size="sm" variant="dark" />
                     <span>Cargando...</span>
                   </>
                 ) : (

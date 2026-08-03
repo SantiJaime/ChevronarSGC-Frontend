@@ -415,7 +415,7 @@ const Invoices = () => {
         </div>
         
         <div className="flex justify-end">
-          <Button type="submit" variant="dark">
+          <Button type="submit" variant="default">
             <Search className="h-4 w-4" />
             <span>Buscar</span>
           </Button>
