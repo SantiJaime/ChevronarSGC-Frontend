@@ -1,12 +1,13 @@
 import { Navigate } from "react-router-dom";
 import useSession from "../hooks/useSession";
 import { Role } from "../constants/const";
-import { Spinner } from "./ui/Spinner";
+import { Spinner } from "../components/ui/Spinner";
 
 interface Props {
   children: JSX.Element;
   role?: Role[];
 }
+
 export const PrivateRoutes: React.FC<Props> = ({ children, role }) => {
   const { session, sessionReady, user } = useSession();
   if (!role) return;

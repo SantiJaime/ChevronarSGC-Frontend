@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import { NumericFormat } from "react-number-format";
-import { editProductSchema } from "../utils/validationSchemas";
-import useProducts from "../hooks/useProducts";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Spinner } from "./ui/Spinner";
-import { Badge } from "./ui/Badge";
+import { editProductSchema } from "../../utils/validationSchemas";
+import useProducts from "../../hooks/useProducts";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Spinner } from "../ui/Spinner";
+import { Badge } from "../ui/Badge";
 import { Pencil, Tag, DollarSign, ShoppingCart, Barcode, Save, X } from "lucide-react";
 
 interface Props {

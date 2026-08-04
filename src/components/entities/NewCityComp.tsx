@@ -1,13 +1,13 @@
 import { Formik } from "formik";
-import { createCitySchema } from "../utils/validationSchemas";
+import { createCitySchema } from "../../utils/validationSchemas";
 import { toast } from "sonner";
-import { createCity } from "../helpers/citiesQueries";
-import { ARG_PROVINCES } from "../constants/const";
-import useCities from "../hooks/useCities";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
+import { createCity } from "../../helpers/citiesQueries";
+import { ARG_PROVINCES } from "../../constants/const";
+import useCities from "../../hooks/useCities";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
 
 const NewCityComp = () => {
   const { setCities } = useCities();

@@ -1,19 +1,19 @@
 import { useFormik } from "formik";
-import { SELLERS, SELLERS_MAP } from "../constants/const";
+import { SELLERS, SELLERS_MAP } from "../../constants/const";
 import { useEffect, useRef, useState } from "react";
-import useProducts from "../hooks/useProducts";
+import useProducts from "../../hooks/useProducts";
 import {
   getProductSalesSchema,
   type IGetProductSales,
-} from "../utils/validationSchemas";
+} from "../../utils/validationSchemas";
 import { toast } from "sonner";
-import useSales from "../hooks/useSales";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Dropdown } from "./ui/Dropdown";
+import useSales from "../../hooks/useSales";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import { Dropdown } from "../ui/Dropdown";
 import { Search, Barcode } from "lucide-react";
 
 interface ProductFormValues {

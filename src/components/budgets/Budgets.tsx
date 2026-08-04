@@ -1,27 +1,27 @@
 import { useFormik } from "formik";
-import { searchBudgetSchema } from "../utils/validationSchemas";
+import { searchBudgetSchema } from "../../utils/validationSchemas";
 import { useState } from "react";
 import {
   deleteBudget,
   getBudgets,
   printBudget,
-} from "../helpers/invoicesQueries";
+} from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
 import {
   BUDGET_SALE_POINTS,
   CREDIT_CARDS,
   DEBIT_CARDS,
   SALE_CONDITIONS,
-} from "../constants/const";
-import { validateSearchInvoice } from "../utils/validationFunctions";
+} from "../../constants/const";
+import { validateSearchInvoice } from "../../utils/validationFunctions";
 import Swal from "sweetalert2";
-import { formatPrice } from "../utils/utils";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { formatPrice } from "../../utils/utils";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Search, ChevronLeft, ChevronRight, Printer, Trash2 } from "lucide-react";
 
 const Budgets = () => {

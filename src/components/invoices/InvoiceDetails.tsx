@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { formatDateISO } from "../utils/utils";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { formatDateISO } from "../../utils/utils";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { FileText } from "lucide-react";
 
 interface Props {
