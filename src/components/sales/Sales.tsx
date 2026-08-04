@@ -2,25 +2,25 @@ import { useFormik } from "formik";
 import {
   type IAuthorizeSale,
   searchSalesValidatorSchema,
-} from "../utils/validationSchemas";
-import { Role, SELLERS, SELLERS_MAP } from "../constants/const";
+} from "../../utils/validationSchemas";
+import { Role, SELLERS, SELLERS_MAP } from "../../constants/const";
 import Swal from "sweetalert2";
-import { formatPrice } from "../utils/utils";
-import useSales from "../hooks/useSales";
+import { formatPrice } from "../../utils/utils";
+import useSales from "../../hooks/useSales";
 import { useState } from "react";
-import { validateSearchSale } from "../utils/validationFunctions";
+import { validateSearchSale } from "../../utils/validationFunctions";
 import { toast } from "sonner";
-import { deleteSale, printSale } from "../helpers/salesQueries";
+import { deleteSale, printSale } from "../../helpers/salesQueries";
 import EditSaleComp from "./EditSaleComp";
 import AuthorizeSaleComp from "./AuthorizeSaleComp";
 import SalesAmountsComp from "./SalesAmountsComp";
-import useSession from "../hooks/useSession";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import useSession from "../../hooks/useSession";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Search, ChevronLeft, ChevronRight, Printer, Trash2 } from "lucide-react";
 
 interface FullPaymentsInfo extends IAuthorizeSale {

@@ -1,10 +1,10 @@
 import { Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
-import { createInvoiceSchema } from "../utils/validationSchemas";
-import { createInvoice } from "../helpers/invoicesQueries";
+import { createInvoiceSchema } from "../../utils/validationSchemas";
+import { createInvoice } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
-import AddProductComp from "./AddProductComp";
-import useClients from "../hooks/useClients";
+import AddProductComp from "../products/AddProductComp";
+import useClients from "../../hooks/useClients";
 import {
   CREDIT_CARDS,
   CUIT_MAP,
@@ -12,18 +12,18 @@ import {
   normalizeText,
   SALE_CONDITIONS,
   SALE_POINTS,
-} from "../constants/const";
-import { validateInvoice } from "../utils/validationFunctions";
-import AddPaymentMethod from "./AddPaymentMethod";
+} from "../../constants/const";
+import { validateInvoice } from "../../utils/validationFunctions";
+import AddPaymentMethod from "../payments/AddPaymentMethod";
 import Swal from "sweetalert2";
-import { formatPrice } from "../utils/utils";
-import useInvoiceProducts from "../hooks/useInvoiceProducts";
-import NewProductComp from "./NewProductComp";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
+import { formatPrice } from "../../utils/utils";
+import useInvoiceProducts from "../../hooks/useInvoiceProducts";
+import NewProductComp from "../products/NewProductComp";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
 import {
   Table,
   TableHead,
@@ -31,9 +31,10 @@ import {
   TableRow,
   TableCell,
   TableHeaderCell,
-} from "./ui/Table";
-import { Dropdown } from "./ui/Dropdown";
+} from "../ui/Table";
+import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
+import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
 const NewInvoiceComp = () => {
   const { clients } = useClients();
@@ -396,43 +397,10 @@ const NewInvoiceComp = () => {
                 </div>
               )}
 
-            {paymentMethods.length > 0 && (
-              <Table responsive className="mt-4">
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>Método de pago</TableHeaderCell>
-                    <TableHeaderCell>Valor a pagar</TableHeaderCell>
-                    <TableHeaderCell>Tarjeta de crédito</TableHeaderCell>
-                    <TableHeaderCell>Tarjeta de débito</TableHeaderCell>
-                    <TableHeaderCell>Cantidad de cuotas</TableHeaderCell>
-                    <TableHeaderCell>Acciones</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody striped hover>
-                  {paymentMethods.map((method) => (
-                    <TableRow key={method.id}>
-                      <TableCell>{method.method}</TableCell>
-                      <TableCell>
-                        ${formatPrice(Number(method.valueToPay))}
-                      </TableCell>
-                      <TableCell>{method.creditCard || "-"}</TableCell>
-                      <TableCell>{method.debitCard || "-"}</TableCell>
-                      <TableCell>{method.paymentsQuantity}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeletePaymentMethod(method.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Eliminar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+            <MultiplePaymentsTable
+              paymentMethods={paymentMethods}
+              handleDeletePaymentMethod={handleDeletePaymentMethod}
+            />
 
             <hr className="my-6 border-border" />
 

@@ -1,6 +1,6 @@
-import { formatPrice } from "../utils/utils";
-import { Button } from "./ui/Button";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { formatPrice } from "../../utils/utils";
+import { Button } from "../ui/Button";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Trash2 } from "lucide-react";
 
 interface Props {

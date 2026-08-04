@@ -1,23 +1,23 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
-import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../constants/const";
+import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../../constants/const";
 import {
   authorizeSaleSchema,
   IAuthorizeSale,
-} from "../utils/validationSchemas";
-import { TAX_CONFIG, TaxTable } from "../constants/card_tax";
+} from "../../utils/validationSchemas";
+import { TAX_CONFIG, TaxTable } from "../../constants/card_tax";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
-import { validateAuthorizeSale } from "../utils/validationFunctions";
-import { formatPrice } from "../utils/utils";
-import AddPaymentMethod from "./AddPaymentMethod";
-import MultiplePaymentsTable from "./MultiplePaymentsTable";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
+import { validateAuthorizeSale } from "../../utils/validationFunctions";
+import { formatPrice } from "../../utils/utils";
+import AddPaymentMethod from "../payments/AddPaymentMethod";
+import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
 import { BadgeCheck, DollarSign, CreditCard, Wallet } from "lucide-react";
 
 interface FullPaymentsInfo extends IAuthorizeSale {

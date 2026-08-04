@@ -1,15 +1,15 @@
-import NewClientComp from "./NewClientComp";
-import NewInvoiceComp from "./NewInvoiceComp";
-import NewCityComp from "./NewCityComp";
-import Invoices from "./Invoices";
-import NewBudgetComp from "./NewBudgetComp";
-import { NAV_LINKS } from "../constants/const";
-import Budgets from "./Budgets";
-import NewSaleComp from "./NewSaleComp";
-import Sales from "./Sales";
-import ProductsTableComp from "./ProductsTableComp";
-import ProductsLogs from "./ProductsLogs";
-import { Card, CardContent } from "./ui/Card";
+import NewClientComp from "../entities/NewClientComp";
+import NewInvoiceComp from "../invoices/NewInvoiceComp";
+import NewCityComp from "../entities/NewCityComp";
+import Invoices from "../invoices/Invoices";
+import NewBudgetComp from "../budgets/NewBudgetComp";
+import { NAV_LINKS } from "../../constants/const";
+import Budgets from "../budgets/Budgets";
+import NewSaleComp from "../sales/NewSaleComp";
+import Sales from "../sales/Sales";
+import ProductsTableComp from "../products/ProductsTableComp";
+import ProductsLogs from "../products/ProductsLogs";
+import { Card, CardContent } from "../ui/Card";
 
 type TabKey = (typeof NAV_LINKS)[number];
 

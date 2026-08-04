@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import { NumericFormat } from "react-number-format";
-import { createNewProduct } from "../utils/validationSchemas";
-import useProducts from "../hooks/useProducts";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Spinner } from "./ui/Spinner";
-import { Badge } from "./ui/Badge";
+import { createNewProduct } from "../../utils/validationSchemas";
+import useProducts from "../../hooks/useProducts";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Spinner } from "../ui/Spinner";
+import { Badge } from "../ui/Badge";
 import { Tag, DollarSign, Barcode, Plus, X } from "lucide-react";
 
 const NewProductComp = () => {

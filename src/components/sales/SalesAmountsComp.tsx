@@ -1,15 +1,15 @@
 import { useFormik } from "formik";
 import { useState } from "react";
-import { salesAmountsSchema } from "../utils/validationSchemas";
-import { formatPrice } from "../utils/utils";
-import useSales from "../hooks/useSales";
-import { NUMBER_STRING_PAYMENTS } from "../constants/const";
+import { salesAmountsSchema } from "../../utils/validationSchemas";
+import { formatPrice } from "../../utils/utils";
+import useSales from "../../hooks/useSales";
+import { NUMBER_STRING_PAYMENTS } from "../../constants/const";
 import { toast } from "sonner";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Spinner } from "./ui/Spinner";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Spinner } from "../ui/Spinner";
 import { Coins, Calculator, Table } from "lucide-react";
 
 interface FormValues {

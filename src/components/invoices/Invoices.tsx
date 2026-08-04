@@ -1,11 +1,11 @@
 import { useFormik } from "formik";
-import { searchInvoiceSchema } from "../utils/validationSchemas";
+import { searchInvoiceSchema } from "../../utils/validationSchemas";
 import { useState } from "react";
 import {
   cancelInvoice,
   getInvoices,
   printInvoice,
-} from "../helpers/invoicesQueries";
+} from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import {
@@ -14,16 +14,16 @@ import {
   DEBIT_CARDS,
   SALE_CONDITIONS,
   SALE_POINTS,
-} from "../constants/const";
+} from "../../constants/const";
 import InvoiceDetails from "./InvoiceDetails";
-import { validateSearchInvoice } from "../utils/validationFunctions";
-import { formatPrice } from "../utils/utils";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { validateSearchInvoice } from "../../utils/validationFunctions";
+import { formatPrice } from "../../utils/utils";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Search, ChevronLeft, ChevronRight, Printer, FileX } from "lucide-react";
 
 const Invoices = () => {
