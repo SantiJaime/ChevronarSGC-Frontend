@@ -6,6 +6,10 @@ interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
 }
 
+interface UpdateSalePayments extends IAuthorizeSale {
+  totalWithInterest: number;
+}
+
 export const getSales = async (
   payload: SaleSearch,
   page: number,
@@ -81,6 +85,25 @@ export const authorizeSale = async (
   paymentsInfo: FullPaymentsInfo,
 ): Promise<AuthorizeSaleResponse> => {
   const response = await fetchWithAuth(`${URL_API}/sales/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(paymentsInfo),
+  });
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+};
+
+export const updateSalePaymentMethod = async (
+  id: string,
+  paymentsInfo: UpdateSalePayments,
+): Promise<AuthorizeSaleResponse> => {
+  const response = await fetchWithAuth(`${URL_API}/sales/${id}/payment-method`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

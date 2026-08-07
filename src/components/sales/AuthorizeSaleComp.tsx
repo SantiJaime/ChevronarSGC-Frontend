@@ -107,8 +107,8 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
     }
 
     Swal.fire({
-      title: "Estas seguro de autorizar?",
-      text: `Interes: ${(interest ?? 0) * 100}% - Valor total: $${formatPrice(totalValue)}`,
+      title: "¿Estás seguro de autorizar?",
+      text: `Interés: ${(interest ?? 0) * 100}% - Valor total: $${formatPrice(totalValue)}`,
       icon: "info",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
