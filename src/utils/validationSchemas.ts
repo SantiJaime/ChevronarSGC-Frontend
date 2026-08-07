@@ -402,9 +402,7 @@ export const createNewProduct = yup.object().shape({
     .string()
     .required("El nombre del producto es requerido")
     .min(3, "El nombre del producto debe tener al menos 3 caracteres"),
-  price: yup
-    .number()
-    .required("El precio es requerido"),
+  price: yup.number().required("El precio es requerido"),
   barcodes: yup.array().of(yup.string().optional()),
 });
 
@@ -519,6 +517,20 @@ export const salesAmountsSchema = yup.object().shape({
     ),
 });
 
+export const updateSalePaymentMethodSchema = yup.object().shape({
+  total: yup.number().required("El valor total de la venta es obligatorio"),
+  method: yup.string().required("El método de pago es obligatorio"),
+  creditCard: yup.string().optional(),
+  debitCard: yup.string().optional(),
+  paymentsQuantity: yup
+    .string()
+    .required("La cantidad de cuotas es requerida")
+    .matches(
+      /^([1-6]|[Zz])$/,
+      "Solo se permiten números del 1 al 6 o la letra Z",
+    )
+});
+
 export type ICreateProduct = yup.InferType<typeof createNewProduct>;
 export type NewSale = yup.InferType<typeof newSaleSchema>;
 export type IAddProduct = yup.InferType<typeof addProductSchema>;
@@ -526,3 +538,4 @@ export type ISearchSale = yup.InferType<typeof searchSalesValidatorSchema>;
 export type IAuthorizeSale = yup.InferType<typeof authorizeSaleSchema>;
 export type IGetProductSales = yup.InferType<typeof getProductSalesSchema>;
 export type IEditProduct = yup.InferType<typeof editProductSchema>;
+export type IUpdateSalePaymentMethod = yup.InferType<typeof updateSalePaymentMethodSchema>;
