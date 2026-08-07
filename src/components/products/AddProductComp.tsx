@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
-import { addProductSchema, IAddProduct } from "../utils/validationSchemas";
+import { addProductSchema, IAddProduct } from "../../utils/validationSchemas";
 import { toast } from "sonner";
 import { NumericFormat } from "react-number-format";
-import useProducts from "../hooks/useProducts";
-import useInvoiceProducts from "../hooks/useInvoiceProducts";
-import { formatPrice } from "../utils/utils";
+import useProducts from "../../hooks/useProducts";
+import useInvoiceProducts from "../../hooks/useInvoiceProducts";
+import { formatPrice } from "../../utils/utils";
 import Swal from "sweetalert2";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Spinner } from "./ui/Spinner";
-import { Badge } from "./ui/Badge";
-import { Dropdown } from "./ui/Dropdown";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Spinner } from "../ui/Spinner";
+import { Badge } from "../ui/Badge";
+import { Dropdown } from "../ui/Dropdown";
 import { Tag, DollarSign, ShoppingCart, Barcode, X } from "lucide-react";
 
 interface Props {
@@ -326,11 +326,9 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                 </Badge>
               )}
               <Button
-                variant="dark"
+                variant="default"
                 type="button"
-                onClick={() => {
-                  handleSubmit();
-                }}
+                onClick={() => handleSubmit()}
               >
                 Agregar producto
               </Button>

@@ -1,30 +1,38 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
-import { createBudget } from "../helpers/invoicesQueries";
+import { createBudget } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
-import AddProductComp from "./AddProductComp";
-import useClients from "../hooks/useClients";
+import AddProductComp from "../products/AddProductComp";
+import useClients from "../../hooks/useClients";
 import {
   BUDGET_SALE_POINTS,
   CREDIT_CARDS,
   DEBIT_CARDS,
   SALE_CONDITIONS,
-} from "../constants/const";
-import { validateInvoice } from "../utils/validationFunctions";
-import AddPaymentMethod from "./AddPaymentMethod";
+} from "../../constants/const";
+import { validateInvoice } from "../../utils/validationFunctions";
+import AddPaymentMethod from "../payments/AddPaymentMethod";
 import Swal from "sweetalert2";
-import { createBudgetSchema } from "../utils/validationSchemas";
-import { formatPrice } from "../utils/utils";
-import useInvoiceProducts from "../hooks/useInvoiceProducts";
-import NewProductComp from "./NewProductComp";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
-import { Dropdown } from "./ui/Dropdown";
+import { createBudgetSchema } from "../../utils/validationSchemas";
+import { formatPrice } from "../../utils/utils";
+import useInvoiceProducts from "../../hooks/useInvoiceProducts";
+import NewProductComp from "../products/NewProductComp";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHeaderCell,
+} from "../ui/Table";
+import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
+import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
 const NewBudgetComp = () => {
   const [loading, setLoading] = useState(false);
@@ -75,7 +83,7 @@ const NewBudgetComp = () => {
     setFilteredItems(filtered);
     setShowDropdown(filtered.length > 0);
   };
-  
+
   const handleSelect = (client: Client) => {
     setSearchTerm(`${client.name} - ${client.document}`);
     setClient({ ...client, document: client.document.toString() });
@@ -167,7 +175,7 @@ const NewBudgetComp = () => {
       finally: () => setLoading(false),
     });
   };
-  
+
   return (
     <>
       <Formik
@@ -184,7 +192,7 @@ const NewBudgetComp = () => {
         {({ values, errors, touched, handleChange, handleSubmit }) => (
           <form noValidate onSubmit={handleSubmit}>
             <h4 className="text-lg font-semibold mb-4">Datos del cliente</h4>
-            
+
             <div className="mb-4 relative">
               <Label htmlFor="clientSearchId">Buscar cliente</Label>
               <Input
@@ -196,7 +204,7 @@ const NewBudgetComp = () => {
                 onChange={handleInputChange}
                 className="mt-1"
               />
-              
+
               <Dropdown.Menu show={showDropdown} className="mt-1">
                 {filteredItems.map((client) => (
                   <Dropdown.Item
@@ -208,7 +216,7 @@ const NewBudgetComp = () => {
                 ))}
               </Dropdown.Menu>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <Label htmlFor="saleConditionId">Condición de venta</Label>
@@ -228,10 +236,12 @@ const NewBudgetComp = () => {
                   ))}
                 </Select>
                 {errors.saleCond && touched.saleCond && (
-                  <span className="text-sm text-destructive">{errors.saleCond}</span>
+                  <span className="text-sm text-destructive">
+                    {errors.saleCond}
+                  </span>
                 )}
               </div>
-              
+
               <div>
                 <Label htmlFor="salePointId">Punto de venta</Label>
                 <Select
@@ -250,11 +260,13 @@ const NewBudgetComp = () => {
                   ))}
                 </Select>
                 {errors.salePoint && touched.salePoint && (
-                  <span className="text-sm text-destructive">{errors.salePoint}</span>
+                  <span className="text-sm text-destructive">
+                    {errors.salePoint}
+                  </span>
                 )}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {values.saleCond === "Crédito" && (
                 <div>
@@ -275,7 +287,7 @@ const NewBudgetComp = () => {
                   </Select>
                 </div>
               )}
-              
+
               {values.saleCond === "Débito" && (
                 <div>
                   <Label htmlFor="debitCardId">Tarjeta de débito</Label>
@@ -295,8 +307,9 @@ const NewBudgetComp = () => {
                   </Select>
                 </div>
               )}
-              
-              {(values.saleCond === "Crédito" || values.saleCond === "Débito") && (
+
+              {(values.saleCond === "Crédito" ||
+                values.saleCond === "Débito") && (
                 <div>
                   <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
                   <Input
@@ -311,62 +324,34 @@ const NewBudgetComp = () => {
                 </div>
               )}
             </div>
-            
-            {values.saleCond === "Múltiples métodos de pago" && products.length > 0 && (
-              <div className="mb-4">
-                <AddPaymentMethod
-                  setPaymentMethods={setPaymentMethods}
-                  setPaymentsLeftValue={setPaymentsLeftValue}
-                  paymentsLeftValue={paymentsLeftValue}
-                />
-              </div>
-            )}
-            
-            {paymentMethods.length > 0 && (
-              <Table responsive className="mt-4">
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>Método de pago</TableHeaderCell>
-                    <TableHeaderCell>Valor a pagar</TableHeaderCell>
-                    <TableHeaderCell>Tarjeta de crédito</TableHeaderCell>
-                    <TableHeaderCell>Tarjeta de débito</TableHeaderCell>
-                    <TableHeaderCell>Cantidad de cuotas</TableHeaderCell>
-                    <TableHeaderCell>Acciones</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody striped hover>
-                  {paymentMethods.map((method) => (
-                    <TableRow key={method.id}>
-                      <TableCell>{method.method}</TableCell>
-                      <TableCell>${method.valueToPay}</TableCell>
-                      <TableCell>{method.creditCard || "-"}</TableCell>
-                      <TableCell>{method.debitCard || "-"}</TableCell>
-                      <TableCell>{method.paymentsQuantity}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeletePaymentMethod(method.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Eliminar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-            
+
+            {values.saleCond === "Múltiples métodos de pago" &&
+              products.length > 0 && (
+                <div className="mb-4">
+                  <AddPaymentMethod
+                    setPaymentMethods={setPaymentMethods}
+                    setPaymentsLeftValue={setPaymentsLeftValue}
+                    paymentsLeftValue={paymentsLeftValue}
+                  />
+                </div>
+              )}
+
+            <MultiplePaymentsTable
+              paymentMethods={paymentMethods}
+              handleDeletePaymentMethod={handleDeletePaymentMethod}
+            />
+
             <hr className="my-6 border-border" />
-            
+
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-semibold">Productos</h4>
               <AddProductComp />
             </div>
-            
+
             {products.length === 0 ? (
-              <p className="text-muted-foreground">No hay productos agregados</p>
+              <p className="text-muted-foreground">
+                No hay productos agregados
+              </p>
             ) : (
               <>
                 <Table responsive className="mt-4">
@@ -385,7 +370,9 @@ const NewBudgetComp = () => {
                         <TableCell>{product.productName}</TableCell>
                         <TableCell>${formatPrice(product.price)}</TableCell>
                         <TableCell>{product.quantity}</TableCell>
-                        <TableCell>${formatPrice(product.price * product.quantity)}</TableCell>
+                        <TableCell>
+                          ${formatPrice(product.price * product.quantity)}
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="destructive"
@@ -400,20 +387,32 @@ const NewBudgetComp = () => {
                     ))}
                   </TableBody>
                 </Table>
-                
+
                 <div className="flex flex-col items-end mt-4 gap-1">
-                  <p className="text-lg">IVA: <span className="font-semibold">${formatPrice(productsTotal.iva)}</span></p>
-                  <p className="text-lg">Precio s/ IVA: <span className="font-semibold">${formatPrice(productsTotal.precioSinIva)}</span></p>
-                  <p className="text-xl font-bold">Total: ${formatPrice(productsTotal.total)}</p>
+                  <p className="text-lg">
+                    IVA:{" "}
+                    <span className="font-semibold">
+                      ${formatPrice(productsTotal.iva)}
+                    </span>
+                  </p>
+                  <p className="text-lg">
+                    Precio s/ IVA:{" "}
+                    <span className="font-semibold">
+                      ${formatPrice(productsTotal.precioSinIva)}
+                    </span>
+                  </p>
+                  <p className="text-xl font-bold">
+                    Total: ${formatPrice(productsTotal.total)}
+                  </p>
                 </div>
               </>
             )}
-            
+
             <div className="flex justify-end mt-6 mb-4">
               <Button type="submit" disabled={loading}>
                 {loading ? (
                   <>
-                    <Spinner size="sm" variant="light" />
+                    <Spinner size="sm" variant="dark" />
                     <span>Cargando...</span>
                   </>
                 ) : (

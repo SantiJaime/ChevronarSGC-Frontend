@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import { NumericFormat } from "react-number-format";
-import { editProductSchema } from "../utils/validationSchemas";
-import useProducts from "../hooks/useProducts";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Spinner } from "./ui/Spinner";
-import { Badge } from "./ui/Badge";
+import { editProductSchema } from "../../utils/validationSchemas";
+import useProducts from "../../hooks/useProducts";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Spinner } from "../ui/Spinner";
+import { Badge } from "../ui/Badge";
 import { Pencil, Tag, DollarSign, ShoppingCart, Barcode, Save, X } from "lucide-react";
 
 interface Props {
@@ -208,10 +208,10 @@ const EditProductInDbComp: React.FC<Props> = ({
             </div>
             
             <div className="flex justify-end">
-              <Button variant="dark" type="submit" disabled={loading}>
+              <Button variant="default" type="submit" disabled={loading}>
                 {loading ? (
                   <>
-                    <Spinner size="sm" variant="light" />
+                    <Spinner size="sm" variant="dark" />
                     <span>Guardando...</span>
                   </>
                 ) : (

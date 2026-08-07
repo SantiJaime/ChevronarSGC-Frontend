@@ -18,7 +18,7 @@ const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
     const variantClasses = {
       default: "text-primary",
       light: "text-white",
-      dark: "text-foreground",
+      dark: "text-black",
     };
 
     return (

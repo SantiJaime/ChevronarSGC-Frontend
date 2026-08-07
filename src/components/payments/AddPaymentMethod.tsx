@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Formik } from "formik";
-import { addPaymentMethodSchema } from "../utils/validationSchemas";
-import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../constants/const";
+import { addPaymentMethodSchema } from "../../utils/validationSchemas";
+import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../../constants/const";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { NumericFormat } from "react-number-format";
-import { TAX_CONFIG, TaxTable } from "../constants/card_tax";
-import { formatPrice } from "../utils/utils";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Label } from "./ui/Label";
-import { Input } from "./ui/Input";
-import { Select } from "./ui/Select";
+import { TAX_CONFIG, TaxTable } from "../../constants/card_tax";
+import { formatPrice } from "../../utils/utils";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Label } from "../ui/Label";
+import { Input } from "../ui/Input";
+import { Select } from "../ui/Select";
 
 interface Props {
   setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethods[]>>;

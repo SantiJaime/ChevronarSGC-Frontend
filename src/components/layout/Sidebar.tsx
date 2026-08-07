@@ -4,11 +4,11 @@ import {
   NAV_LINKS_OBJECT_MARTIN,
   NAV_LINKS_OBJECT_VENTAS,
   Role,
-} from "../constants/const";
-import useSession from "../hooks/useSession";
+} from "../../constants/const";
+import useSession from "../../hooks/useSession";
 import { LogOut } from "lucide-react";
-import { Button } from "./ui/Button";
-import { Spinner } from "./ui/Spinner";
+import { Button } from "../ui/Button";
+import { Spinner } from "../ui/Spinner";
 
 const ROLE_LINKS = {
   [Role.ADMIN]: NAV_LINKS_OBJECT,

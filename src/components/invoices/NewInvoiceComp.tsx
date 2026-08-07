@@ -1,10 +1,10 @@
 import { Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
-import { createInvoiceSchema } from "../utils/validationSchemas";
-import { createInvoice } from "../helpers/invoicesQueries";
+import { createInvoiceSchema } from "../../utils/validationSchemas";
+import { createInvoice } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
-import AddProductComp from "./AddProductComp";
-import useClients from "../hooks/useClients";
+import AddProductComp from "../products/AddProductComp";
+import useClients from "../../hooks/useClients";
 import {
   CREDIT_CARDS,
   CUIT_MAP,
@@ -12,21 +12,29 @@ import {
   normalizeText,
   SALE_CONDITIONS,
   SALE_POINTS,
-} from "../constants/const";
-import { validateInvoice } from "../utils/validationFunctions";
-import AddPaymentMethod from "./AddPaymentMethod";
+} from "../../constants/const";
+import { validateInvoice } from "../../utils/validationFunctions";
+import AddPaymentMethod from "../payments/AddPaymentMethod";
 import Swal from "sweetalert2";
-import { formatPrice } from "../utils/utils";
-import useInvoiceProducts from "../hooks/useInvoiceProducts";
-import NewProductComp from "./NewProductComp";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
-import { Dropdown } from "./ui/Dropdown";
+import { formatPrice } from "../../utils/utils";
+import useInvoiceProducts from "../../hooks/useInvoiceProducts";
+import NewProductComp from "../products/NewProductComp";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHeaderCell,
+} from "../ui/Table";
+import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
+import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
 const NewInvoiceComp = () => {
   const { clients } = useClients();
@@ -192,7 +200,7 @@ const NewInvoiceComp = () => {
         {({ values, errors, touched, handleChange, handleSubmit }) => (
           <form noValidate onSubmit={handleSubmit}>
             <h4 className="text-lg font-semibold mb-4">Datos del cliente</h4>
-            
+
             <div className="mb-4 relative">
               <Label htmlFor="clientSearchId">Buscar cliente</Label>
               <Input
@@ -204,8 +212,11 @@ const NewInvoiceComp = () => {
                 onChange={(ev) => handleInputChange(ev.target.value)}
                 className="mt-1"
               />
-              
-              <Dropdown.Menu show={isDropdownOpen && filteredClients.length > 0} className="mt-1">
+
+              <Dropdown.Menu
+                show={isDropdownOpen && filteredClients.length > 0}
+                className="mt-1"
+              >
                 {filteredClients.map((client) => (
                   <Dropdown.Item
                     key={client.document}
@@ -216,7 +227,7 @@ const NewInvoiceComp = () => {
                 ))}
               </Dropdown.Menu>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <Label htmlFor="cuitOptionId">CUIT de facturacion</Label>
@@ -236,11 +247,13 @@ const NewInvoiceComp = () => {
                   ))}
                 </Select>
                 {errors.cuitOption && touched.cuitOption && (
-                  <span className="text-sm text-destructive">{errors.cuitOption}</span>
+                  <span className="text-sm text-destructive">
+                    {errors.cuitOption}
+                  </span>
                 )}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <Label htmlFor="saleConditionId">Condición de venta</Label>
@@ -260,10 +273,12 @@ const NewInvoiceComp = () => {
                   ))}
                 </Select>
                 {errors.saleCond && touched.saleCond && (
-                  <span className="text-sm text-destructive">{errors.saleCond}</span>
+                  <span className="text-sm text-destructive">
+                    {errors.saleCond}
+                  </span>
                 )}
               </div>
-              
+
               <div>
                 <Label htmlFor="salePointId">Punto de venta</Label>
                 <Select
@@ -282,10 +297,12 @@ const NewInvoiceComp = () => {
                   ))}
                 </Select>
                 {errors.salePoint && touched.salePoint && (
-                  <span className="text-sm text-destructive">{errors.salePoint}</span>
+                  <span className="text-sm text-destructive">
+                    {errors.salePoint}
+                  </span>
                 )}
               </div>
-              
+
               <div>
                 <Label htmlFor="invoiceTypeId">Tipo de factura</Label>
                 <Select
@@ -301,11 +318,13 @@ const NewInvoiceComp = () => {
                   <option value="Factura-B">Factura B</option>
                 </Select>
                 {errors.invoiceType && touched.invoiceType && (
-                  <span className="text-sm text-destructive">{errors.invoiceType}</span>
+                  <span className="text-sm text-destructive">
+                    {errors.invoiceType}
+                  </span>
                 )}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {values.saleCond === "Crédito" && (
                 <div>
@@ -326,7 +345,7 @@ const NewInvoiceComp = () => {
                   </Select>
                 </div>
               )}
-              
+
               {values.saleCond === "Débito" && (
                 <div>
                   <Label htmlFor="debitCardId">Tarjeta de débito</Label>
@@ -346,8 +365,9 @@ const NewInvoiceComp = () => {
                   </Select>
                 </div>
               )}
-              
-              {(values.saleCond === "Crédito" || values.saleCond === "Débito") && (
+
+              {(values.saleCond === "Crédito" ||
+                values.saleCond === "Débito") && (
                 <div>
                   <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
                   <Input
@@ -362,62 +382,37 @@ const NewInvoiceComp = () => {
                 </div>
               )}
             </div>
-            
-            {values.saleCond === "Múltiples métodos de pago" && products.length > 0 && (
-              <div className="mb-4">
-                <AddPaymentMethod
-                  setPaymentMethods={setPaymentMethods}
-                  setPaymentsLeftValue={setPaymentsLeftValue}
-                  paymentsLeftValue={paymentsLeftValue}
-                />
-              </div>
-            )}
-            
-            {paymentMethods.length > 0 && (
-              <Table responsive className="mt-4">
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>Método de pago</TableHeaderCell>
-                    <TableHeaderCell>Valor a pagar</TableHeaderCell>
-                    <TableHeaderCell>Tarjeta de crédito</TableHeaderCell>
-                    <TableHeaderCell>Tarjeta de débito</TableHeaderCell>
-                    <TableHeaderCell>Cantidad de cuotas</TableHeaderCell>
-                    <TableHeaderCell>Acciones</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody striped hover>
-                  {paymentMethods.map((method) => (
-                    <TableRow key={method.id}>
-                      <TableCell>{method.method}</TableCell>
-                      <TableCell>${method.valueToPay}</TableCell>
-                      <TableCell>{method.creditCard || "-"}</TableCell>
-                      <TableCell>{method.debitCard || "-"}</TableCell>
-                      <TableCell>{method.paymentsQuantity}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeletePaymentMethod(method.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Eliminar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-            
+
+            {values.saleCond === "Múltiples métodos de pago" &&
+              products.length > 0 && (
+                <div className="mb-4 flex justify-between">
+                  <h4 className="text-lg font-semibold">
+                    {paymentMethods.length > 0 && "Métodos de pago"}
+                  </h4>
+                  <AddPaymentMethod
+                    setPaymentMethods={setPaymentMethods}
+                    setPaymentsLeftValue={setPaymentsLeftValue}
+                    paymentsLeftValue={paymentsLeftValue}
+                  />
+                </div>
+              )}
+
+            <MultiplePaymentsTable
+              paymentMethods={paymentMethods}
+              handleDeletePaymentMethod={handleDeletePaymentMethod}
+            />
+
             <hr className="my-6 border-border" />
-            
+
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-semibold">Productos</h4>
               <AddProductComp />
             </div>
-            
+
             {products.length === 0 ? (
-              <p className="text-muted-foreground">No hay productos agregados</p>
+              <p className="text-muted-foreground">
+                No hay productos agregados
+              </p>
             ) : (
               <>
                 <Table responsive className="mt-4">
@@ -436,7 +431,9 @@ const NewInvoiceComp = () => {
                         <TableCell>{product.productName}</TableCell>
                         <TableCell>${formatPrice(product.price)}</TableCell>
                         <TableCell>{product.quantity}</TableCell>
-                        <TableCell>${formatPrice(product.price * product.quantity)}</TableCell>
+                        <TableCell>
+                          ${formatPrice(product.price * product.quantity)}
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="destructive"
@@ -451,20 +448,32 @@ const NewInvoiceComp = () => {
                     ))}
                   </TableBody>
                 </Table>
-                
+
                 <div className="flex flex-col items-end mt-4 gap-1">
-                  <p className="text-lg">IVA: <span className="font-semibold">${formatPrice(productsTotal.iva)}</span></p>
-                  <p className="text-lg">Precio s/ IVA: <span className="font-semibold">${formatPrice(productsTotal.precioSinIva)}</span></p>
-                  <p className="text-xl font-bold">Total: ${formatPrice(productsTotal.total)}</p>
+                  <p className="text-lg">
+                    IVA:{" "}
+                    <span className="font-semibold">
+                      ${formatPrice(productsTotal.iva)}
+                    </span>
+                  </p>
+                  <p className="text-lg">
+                    Precio s/ IVA:{" "}
+                    <span className="font-semibold">
+                      ${formatPrice(productsTotal.precioSinIva)}
+                    </span>
+                  </p>
+                  <p className="text-xl font-bold">
+                    Total: ${formatPrice(productsTotal.total)}
+                  </p>
                 </div>
               </>
             )}
-            
+
             <div className="flex justify-end mt-6 mb-4">
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} variant="default">
                 {loading ? (
                   <>
-                    <Spinner size="sm" variant="light" />
+                    <Spinner size="sm" variant="dark" />
                     <span>Cargando...</span>
                   </>
                 ) : (

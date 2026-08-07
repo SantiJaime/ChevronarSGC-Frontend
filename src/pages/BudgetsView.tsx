@@ -1,5 +1,5 @@
 import { useState } from "react";
-import TabsComp from "../components/TabsComp";
+import TabsComp from "../components/shared/TabsComp";
 import { NAV_LINKS, NAV_LINKS_PRESUPUESTOS } from "../constants/const";
 
 const BudgetsView = () => {

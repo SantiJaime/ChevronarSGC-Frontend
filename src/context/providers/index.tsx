@@ -1,8 +1,8 @@
-import CitiesProvider from "../context/providers/CitiesProvider";
-import ClientProvider from "../context/providers/ClientProvider";
-import InvoiceProductsProvider from "../context/providers/InvoiceProductsProvider";
-import SalesProvider from "../context/providers/SalesProvider";
-import SessionProvider from "../context/providers/SessionProvider";
+import CitiesProvider from "./CitiesProvider";
+import ClientProvider from "./ClientProvider";
+import InvoiceProductsProvider from "./InvoiceProductsProvider";
+import SalesProvider from "./SalesProvider";
+import SessionProvider from "./SessionProvider";
 
 interface Props {
   children: JSX.Element;

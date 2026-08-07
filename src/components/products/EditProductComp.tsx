@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Formik } from "formik";
-import { addProductSchema } from "../utils/validationSchemas";
+import { addProductSchema } from "../../utils/validationSchemas";
 import { NumericFormat } from "react-number-format";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
 import { Pencil, Tag, DollarSign, ShoppingCart } from "lucide-react";
 
 interface Props {

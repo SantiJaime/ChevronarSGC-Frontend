@@ -1,19 +1,19 @@
 import { Formik } from "formik";
 import { useState } from "react";
-import { SELLERS } from "../constants/const";
-import AddProductComp from "./AddProductComp";
-import { formatPrice } from "../utils/utils";
-import { newSaleSchema } from "../utils/validationSchemas";
+import { SELLERS } from "../../constants/const";
+import AddProductComp from "../products/AddProductComp";
+import { formatPrice } from "../../utils/utils";
+import { newSaleSchema } from "../../utils/validationSchemas";
 import Swal from "sweetalert2";
-import useSales from "../hooks/useSales";
+import useSales from "../../hooks/useSales";
 import { toast } from "sonner";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Pencil, User, Users, Trash2, X, Save } from "lucide-react";
 
 interface FormValues {
@@ -219,10 +219,10 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                       <X className="h-4 w-4" />
                       <span>Cancelar</span>
                     </Button>
-                    <Button variant="dark" type="submit" disabled={loading}>
+                    <Button variant="default" type="submit" disabled={loading}>
                       {loading ? (
                         <>
-                          <Spinner size="sm" variant="light" />
+                          <Spinner size="sm" variant="dark" />
                           <span>Guardando...</span>
                         </>
                       ) : (

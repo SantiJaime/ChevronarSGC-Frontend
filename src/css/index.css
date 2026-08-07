@@ -4,39 +4,39 @@
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  --color-background: #f1f5f9;
-  --color-foreground: #0f172a;
+--color-background: #0f172a; /* Slate 900: Fondo principal oscuro */
+  --color-foreground: #f8fafc; /* Slate 50: Texto principal claro */
 
-  --color-card: #ffffff;
-  --color-card-foreground: #0f172a;
+  --color-card: #1e293b; /* Slate 800: Tarjetas un nivel más claras que el fondo */
+  --color-card-foreground: #f8fafc; /* Slate 50: Texto dentro de tarjetas */
 
-  --color-primary: #1e293b;
-  --color-primary-foreground: #f8fafc;
+  --color-primary: #f8fafc; /* Slate 50: Botón primario en blanco/muy claro para destacar */
+  --color-primary-foreground: #0f172a; /* Slate 900: Texto oscuro sobre el botón primario */
 
-  --color-secondary: #64748b;
-  --color-secondary-foreground: #f8fafc;
+  --color-secondary: #334155; /* Slate 700: Elementos secundarios con contraste medio */
+  --color-secondary-foreground: #f8fafc; /* Slate 50 */
 
-  --color-accent: #3b82f6;
+  --color-accent: #3b82f6; /* Blue 500: Azul brillante para mantener el toque distintivo */
   --color-accent-foreground: #ffffff;
 
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
+  --color-muted: #1e293b; /* Slate 800: Fondos sutiles o deshabilitados */
+  --color-muted-foreground: #94a3b8; /* Slate 400: Texto secundario/deshabilitado de menor contraste */
 
-  --color-destructive: #ef4444;
+  --color-destructive: #ef4444; /* Red 500 */
   --color-destructive-foreground: #ffffff;
 
-  --color-success: #22c55e;
+  --color-success: #22c55e; /* Green 500 */
   --color-success-foreground: #ffffff;
 
-  --color-warning: #f59e0b;
+  --color-warning: #f59e0b; /* Amber 500 */
   --color-warning-foreground: #0f172a;
 
-  --color-info: #0ea5e9;
+  --color-info: #0ea5e9; /* Sky 500 */
   --color-info-foreground: #ffffff;
 
-  --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
-  --color-ring: #3b82f6;
+  --color-border: #334155; /* Slate 700: Bordes visibles pero no invasivos */
+  --color-input: #334155; /* Slate 700: Bordes para inputs */
+  --color-ring: #3b82f6; /* Blue 500: Anillo de enfoque (Focus state) */
 
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;

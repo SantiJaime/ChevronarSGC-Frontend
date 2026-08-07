@@ -20,7 +20,7 @@ export const getClients = async (): Promise<GetClientResponse> => {
   });
   if (!response.ok) {
     const error: ErrorMessage = await response.json();
-    throw error.msg;
+    throw error;
   }
   return await response.json();
 };

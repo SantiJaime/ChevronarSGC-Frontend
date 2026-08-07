@@ -1,37 +1,48 @@
 import { useFormik } from "formik";
-import { searchBudgetSchema } from "../utils/validationSchemas";
+import { searchInvoiceSchema } from "../../utils/validationSchemas";
 import { useState } from "react";
 import {
-  deleteBudget,
-  getBudgets,
-  printBudget,
-} from "../helpers/invoicesQueries";
+  cancelInvoice,
+  getInvoices,
+  printInvoice,
+} from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 import {
-  BUDGET_SALE_POINTS,
   CREDIT_CARDS,
+  CUIT_MAP,
   DEBIT_CARDS,
   SALE_CONDITIONS,
-} from "../constants/const";
-import { validateSearchInvoice } from "../utils/validationFunctions";
-import Swal from "sweetalert2";
-import { formatPrice } from "../utils/utils";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
-import { Search, ChevronLeft, ChevronRight, Printer, Trash2 } from "lucide-react";
+  SALE_POINTS,
+} from "../../constants/const";
+import InvoiceDetails from "./InvoiceDetails";
+import { validateSearchInvoice } from "../../utils/validationFunctions";
+import { formatPrice } from "../../utils/utils";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
+import { Search, ChevronLeft, ChevronRight, Printer, FileX } from "lucide-react";
 
-const Budgets = () => {
+const Invoices = () => {
+  const INVOICES_TYPES = [
+    { name: "Factura A", value: 1 },
+    { name: "Factura B", value: 6 },
+    { name: "Nota de crédito A", value: 3 },
+    { name: "Nota de crédito B", value: 8 },
+  ];
+  
   const formik = useFormik({
     initialValues: {
       fromDate: "",
       toDate: "",
+      cuitOption: "",
       clientName: "",
       clientDocument: "",
-      budgetNumber: "",
+      cbteTipo: undefined,
+      invoiceNumber: "",
       salePoint: "",
       total: "",
       saleCond: "",
@@ -39,32 +50,32 @@ const Budgets = () => {
       creditCard: "",
       debitCard: "",
     },
-    validationSchema: searchBudgetSchema,
+    validationSchema: searchInvoiceSchema,
     onSubmit: () => handleSearch(),
   });
 
   const { values, errors, touched, setFieldValue, handleChange, handleSubmit } = formik;
 
-  const [budgets, setBudgets] = useState<FullBudget[]>([]);
+  const [invoices, setInvoices] = useState<FullInvoice[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null);
+  const [loadingCancel, setLoadingCancel] = useState(false);
 
   const handleSearch = (paramPage?: number) => {
     validateSearchInvoice(values);
     setLoading(true);
-    
+
     const pageToFetch = paramPage || 1;
     setPage(pageToFetch);
-
-    getBudgets(values, pageToFetch)
+    
+    getInvoices(values, pageToFetch)
       .then((res) => {
-        setBudgets(res.budgets);
+        setInvoices(res.invoices);
         setTotalPages(res.infoPagination.totalPages);
       })
       .catch((err) => {
-        setBudgets([]);
+        setInvoices([]);
         toast.error(err.error);
       })
       .finally(() => setLoading(false));
@@ -82,8 +93,66 @@ const Budgets = () => {
     }
   };
 
-  const handlePrint = (budgetData: FullBudget) => {
-    const promise = printBudget(budgetData)
+  const handleCancelInvoice = (id: string) => {
+    Swal.fire({
+      title: "Estas seguro de anular esta factura?",
+      text: "Esta accion no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#05b000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, anular",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setLoadingCancel(true);
+        const promise = cancelInvoice(values.cuitOption, id)
+          .then((res) => {
+            open(res.result, "_blank");
+
+            setInvoices((prevState) => {
+              const updatedInvoices = prevState.map((invoice) =>
+                invoice._id === id
+                  ? { ...invoice, cancelled: true }
+                  : invoice,
+              );
+
+              return [...updatedInvoices, res.newCreditNote];
+            });
+
+            return res;
+          })
+          .catch((err) => {
+            throw err;
+          });
+
+        toast.promise(promise, {
+          loading: "Generando nota de crédito...",
+          success: (data) => (
+            <span>
+              <b>{data.msg}</b>
+              <br />
+              En caso de que la nota de crédito no se abra, podés visualizarla en el siguiente enlace:
+              <br />
+              <a
+                href={data.result}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontWeight: "bold", textDecoration: "underline" }}
+              >
+                Ver nota de crédito
+              </a>
+            </span>
+          ),
+          error: (err) => `${err.error}`,
+          finally: () => setLoadingCancel(false),
+        });
+      }
+    });
+  };
+
+  const handlePrint = (id: string) => {
+    const promise = printInvoice(id)
       .then((res) => {
         open(res.result, "_blank");
         return res;
@@ -99,53 +168,17 @@ const Budgets = () => {
     });
   };
 
-  const handleDelete = async (id: string) => {
-    Swal.fire({
-      title: "Estas seguro de eliminar este presupuesto?",
-      text: "Esta accion no se puede deshacer",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#05b000",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Si, eliminar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setDeletingBudgetId(id);
-        const promise = deleteBudget(id)
-          .then((res) => {
-            setBudgets((prevBudgets) =>
-              prevBudgets.filter((budget) => budget._id !== id)
-            );
-            return res;
-          })
-          .catch((err) => {
-            throw err;
-          })
-          .finally(() => setDeletingBudgetId(null));
-
-        toast.promise(promise, {
-          loading: "Eliminando presupuesto...",
-          success: (res) => `${res.msg}`,
-          error: (err) => `${err.error}`,
-        });
-      }
-    });
-  };
-
-  const deleteInProgress = deletingBudgetId !== null;
-
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Historial de presupuestos</h2>
+      <h2 className="text-xl font-bold mb-4">Historial de facturas</h2>
       <hr className="border-border mb-4" />
-
+      
       <form noValidate onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
-            <Label htmlFor="budgetFromDateId">Desde *</Label>
+            <Label htmlFor="fromDateId">Desde *</Label>
             <Input
-              id="budgetFromDateId"
+              id="fromDateId"
               type="text"
               name="fromDate"
               value={values.fromDate}
@@ -165,9 +198,9 @@ const Budgets = () => {
           </div>
           
           <div>
-            <Label htmlFor="budgetToDateId">Hasta *</Label>
+            <Label htmlFor="toDateId">Hasta *</Label>
             <Input
-              id="budgetToDateId"
+              id="toDateId"
               type="text"
               name="toDate"
               value={values.toDate}
@@ -187,9 +220,29 @@ const Budgets = () => {
           </div>
           
           <div>
-            <Label htmlFor="budgetSalePointId">Punto de venta *</Label>
+            <Label htmlFor="cuitOptionId">CUIT de facturacion *</Label>
             <Select
-              id="budgetSalePointId"
+              id="cuitOptionId"
+              name="cuitOption"
+              value={values.cuitOption}
+              onChange={handleChange}
+              error={touched.cuitOption && !!errors.cuitOption}
+              className="mt-1"
+            >
+              <option value="">CUIT no seleccionado</option>
+              {CUIT_MAP.map(({ value, label }) => (
+                <option value={value} key={value}>{label}</option>
+              ))}
+            </Select>
+            {errors.cuitOption && touched.cuitOption && (
+              <span className="text-sm text-destructive">{errors.cuitOption}</span>
+            )}
+          </div>
+          
+          <div>
+            <Label htmlFor="salePointId">Punto de venta *</Label>
+            <Select
+              id="salePointId"
               name="salePoint"
               value={values.salePoint}
               onChange={handleChange}
@@ -197,7 +250,7 @@ const Budgets = () => {
               className="mt-1"
             >
               <option value="">Punto de venta no seleccionado</option>
-              {BUDGET_SALE_POINTS.map((point) => (
+              {SALE_POINTS.map((point) => (
                 <option value={point.value} key={point.name}>{point.name}</option>
               ))}
             </Select>
@@ -205,57 +258,83 @@ const Budgets = () => {
               <span className="text-sm text-destructive">{errors.salePoint}</span>
             )}
           </div>
-          
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
-            <Label htmlFor="budgetClientDocumentId">Documento del cliente</Label>
+            <Label htmlFor="clientDocumentId">Documento del cliente</Label>
             <Input
-              id="budgetClientDocumentId"
+              id="clientDocumentId"
               type="text"
               name="clientDocument"
               value={values.clientDocument}
               onChange={handleChange}
               placeholder="Ej: 12345678912"
               autoComplete="off"
+              error={touched.clientDocument && !!errors.clientDocument}
               className="mt-1"
             />
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          
           <div>
-            <Label htmlFor="budgetClientNameId">Nombre del cliente</Label>
+            <Label htmlFor="clientNameId">Nombre del cliente</Label>
             <Input
-              id="budgetClientNameId"
+              id="clientNameId"
               type="text"
               name="clientName"
               value={values.clientName}
               onChange={handleChange}
               placeholder="Ej: Juan Perez"
               autoComplete="off"
+              error={touched.clientName && !!errors.clientName}
               className="mt-1"
             />
           </div>
           
           <div>
-            <Label htmlFor="budgetNumberId">Número de presupuesto</Label>
+            <Label htmlFor="invoiceNumberId">Número de factura</Label>
             <Input
-              id="budgetNumberId"
+              id="invoiceNumberId"
               type="text"
-              name="budgetNumber"
-              value={values.budgetNumber}
+              name="invoiceNumber"
+              value={values.invoiceNumber}
               onChange={handleChange}
               placeholder="Ej: 20"
               autoComplete="off"
+              error={touched.invoiceNumber && !!errors.invoiceNumber}
               className="mt-1"
             />
+          </div>
+          
+          <div>
+            <Label htmlFor="invoiceTypeId">Tipo de factura</Label>
+            <Select
+              id="invoiceTypeId"
+              name="cbteTipo"
+              value={values.cbteTipo}
+              onChange={(ev) => {
+                if (isNaN(Number(ev.target.value))) {
+                  setFieldValue("cbteTipo", undefined);
+                  return;
+                }
+                setFieldValue("cbteTipo", Number(ev.target.value));
+              }}
+              error={touched.cbteTipo && !!errors.cbteTipo}
+              className="mt-1"
+            >
+              <option value={undefined}>Todas</option>
+              {INVOICES_TYPES.map((type) => (
+                <option value={type.value} key={type.name}>{type.name}</option>
+              ))}
+            </Select>
           </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <Label htmlFor="budgetSaleConditionId">Condición de venta</Label>
+            <Label htmlFor="saleConditionId">Condición de venta</Label>
             <Select
-              id="budgetSaleConditionId"
+              id="saleConditionId"
               name="saleCond"
               value={values.saleCond}
               onChange={handleChange}
@@ -271,9 +350,9 @@ const Budgets = () => {
           {values.saleCond === "Crédito" && (
             <>
               <div>
-                <Label htmlFor="budgetCreditCardId">Tarjeta de crédito</Label>
+                <Label htmlFor="creditCardId">Tarjeta de crédito</Label>
                 <Select
-                  id="budgetCreditCardId"
+                  id="creditCardId"
                   onChange={handleChange}
                   value={values.creditCard}
                   name="creditCard"
@@ -286,9 +365,9 @@ const Budgets = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="budgetCreditPaymentsQuantityId">Cantidad de cuotas</Label>
+                <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
                 <Input
-                  id="budgetCreditPaymentsQuantityId"
+                  id="paymentsQuantityId"
                   type="text"
                   name="paymentsQuantity"
                   value={values.paymentsQuantity}
@@ -304,9 +383,9 @@ const Budgets = () => {
           {values.saleCond === "Débito" && (
             <>
               <div>
-                <Label htmlFor="budgetDebitCardId">Tarjeta de débito</Label>
+                <Label htmlFor="debitCardId">Tarjeta de débito</Label>
                 <Select
-                  id="budgetDebitCardId"
+                  id="debitCardId"
                   onChange={handleChange}
                   value={values.debitCard}
                   name="debitCard"
@@ -319,9 +398,9 @@ const Budgets = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="budgetDebitPaymentsQuantityId">Cantidad de cuotas</Label>
+                <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
                 <Input
-                  id="budgetDebitPaymentsQuantityId"
+                  id="paymentsQuantityId"
                   type="text"
                   name="paymentsQuantity"
                   value={values.paymentsQuantity}
@@ -336,7 +415,7 @@ const Budgets = () => {
         </div>
         
         <div className="flex justify-end">
-          <Button type="submit" variant="dark">
+          <Button type="submit" variant="default">
             <Search className="h-4 w-4" />
             <span>Buscar</span>
           </Button>
@@ -350,73 +429,83 @@ const Budgets = () => {
           <Spinner size="lg" />
           <h4 className="mt-4 text-lg font-medium">Cargando...</h4>
         </div>
-      ) : budgets.length === 0 ? (
-        <h4 className="text-center text-lg text-muted-foreground py-8">No se encontraron presupuestos</h4>
+      ) : invoices.length === 0 ? (
+        <h4 className="text-center text-lg text-muted-foreground py-8">No se encontraron facturas</h4>
       ) : (
         <>
           <Table responsive>
             <TableHead>
               <TableRow>
                 <TableHeaderCell>Cliente</TableHeaderCell>
-                <TableHeaderCell>Nro. de presupuesto</TableHeaderCell>
+                <TableHeaderCell>Nro. de factura | Tipo</TableHeaderCell>
                 <TableHeaderCell>Importes | Condición de venta</TableHeaderCell>
                 <TableHeaderCell>Punto de venta</TableHeaderCell>
+                <TableHeaderCell>Estado</TableHeaderCell>
                 <TableHeaderCell>Acciones</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody striped hover>
-              {budgets.map((budget) => {
-                const isThisRowDeleting = deletingBudgetId === budget._id;
-                return (
-                  <TableRow key={budget._id}>
-                    <TableCell>{budget.client.name} | {budget.client.document}</TableCell>
-                    <TableCell>Presupuesto No {budget.budgetNumber}</TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">
-                          <strong>Total:</strong> ${formatPrice(budget.amounts.total)} |
-                          <strong> IVA:</strong> ${formatPrice(budget.amounts.iva)} |
-                          <strong> Precio sin IVA:</strong> ${formatPrice(budget.amounts.precioSinIva)}
-                        </div>
-                        <div className="text-sm">
-                          <strong>{budget.saleCond}</strong>
-                          {(budget.debitCard || budget.creditCard) && ` - ${budget.debitCard || budget.creditCard}`}
-                          {" "}- {budget.paymentsQuantity} pago(s)
-                        </div>
+              {invoices.map((invoice) => (
+                <TableRow key={invoice._id}>
+                  <TableCell>{invoice.client.name} | {invoice.client.document}</TableCell>
+                  <TableCell>Factura No {invoice.invoiceNumber} | {invoice.invoiceType}</TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="text-sm">
+                        <strong>Total:</strong> ${formatPrice(invoice.amounts.total)} |
+                        <strong> IVA:</strong> ${formatPrice(invoice.amounts.iva)} |
+                        <strong> Precio sin IVA:</strong> ${formatPrice(invoice.amounts.precioSinIva)}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      {budget.salePoint === "00002" ? "Av. San Martin 112" : "Av. Colon 315"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="success" size="sm" onClick={() => handlePrint(budget)}>
-                          <Printer className="h-4 w-4" />
-                          <span>Imprimir</span>
-                        </Button>
+                      <div className="text-sm">
+                        <strong>{invoice.saleCond}</strong>
+                        {(invoice.debitCard || invoice.creditCard) && ` - ${invoice.debitCard || invoice.creditCard}`}
+                        {" "}- {invoice.paymentsQuantity} pago(s)
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {invoice.salePoint === "00011" ? "Av. San Martin 112" : "Av. Colon 315"}
+                  </TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                      invoice.cancelled 
+                        ? "bg-destructive/10 text-destructive" 
+                        : "bg-success/10 text-success"
+                    }`}>
+                      {invoice.cancelled ? "Anulada" : "Autorizada"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <InvoiceDetails invoice={invoice} />
+                      <Button variant="success" size="sm" onClick={() => handlePrint(invoice._id)}>
+                        <Printer className="h-4 w-4" />
+                        <span>Imprimir</span>
+                      </Button>
+                      {!invoice.cancelled && !invoice.assocInvoiceNumber && (
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleDelete(budget._id)}
-                          disabled={deleteInProgress}
+                          disabled={loadingCancel}
+                          onClick={() => handleCancelInvoice(invoice._id)}
                         >
-                          {isThisRowDeleting ? (
+                          {loadingCancel ? (
                             <>
                               <Spinner size="sm" variant="light" />
-                              <span>Eliminando...</span>
+                              <span>Anulando...</span>
                             </>
                           ) : (
                             <>
-                              <Trash2 className="h-4 w-4" />
-                              <span>Eliminar</span>
+                              <FileX className="h-4 w-4" />
+                              <span>Anular</span>
                             </>
                           )}
                         </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
           
@@ -439,4 +528,4 @@ const Budgets = () => {
   );
 };
 
-export default Budgets;
+export default Invoices;

@@ -1,12 +1,12 @@
-import useProducts from "../hooks/useProducts";
-import { formatPrice } from "../utils/utils";
+import useProducts from "../../hooks/useProducts";
+import { formatPrice } from "../../utils/utils";
 import { useEffect, useState } from "react";
 import EditProductInDbComp from "./EditProductInDbComp";
 import Swal from "sweetalert2";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Spinner } from "../ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Search, Trash2 } from "lucide-react";
 
 const ProductsTableComp = () => {

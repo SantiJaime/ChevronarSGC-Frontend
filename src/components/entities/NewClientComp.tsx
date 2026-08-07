@@ -1,13 +1,13 @@
 import { Formik } from "formik";
-import { createClientSchema } from "../utils/validationSchemas";
-import { createClient } from "../helpers/clientsQueries";
+import { createClientSchema } from "../../utils/validationSchemas";
+import { createClient } from "../../helpers/clientsQueries";
 import { toast } from "sonner";
-import useClients from "../hooks/useClients";
-import useCities from "../hooks/useCities";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
+import useClients from "../../hooks/useClients";
+import useCities from "../../hooks/useCities";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
 
 const NewClientComp = () => {
   const { setClients } = useClients();

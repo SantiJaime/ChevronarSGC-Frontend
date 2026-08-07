@@ -1,15 +1,15 @@
 import { useFormik } from "formik";
 import { useState } from "react";
-import { salesAmountsSchema } from "../utils/validationSchemas";
-import { formatPrice } from "../utils/utils";
-import useSales from "../hooks/useSales";
-import { NUMBER_STRING_PAYMENTS } from "../constants/const";
+import { salesAmountsSchema } from "../../utils/validationSchemas";
+import { formatPrice } from "../../utils/utils";
+import useSales from "../../hooks/useSales";
+import { NUMBER_STRING_PAYMENTS } from "../../constants/const";
 import { toast } from "sonner";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Spinner } from "./ui/Spinner";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Spinner } from "../ui/Spinner";
 import { Coins, Calculator, Table } from "lucide-react";
 
 interface FormValues {
@@ -88,7 +88,7 @@ const SalesAmountsComp = () => {
 
   return (
     <>
-      <Button variant="dark" onClick={handleShow}>
+      <Button variant="default" onClick={handleShow}>
         <Coins className="h-4 w-4" />
         <span>Planillas de ventas</span>
       </Button>
@@ -125,7 +125,7 @@ const SalesAmountsComp = () => {
                 <Table className="h-4 w-4" />
                 <span>Exportar a Excel</span>
               </Button>
-              <Button variant="dark" type="submit" disabled={loading}>
+              <Button variant="default" type="submit" disabled={loading}>
                 <Calculator className="h-4 w-4" />
                 <span>Calcular montos de ventas</span>
               </Button>

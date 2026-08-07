@@ -1,20 +1,20 @@
 import { Formik } from "formik";
-import { SELLERS } from "../constants/const";
-import AddProductComp from "./AddProductComp";
-import { formatPrice } from "../utils/utils";
+import { SELLERS } from "../../constants/const";
+import AddProductComp from "../products/AddProductComp";
+import { formatPrice } from "../../utils/utils";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { type NewSale, newSaleSchema } from "../utils/validationSchemas";
+import { type NewSale, newSaleSchema } from "../../utils/validationSchemas";
 import { toast } from "sonner";
-import useSales from "../hooks/useSales";
-import useInvoiceProducts from "../hooks/useInvoiceProducts";
-import NewProductComp from "./NewProductComp";
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
-import { Label } from "./ui/Label";
-import { Select } from "./ui/Select";
-import { Spinner } from "./ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "./ui/Table";
+import useSales from "../../hooks/useSales";
+import useInvoiceProducts from "../../hooks/useInvoiceProducts";
+import NewProductComp from "../products/NewProductComp";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { Select } from "../ui/Select";
+import { Spinner } from "../ui/Spinner";
+import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Check, Trash2 } from "lucide-react";
 
 const NewSaleComp = () => {
@@ -185,7 +185,7 @@ const NewSaleComp = () => {
               <Button type="submit" disabled={loading}>
                 {loading ? (
                   <>
-                    <Spinner size="sm" variant="light" />
+                    <Spinner size="sm" variant="dark" />
                     <span>Cargando...</span>
                   </>
                 ) : (
