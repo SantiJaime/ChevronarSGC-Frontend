@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { SessionContext } from "../SessionContext";
 import { fetchCurrentUser } from "../../helpers/authQueries";
 import { toast } from "sonner";
 
 interface Props {
-  children: JSX.Element;
+  children: ReactNode;
 }
 const SessionProvider: React.FC<Props> = ({ children }) => {
   const [sessionReady, setSessionReady] = useState(false);

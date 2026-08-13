@@ -2,7 +2,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./css/App.css";
 import { Toaster } from "sonner";
 import Sidebar from "./components/layout/Sidebar";
-import Providers from "./context/providers";
+import { Providers } from "./context/providers";
 import RoutesView from "./routes/RoutesView";
 
 const App = () => {
@@ -13,7 +13,7 @@ const App = () => {
           <Sidebar />
           <main className="App-main">
             <Toaster richColors />
-              <RoutesView/>
+            <RoutesView />
           </main>
         </div>
       </Providers>
