@@ -2,9 +2,10 @@ import { Navigate } from "react-router-dom";
 import useSession from "../hooks/useSession";
 import { Role } from "../constants/const";
 import { Spinner } from "../components/ui/Spinner";
+import { type ReactNode } from "react";
 
 interface Props {
-  children: JSX.Element;
+  children: ReactNode;
   role?: Role[];
 }
 

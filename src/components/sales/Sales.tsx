@@ -20,8 +20,22 @@ import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { Select } from "../ui/Select";
 import { Spinner } from "../ui/Spinner";
-import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
-import { Search, ChevronLeft, ChevronRight, Printer, Trash2 } from "lucide-react";
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHeaderCell,
+} from "../ui/Table";
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Printer,
+  Trash2,
+} from "lucide-react";
+import UpdateSalePaymentMethods from "./UpdateSalePaymentMethods";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -40,9 +54,11 @@ const Sales = () => {
     validationSchema: searchSalesValidatorSchema,
     onSubmit: () => handleSearch(),
   });
-  const { values, errors, touched, setFieldValue, handleChange, handleSubmit } = formik;
+  const { values, errors, touched, setFieldValue, handleChange, handleSubmit } =
+    formik;
 
-  const { sales, loading, handleGetSales, setSales, handleAuthorize } = useSales();
+  const { sales, loading, handleGetSales, setSales, handleAuthorize } =
+    useSales();
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -72,7 +88,7 @@ const Sales = () => {
 
     setTotalPages(res.totalPages);
   };
-  
+
   const goToNextPage = () => {
     if (page < totalPages) {
       handleSearch(page + 1);
@@ -174,7 +190,9 @@ const Sales = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Historial de presupuestos de ventas</h2>
+        <h2 className="text-xl font-bold">
+          Historial de presupuestos de ventas
+        </h2>
         {user && user.role !== Role.VENDEDOR && <SalesAmountsComp />}
       </div>
       <hr className="border-border mb-4" />
@@ -196,10 +214,12 @@ const Sales = () => {
               <option value="false">Pendiente de autorización</option>
             </Select>
             {errors.authorized && touched.authorized && (
-              <span className="text-sm text-destructive">{errors.authorized}</span>
+              <span className="text-sm text-destructive">
+                {errors.authorized}
+              </span>
             )}
           </div>
-          
+
           <div>
             <Label htmlFor="saleSellerId">Vendedor</Label>
             <Select
@@ -211,11 +231,13 @@ const Sales = () => {
             >
               <option value={0}>Vendedor no seleccionado</option>
               {SELLERS.map(({ label, value }) => (
-                <option value={value} key={value}>{label}</option>
+                <option value={value} key={value}>
+                  {label}
+                </option>
               ))}
             </Select>
           </div>
-          
+
           <div>
             <Label htmlFor="saleFromDateId">Desde</Label>
             <Input
@@ -225,8 +247,10 @@ const Sales = () => {
               value={values.fromDate}
               onChange={(ev) => {
                 let value = ev.target.value.replace(/[^0-9]/g, "");
-                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
+                if (value.length > 4)
+                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7)
+                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
                 setFieldValue("fromDate", value);
               }}
               placeholder="YYYY-MM-DD"
@@ -234,7 +258,7 @@ const Sales = () => {
               className="mt-1"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="saleToDateId">Hasta</Label>
             <Input
@@ -244,8 +268,10 @@ const Sales = () => {
               value={values.toDate}
               onChange={(ev) => {
                 let value = ev.target.value.replace(/[^0-9]/g, "");
-                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
+                if (value.length > 4)
+                  value = `${value.slice(0, 4)}-${value.slice(4)}`;
+                if (value.length > 7)
+                  value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
                 setFieldValue("toDate", value);
               }}
               placeholder="YYYY-MM-DD"
@@ -254,7 +280,7 @@ const Sales = () => {
             />
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
             <Label htmlFor="saleNumberId">Número de presupuesto</Label>
@@ -270,7 +296,7 @@ const Sales = () => {
             />
           </div>
         </div>
-        
+
         <div className="flex justify-end">
           <Button type="submit" variant="default">
             <Search className="h-4 w-4" />
@@ -278,9 +304,9 @@ const Sales = () => {
           </Button>
         </div>
       </form>
-      
+
       <hr className="border-border my-4" />
-      
+
       {loading ? (
         <div className="flex flex-col items-center justify-center py-8">
           <Spinner size="lg" />
@@ -321,16 +347,19 @@ const Sales = () => {
                           <strong>Subtotal:</strong> ${formatPrice(sale.total)}
                         </div>
                         <div className="text-sm">
-                          <strong>Total:</strong> ${formatPrice(sale.totalWithInterest)}
+                          <strong>Total:</strong> $
+                          {formatPrice(sale.totalWithInterest)}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                        sale.authorized 
-                          ? "bg-success/10 text-success" 
-                          : "bg-warning/10 text-warning"
-                      }`}>
+                      <span
+                        className={`px-2 py-1 rounded-md text-xs font-medium ${
+                          sale.authorized
+                            ? "bg-success/10 text-success"
+                            : "bg-warning/10 text-warning"
+                        }`}
+                      >
                         {sale.authorized ? "Autorizado" : "Pendiente"}
                       </span>
                     </TableCell>
@@ -345,10 +374,19 @@ const Sales = () => {
                             />
                           </>
                         ) : (
-                          <Button variant="success" size="sm" onClick={() => handlePrint(sale._id)}>
-                            <Printer className="h-4 w-4" />
-                            <span>Imprimir</span>
-                          </Button>
+                          <>
+                            <Button
+                              variant="success"
+                              size="sm"
+                              onClick={() => handlePrint(sale._id)}
+                            >
+                              <Printer className="h-4 w-4" />
+                              <span>Imprimir</span>
+                            </Button>
+                            {user && user.role === Role.MARTIN && (
+                              <UpdateSalePaymentMethods sale={sale} />
+                            )}
+                          </>
                         )}
                         <Button
                           variant="destructive"
@@ -375,16 +413,26 @@ const Sales = () => {
               })}
             </TableBody>
           </Table>
-          
+
           <div className="flex justify-center items-center gap-4 mt-4 mb-4">
-            <Button onClick={goToPreviousPage} disabled={page === 1} variant="dark" size="sm">
+            <Button
+              onClick={goToPreviousPage}
+              disabled={page === 1}
+              variant="dark"
+              size="sm"
+            >
               <ChevronLeft className="h-4 w-4" />
               <span>Anterior</span>
             </Button>
             <span className="text-sm">
               Pagina <strong>{page}</strong> de <strong>{totalPages}</strong>
             </span>
-            <Button onClick={goToNextPage} disabled={page === totalPages} variant="dark" size="sm">
+            <Button
+              onClick={goToNextPage}
+              disabled={page === totalPages}
+              variant="dark"
+              size="sm"
+            >
               <span>Siguiente</span>
               <ChevronRight className="h-4 w-4" />
             </Button>

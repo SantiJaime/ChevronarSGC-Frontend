@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { getCities } from "../../helpers/citiesQueries";
 import { CitiesContext } from "../CitiesContext";
 import useSession from "../../hooks/useSession";
 
 interface Props {
-  children: JSX.Element;
+  children: ReactNode;
 }
 const CitiesProvider: React.FC<Props> = ({ children }) => {
   const [cities, setCities] = useState<City[]>([]);

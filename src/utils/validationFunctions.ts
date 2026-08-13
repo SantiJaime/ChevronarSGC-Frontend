@@ -71,8 +71,8 @@ export const validateSearchSale = (values: ISearchSale): string | null => {
 
 export const validateAuthorizeSale = (
   values: IAuthorizeSale,
-  multiplePaymenstTotal: number,
-  saleTotal: number
+  saleTotal: number,
+  multiplePaymenstTotal?: number,
 ): string | null => {
   if (values.method === "Crédito" && !values.creditCard) {
     return "Debes seleccionar una tarjeta de crédito";
@@ -82,7 +82,11 @@ export const validateAuthorizeSale = (
     return "Debes seleccionar una tarjeta de débito";
   }
 
-  if(values.method === "Múltiples métodos de pago" && multiplePaymenstTotal < saleTotal) {
+  if (
+    values.method === "Múltiples métodos de pago" &&
+    multiplePaymenstTotal &&
+    multiplePaymenstTotal < saleTotal
+  ) {
     return "Aún no se ha alcanzado el total del presupuesto, por favor agregue otro método de pago o modifique el valor a pagar";
   }
 

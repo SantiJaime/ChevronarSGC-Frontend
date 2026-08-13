@@ -205,6 +205,7 @@ interface FullSale extends SaleWithProducts {
 interface FullSaleWithPayments extends FullSale {
   payments: string;
   totalWithInterest: number;
+  paymentMethodId: number;
 }
 
 interface CreateSaleResponse {
@@ -290,4 +291,11 @@ interface GetSalesAmountsResponse {
 interface ExportToSheetsResponse {
   msg: string;
   sheetUrl: string;
+}
+
+interface BuildPaymentStringData {
+  method: string;
+  creditCard?: string;
+  debitCard?: string;
+  paymentsQuantity: string;
 }

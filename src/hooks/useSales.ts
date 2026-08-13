@@ -7,6 +7,7 @@ import {
   exportToSheets,
   getSales,
   getSalesAmounts,
+  updateSalePaymentMethod,
 } from "../helpers/salesQueries";
 import { toast } from "sonner";
 import { IAuthorizeSale, IGetProductSales } from "../utils/validationSchemas";
@@ -15,6 +16,10 @@ import { getProductSales } from "../helpers/productsQueries";
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
   payments?: PaymentMethods[];
+}
+
+interface UpdateSalePayments extends IAuthorizeSale {
+  totalWithInterest: number;
 }
 
 const useSales = () => {
@@ -105,7 +110,25 @@ const useSales = () => {
       );
       return res;
     } catch (error) {
-      console.log("entre aqui")
+      const err = error as { error: string };
+      toast.error(err.error);
+    } finally {
+      setLoadingAuthorize(false);
+    }
+  };
+
+  const handleUpdatePaymentMethod = async (
+    id: string,
+    paymentsInfo: UpdateSalePayments,
+  ) => {
+    try {
+      setLoadingAuthorize(true);
+      const res = await updateSalePaymentMethod(id, paymentsInfo);
+      toast.success(res.msg);
+      setSales((prevSales) =>
+        prevSales.map((s) => (s._id === id ? res.sale : s)),
+      );
+    } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
     } finally {
@@ -152,11 +175,12 @@ const useSales = () => {
     loading,
     handleGetSales,
     handleAuthorize,
+    handleUpdatePaymentMethod,
     loadingAuthorize,
     handleEdit,
     handleGetProductSales,
     handleGetSalesAmounts,
-    handleExportToSheets
+    handleExportToSheets,
   };
 };
 
