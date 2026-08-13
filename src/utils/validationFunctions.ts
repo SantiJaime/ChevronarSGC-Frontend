@@ -82,7 +82,11 @@ export const validateAuthorizeSale = (
     return "Debes seleccionar una tarjeta de débito";
   }
 
-  if(values.method === "Múltiples métodos de pago" && multiplePaymenstTotal && multiplePaymenstTotal < saleTotal) {
+  if (
+    values.method === "Múltiples métodos de pago" &&
+    multiplePaymenstTotal &&
+    multiplePaymenstTotal < saleTotal
+  ) {
     return "Aún no se ha alcanzado el total del presupuesto, por favor agregue otro método de pago o modifique el valor a pagar";
   }
 
