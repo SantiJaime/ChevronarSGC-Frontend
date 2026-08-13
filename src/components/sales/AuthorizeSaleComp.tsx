@@ -46,8 +46,8 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
   const handleSubmit = (values: IAuthorizeSale, resetForm: () => void) => {
     const errors = validateAuthorizeSale(
       values,
-      multiplePaymentsTotal,
       sale.total,
+      multiplePaymentsTotal,
     );
 
     if (errors) {
