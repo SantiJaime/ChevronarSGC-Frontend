@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { SalesContext } from "../SalesContext";
 
 interface Props {
-  children: JSX.Element;
+  children: ReactNode;
 }
 
 const SalesProvider: React.FC<Props> = ({ children }) => {

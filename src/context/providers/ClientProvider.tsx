@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { getClients } from "../../helpers/clientsQueries";
 import { ClientContext } from "../ClientContext";
 import useSession from "../../hooks/useSession";
 
 interface Props {
-  children: JSX.Element;
+  children: ReactNode;
 }
 const ClientProvider: React.FC<Props> = ({ children }) => {
   const [clients, setClients] = useState<Client[]>([]);

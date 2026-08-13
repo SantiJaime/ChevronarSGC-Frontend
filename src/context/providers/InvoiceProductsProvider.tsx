@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { InvoiceProductsContext } from '../InvoiceProductsContext';
 
 interface Props {
-  children: JSX.Element;
+  children: ReactNode;
 }
 
 const InvoiceProductsProvider: React.FC<Props> = ({ children }) => {
