@@ -1,8 +1,10 @@
+const priceFormatter = new Intl.NumberFormat("es-AR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export const formatPrice = (value: number): string => {
-  return new Intl.NumberFormat("es-AR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value || 0);
+  return priceFormatter.format(value);
 };
 
 export const formatDateISO = (date: string): string => {

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useCallback } from "react";
 import { SalesContext } from "../context/SalesContext";
 import {
   authorizeSale,
@@ -31,7 +31,7 @@ const useSales = () => {
   const [loadingAuthorize, setLoadingAuthorize] = useState(false);
   const { sales, setSales } = context;
 
-  const handleGetSales = async (payload: SaleSearch, page: number) => {
+  const handleGetSales = useCallback(async (payload: SaleSearch, page: number) => {
     try {
       setLoading(true);
       const res = await getSales(payload, page);
@@ -46,9 +46,9 @@ const useSales = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setSales]);
 
-  const handleGetSalesAmounts = async (date: string) => {
+  const handleGetSalesAmounts = useCallback(async (date: string) => {
     try {
       setLoading(true);
       const res = await getSalesAmounts(date);
@@ -60,9 +60,9 @@ const useSales = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleCreate = async (sale: SaleWithProducts) => {
+  const handleCreate = useCallback(async (sale: SaleWithProducts) => {
     try {
       setLoading(true);
       const response = await createSale(sale);
@@ -75,9 +75,9 @@ const useSales = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleEdit = async (sale: FullSale, newTotal: number) => {
+  const handleEdit = useCallback(async (sale: FullSale, newTotal: number) => {
     try {
       setLoading(true);
 
@@ -96,9 +96,9 @@ const useSales = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setSales]);
 
-  const handleAuthorize = async (
+  const handleAuthorize = useCallback(async (
     id: string,
     paymentsInfo: FullPaymentsInfo,
   ) => {
@@ -115,9 +115,9 @@ const useSales = () => {
     } finally {
       setLoadingAuthorize(false);
     }
-  };
+  }, [setSales]);
 
-  const handleUpdatePaymentMethod = async (
+  const handleUpdatePaymentMethod = useCallback(async (
     id: string,
     paymentsInfo: UpdateSalePayments,
   ) => {
@@ -134,9 +134,9 @@ const useSales = () => {
     } finally {
       setLoadingAuthorize(false);
     }
-  };
+  }, [setSales]);
 
-  const handleGetProductSales = async (
+  const handleGetProductSales = useCallback(async (
     data: IGetProductSales,
     productId: number,
   ) => {
@@ -153,9 +153,9 @@ const useSales = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleExportToSheets = async (date: string) => {
+  const handleExportToSheets = useCallback(async (date: string) => {
     try {
       setLoading(true);
       return await exportToSheets(date);
@@ -166,7 +166,7 @@ const useSales = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return {
     sales,

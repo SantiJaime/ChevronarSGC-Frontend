@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState, useMemo } from "react";
 import { SessionContext } from "../SessionContext";
 import { fetchCurrentUser } from "../../helpers/authQueries";
 import { toast } from "sonner";
@@ -40,10 +40,12 @@ const SessionProvider: React.FC<Props> = ({ children }) => {
     };
   }, []);
 
+  const value = useMemo(() => ({
+    session, sessionReady, setSession, user, setUser
+  }), [session, sessionReady, user]);
+
   return (
-    <SessionContext.Provider
-      value={{ session, sessionReady, setSession, user, setUser }}
-    >
+    <SessionContext.Provider value={value}>
       {children}
     </SessionContext.Provider>
   );

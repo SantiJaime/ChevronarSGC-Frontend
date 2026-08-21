@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState, useMemo } from "react";
 import { getClients } from "../../helpers/clientsQueries";
 import { ClientContext } from "../ClientContext";
 import useSession from "../../hooks/useSession";
@@ -17,8 +17,10 @@ const ClientProvider: React.FC<Props> = ({ children }) => {
       .catch((err) => console.error("Error al obtener los clientes:", err));
   }, [session]);
 
+  const value = useMemo(() => ({ clients, setClients }), [clients]);
+
   return (
-    <ClientContext.Provider value={{ clients, setClients }}>
+    <ClientContext.Provider value={value}>
       {children}
     </ClientContext.Provider>
   );

@@ -31,7 +31,7 @@ const useProducts = () => {
     [setLoadingProducts],
   );
 
-  const handleCreateProduct = async (
+  const handleCreateProduct = useCallback(async (
     data: ICreateProduct,
   ) => {
     try {
@@ -45,9 +45,9 @@ const useProducts = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleEditProduct = async (
+  const handleEditProduct = useCallback(async (
     data: ProductInDb,
     resetForm: () => void,
     handleClose: () => void,
@@ -67,9 +67,9 @@ const useProducts = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleAddBarcode = async (productId: string, barcode: string) => {
+  const handleAddBarcode = useCallback(async (productId: string, barcode: string) => {
     try {
       setLoading(true);
       const res = await addBarcodeToProduct(productId, barcode);
@@ -77,14 +77,14 @@ const useProducts = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error("Error al agregar el c&oacute;digo de barras:", error);
+      console.error("Error al agregar el código de barras:", error);
     }
     finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleDeleteProduct = async (id: string): Promise<boolean> => {
+  const handleDeleteProduct = useCallback(async (id: string): Promise<boolean> => {
     try {
       setLoading(true);
       const res = await deleteProduct(id);
@@ -98,7 +98,7 @@ const useProducts = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return {
     handleCreateProduct,

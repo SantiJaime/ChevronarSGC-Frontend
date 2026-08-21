@@ -34,6 +34,8 @@ import {
   ChevronRight,
   Printer,
   Trash2,
+  Pencil,
+  BadgeCheck,
 } from "lucide-react";
 import UpdateSalePaymentMethods from "./UpdateSalePaymentMethods";
 
@@ -63,6 +65,9 @@ const Sales = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [deletingSaleId, setDeletingSaleId] = useState<string | null>(null);
+  const [selectedEditSale, setSelectedEditSale] = useState<FullSale | null>(null);
+  const [selectedAuthSale, setSelectedAuthSale] = useState<FullSale | null>(null);
+  const [selectedPaymentSale, setSelectedPaymentSale] = useState<FullSaleWithPayments | null>(null);
 
   const handleSearch = async (paramPage?: number) => {
     const error = validateSearchSale({
@@ -367,11 +372,14 @@ const Sales = () => {
                       <div className="flex items-center gap-2 flex-wrap">
                         {!sale.authorized ? (
                           <>
-                            <EditSaleComp sale={sale} />
-                            <AuthorizeSaleComp
-                              sale={sale}
-                              handleAuthorizeSale={handleAuthorizeSale}
-                            />
+                            <Button variant="primary" size="sm" onClick={() => setSelectedEditSale(sale)}>
+                              <Pencil className="h-4 w-4" />
+                              <span>Editar</span>
+                            </Button>
+                            <Button variant="info" size="sm" onClick={() => setSelectedAuthSale(sale)}>
+                              <BadgeCheck className="h-4 w-4" />
+                              <span>Autorizar</span>
+                            </Button>
                           </>
                         ) : (
                           <>
@@ -384,7 +392,10 @@ const Sales = () => {
                               <span>Imprimir</span>
                             </Button>
                             {user && user.role === Role.MARTIN && (
-                              <UpdateSalePaymentMethods sale={sale} />
+                              <Button variant="primary" size="sm" onClick={() => setSelectedPaymentSale(sale as FullSaleWithPayments)}>
+                                <Pencil className="h-4 w-4" />
+                                <span>Editar métodos de pago</span>
+                              </Button>
                             )}
                           </>
                         )}
@@ -438,6 +449,29 @@ const Sales = () => {
             </Button>
           </div>
         </>
+      )}
+      
+      {selectedEditSale && (
+        <EditSaleComp
+          sale={selectedEditSale}
+          show={!!selectedEditSale}
+          onHide={() => setSelectedEditSale(null)}
+        />
+      )}
+      {selectedAuthSale && (
+        <AuthorizeSaleComp
+          sale={selectedAuthSale}
+          handleAuthorizeSale={handleAuthorizeSale}
+          show={!!selectedAuthSale}
+          onHide={() => setSelectedAuthSale(null)}
+        />
+      )}
+      {selectedPaymentSale && (
+        <UpdateSalePaymentMethods
+          sale={selectedPaymentSale}
+          show={!!selectedPaymentSale}
+          onHide={() => setSelectedPaymentSale(null)}
+        />
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useCallback } from "react";
 import { SessionContext } from "../context/SessionContext";
 import { logoutUser } from "../helpers/authQueries";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ const useSession = () => {
   const { session, sessionReady, setSession, user, setUser } = context;
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (data: UserLogin) => {
+  const handleLogin = useCallback(async (data: UserLogin) => {
     try {
       setLoading(true);
       const res = await loginUser(data);
@@ -27,9 +27,9 @@ const useSession = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setSession, setUser]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       setLoading(true);
       await logoutUser();
@@ -41,7 +41,7 @@ const useSession = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate, setSession, setUser]);
 
   return {
     session,

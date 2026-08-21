@@ -24,7 +24,7 @@ import { Label } from "../ui/Label";
 import { Select } from "../ui/Select";
 import { Spinner } from "../ui/Spinner";
 import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
-import { Search, ChevronLeft, ChevronRight, Printer, FileX } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Printer, FileX, FileText } from "lucide-react";
 
 const Invoices = () => {
   const INVOICES_TYPES = [
@@ -61,6 +61,7 @@ const Invoices = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingCancel, setLoadingCancel] = useState(false);
+  const [selectedInvoiceDetails, setSelectedInvoiceDetails] = useState<FullInvoice | null>(null);
 
   const handleSearch = (paramPage?: number) => {
     validateSearchInvoice(values);
@@ -477,7 +478,10 @@ const Invoices = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <InvoiceDetails invoice={invoice} />
+                      <Button size="sm" onClick={() => setSelectedInvoiceDetails(invoice)}>
+                        <FileText className="h-4 w-4" />
+                        <span>Ver detalles</span>
+                      </Button>
                       <Button variant="success" size="sm" onClick={() => handlePrint(invoice._id)}>
                         <Printer className="h-4 w-4" />
                         <span>Imprimir</span>
@@ -523,6 +527,14 @@ const Invoices = () => {
             </Button>
           </div>
         </>
+      )}
+      
+      {selectedInvoiceDetails && (
+        <InvoiceDetails
+          invoice={selectedInvoiceDetails}
+          show={!!selectedInvoiceDetails}
+          onHide={() => setSelectedInvoiceDetails(null)}
+        />
       )}
     </div>
   );

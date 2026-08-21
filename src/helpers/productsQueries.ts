@@ -29,6 +29,7 @@ export const searchProducts = async (search: string): Promise<GetAllProductsResp
       "Content-Type": "application/json",
     },
     credentials: "include",
+    cache: "no-store",
   });
   if (!response.ok) {
     const error: ErrorMessage = await response.json();

@@ -1,16 +1,20 @@
+import { Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Role } from "../constants/const";
-import Login from "../pages/Login";
 import { PrivateRoutes, PublicRoutes } from "./RoutesTypes";
-import InvoicesView from "../pages/InvoicesView";
-import BudgetsView from "../pages/BudgetsView";
-import SalesView from "../pages/SalesView";
-import CreationMenuView from "../pages/CreationMenuView";
-import ProductsView from "../pages/ProductsView";
+import { Spinner } from "../components/ui/Spinner";
+
+const Login = lazy(() => import("../pages/Login"));
+const InvoicesView = lazy(() => import("../pages/InvoicesView"));
+const BudgetsView = lazy(() => import("../pages/BudgetsView"));
+const SalesView = lazy(() => import("../pages/SalesView"));
+const CreationMenuView = lazy(() => import("../pages/CreationMenuView"));
+const ProductsView = lazy(() => import("../pages/ProductsView"));
 
 const RoutesView = () => {
   return (
-    <Routes>
+    <Suspense fallback={<div className="flex justify-center items-center h-full min-h-[50vh]"><Spinner size="lg" /></div>}>
+      <Routes>
       <Route
         path="/"
         element={
@@ -60,6 +64,7 @@ const RoutesView = () => {
         }
       />
     </Routes>
+    </Suspense>
   );
 };
 
