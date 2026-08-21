@@ -31,17 +31,15 @@ interface Props {
     id: string,
     paymentsInfo: FullPaymentsInfo,
   ) => Promise<void>;
+  show: boolean;
+  onHide: () => void;
 }
 
-const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
-  const [show, setShow] = useState(false);
+const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale, show, onHide }) => {
   const [loading, setLoading] = useState(false);
   const [paymentsLeftValue, setPaymentsLeftValue] = useState(sale.total);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
   const [multiplePaymentsTotal, setMultiplePaymentsTotal] = useState(0);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
 
   const handleSubmit = (values: IAuthorizeSale, resetForm: () => void) => {
     const errors = validateAuthorizeSale(
@@ -97,7 +95,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
             payments: paymentMethods,
           })
             .then(() => {
-              handleClose();
+              onHide();
               resetForm();
             })
             .finally(() => setLoading(false));
@@ -124,7 +122,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
           totalValue,
         })
           .then(() => {
-            handleClose();
+            onHide();
             resetForm();
           })
           .finally(() => setLoading(false));
@@ -160,16 +158,10 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
   }, [paymentMethods, sale.total]);
 
   return (
-    <>
-      <Button variant="info" size="sm" onClick={handleShow}>
-        <BadgeCheck className="h-4 w-4" />
-        <span>Autorizar</span>
-      </Button>
-
-      <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
-        <Modal.Header closeButton>
-          <Modal.Title>Agregar método de pago para autorizar</Modal.Title>
-        </Modal.Header>
+    <Modal show={show} onHide={onHide} size="lg" backdrop="static">
+      <Modal.Header closeButton>
+        <Modal.Title>Agregar método de pago para autorizar</Modal.Title>
+      </Modal.Header>
         <Modal.Body>
           <Formik
             validationSchema={authorizeSaleSchema}
@@ -325,8 +317,7 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale }) => {
             )}
           </Formik>
         </Modal.Body>
-      </Modal>
-    </>
+    </Modal>
   );
 };
 

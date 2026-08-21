@@ -3,7 +3,6 @@ import { Button } from "../ui/Button";
 import {
   CreditCard,
   DollarSign,
-  Pencil,
   Save,
   Tag,
   Wallet,
@@ -42,9 +41,11 @@ interface FormValues {
 
 interface Props {
   sale: FullSaleWithPayments;
+  show: boolean;
+  onHide: () => void;
 }
 
-const UpdateSalePaymentMethods: React.FC<Props> = ({ sale }) => {
+const UpdateSalePaymentMethods: React.FC<Props> = ({ sale, show, onHide }) => {
   const { handleUpdatePaymentMethod, loadingAuthorize } = useSales();
 
   const [paymentMethods, setPaymentMethods] = useState(() => {
@@ -63,10 +64,6 @@ const UpdateSalePaymentMethods: React.FC<Props> = ({ sale }) => {
 
     return result;
   });
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
 
   const handleSubmit = (values: IUpdateSalePaymentMethod) => {
     const errors = validateAuthorizeSale(values, values.total);
@@ -116,7 +113,7 @@ const UpdateSalePaymentMethods: React.FC<Props> = ({ sale }) => {
           paymentsQuantity: values.paymentsQuantity.toUpperCase(),
           totalWithInterest,
         }).then(() => {
-          handleClose();
+          onHide();
           setPaymentMethods({
             method: values.method,
             creditCard: values.creditCard || "",
@@ -129,20 +126,14 @@ const UpdateSalePaymentMethods: React.FC<Props> = ({ sale }) => {
   };
 
   return (
-    <>
-      <Button variant="primary" size="sm" onClick={handleShow}>
-        <Pencil className="h-4 w-4" />
-        <span>Editar métodos de pago</span>
-      </Button>
-
-      <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
-        <Modal.Header closeButton>
+    <Modal show={show} onHide={onHide} size="lg" backdrop="static">
+      <Modal.Header closeButton>
           <div>
             <Modal.Title>Editar métodos de pago</Modal.Title>
             <small className="text-slate-400">
               Nota: esto no modificará los métodos de pago en el PDF ya
               generado. Sin embargo, si cambiará los datos a la hora de exportar
-              las ventas a Excel.
+              las ventas a Excel. Aún NO disponible para modificar ventas con múltiples métodos de pago.
             </small>
           </div>
         </Modal.Header>
@@ -316,7 +307,7 @@ const UpdateSalePaymentMethods: React.FC<Props> = ({ sale }) => {
                   )}
                   <hr className="border-border my-4" />
                   <div className="flex justify-end gap-2">
-                    <Button variant="secondary" onClick={handleClose}>
+                    <Button variant="secondary" onClick={onHide}>
                       <X className="h-4 w-4" />
                       <span>Cancelar</span>
                     </Button>
@@ -343,8 +334,7 @@ const UpdateSalePaymentMethods: React.FC<Props> = ({ sale }) => {
             }}
           </Formik>
         </Modal.Body>
-      </Modal>
-    </>
+    </Modal>
   );
 };
 

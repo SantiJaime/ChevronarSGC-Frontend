@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState, useMemo } from "react";
 import { getCities } from "../../helpers/citiesQueries";
 import { CitiesContext } from "../CitiesContext";
 import useSession from "../../hooks/useSession";
@@ -17,8 +17,10 @@ const CitiesProvider: React.FC<Props> = ({ children }) => {
       .catch((err) => console.error("Error al obtener las ciudades", err));
   }, [session]);
 
+  const value = useMemo(() => ({ cities, setCities }), [cities]);
+
   return (
-    <CitiesContext.Provider value={{ cities, setCities }}>
+    <CitiesContext.Provider value={value}>
       {children}
     </CitiesContext.Provider>
   );

@@ -1,28 +1,16 @@
-import { useState } from "react";
 import { formatDateISO } from "../../utils/utils";
 import { Modal } from "../ui/Modal";
-import { Button } from "../ui/Button";
 import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
-import { FileText } from "lucide-react";
 
 interface Props {
   invoice: FullInvoice;
+  show: boolean;
+  onHide: () => void;
 }
 
-const InvoiceDetails: React.FC<Props> = ({ invoice }) => {
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  
+const InvoiceDetails: React.FC<Props> = ({ invoice, show, onHide }) => {
   return (
-    <>
-      <Button size="sm" onClick={handleShow}>
-        <FileText className="h-4 w-4" />
-        <span>Ver detalles</span>
-      </Button>
-
-      <Modal show={show} onHide={handleClose} size="lg">
+    <Modal show={show} onHide={onHide} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Factura No {invoice.invoiceNumber}</Modal.Title>
         </Modal.Header>
@@ -38,7 +26,7 @@ const InvoiceDetails: React.FC<Props> = ({ invoice }) => {
                 { label: "CAE", value: invoice.cae, id: 4 },
                 { label: "Fecha de vencimiento", value: invoice.caeExpiringDate, id: 5 },
                 { label: "Punto de venta", value: invoice.salePoint, id: 6 },
-                { label: "Anulada?", value: invoice.cancelled && !invoice.assocInvoiceNumber ? "Si" : "No", id: 7 },
+                { label: "¿Anulada?", value: invoice.cancelled && !invoice.assocInvoiceNumber ? "Si" : "No", id: 7 },
               ].map((item) => (
                 <p key={item.id} className="text-sm">
                   <strong>{item.label}:</strong> {item.value}
@@ -116,8 +104,7 @@ const InvoiceDetails: React.FC<Props> = ({ invoice }) => {
             </div>
           </div>
         </Modal.Body>
-      </Modal>
-    </>
+    </Modal>
   );
 };
 

@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Formik } from "formik";
 import { addPaymentMethodSchema } from "../../utils/validationSchemas";
-import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../../constants/const";
+import {
+  CREDIT_CARDS,
+  DEBIT_CARDS,
+  SALE_CONDITIONS,
+} from "../../constants/const";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { NumericFormat } from "react-number-format";
@@ -12,6 +16,7 @@ import { Button } from "../ui/Button";
 import { Label } from "../ui/Label";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
+import { X } from "lucide-react";
 
 interface Props {
   setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethods[]>>;
@@ -78,14 +83,13 @@ const AddPaymentMethod: React.FC<Props> = ({
 
   return (
     <>
-      <Button onClick={handleShow}>
-        Agregar método de pago
-      </Button>
+      <Button onClick={handleShow}>Agregar método de pago</Button>
 
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} backdrop={"static"}>
         <Modal.Header closeButton>
           <Modal.Title>
-            Agregar un método de pago (valor restante: ${formatPrice(paymentsLeftValue)})
+            Agregar un método de pago (valor restante: $
+            {formatPrice(paymentsLeftValue)})
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -100,7 +104,10 @@ const AddPaymentMethod: React.FC<Props> = ({
             }}
             onSubmit={(values) => {
               const newValues = { ...values, id: uuidv4() };
-              handleAddPayment({...newValues, valueWithInterest: Number(newValues.valueToPay)});
+              handleAddPayment({
+                ...newValues,
+                valueWithInterest: Number(newValues.valueToPay),
+              });
             }}
           >
             {({
@@ -130,10 +137,12 @@ const AddPaymentMethod: React.FC<Props> = ({
                     ))}
                   </Select>
                   {errors.method && touched.method && (
-                    <span className="text-sm text-destructive">{errors.method}</span>
+                    <span className="text-sm text-destructive">
+                      {errors.method}
+                    </span>
                   )}
                 </div>
-                
+
                 {values.method === "Crédito" && (
                   <>
                     <div className="mb-4">
@@ -146,17 +155,25 @@ const AddPaymentMethod: React.FC<Props> = ({
                         error={touched.creditCard && !!errors.creditCard}
                         className="mt-1"
                       >
-                        <option value="">Sin seleccionar tarjeta de crédito</option>
+                        <option value="">
+                          Sin seleccionar tarjeta de crédito
+                        </option>
                         {CREDIT_CARDS.map((card) => (
-                          <option key={card} value={card}>{card}</option>
+                          <option key={card} value={card}>
+                            {card}
+                          </option>
                         ))}
                       </Select>
                       {errors.creditCard && touched.creditCard && (
-                        <span className="text-sm text-destructive">{errors.creditCard}</span>
+                        <span className="text-sm text-destructive">
+                          {errors.creditCard}
+                        </span>
                       )}
                     </div>
                     <div className="mb-4">
-                      <Label htmlFor="paymentsQuantityId">Cantidad de cuotas</Label>
+                      <Label htmlFor="paymentsQuantityId">
+                        Cantidad de cuotas
+                      </Label>
                       <Input
                         id="paymentsQuantityId"
                         placeholder="Ej: 3"
@@ -170,16 +187,20 @@ const AddPaymentMethod: React.FC<Props> = ({
                             void handleSubmit();
                           }
                         }}
-                        error={touched.paymentsQuantity && !!errors.paymentsQuantity}
+                        error={
+                          touched.paymentsQuantity && !!errors.paymentsQuantity
+                        }
                         className="mt-1"
                       />
                       {errors.paymentsQuantity && touched.paymentsQuantity && (
-                        <span className="text-sm text-destructive">{errors.paymentsQuantity}</span>
+                        <span className="text-sm text-destructive">
+                          {errors.paymentsQuantity}
+                        </span>
                       )}
                     </div>
                   </>
                 )}
-                
+
                 {values.method === "Tarjeta de débito" && (
                   <div className="mb-4">
                     <Label htmlFor="debitCardId">Tarjeta de débito</Label>
@@ -191,17 +212,23 @@ const AddPaymentMethod: React.FC<Props> = ({
                       error={touched.debitCard && !!errors.debitCard}
                       className="mt-1"
                     >
-                      <option value="">Sin seleccionar tarjeta de débito</option>
+                      <option value="">
+                        Sin seleccionar tarjeta de débito
+                      </option>
                       {DEBIT_CARDS.map((card) => (
-                        <option key={card} value={card}>{card}</option>
+                        <option key={card} value={card}>
+                          {card}
+                        </option>
                       ))}
                     </Select>
                     {errors.debitCard && touched.debitCard && (
-                      <span className="text-sm text-destructive">{errors.debitCard}</span>
+                      <span className="text-sm text-destructive">
+                        {errors.debitCard}
+                      </span>
                     )}
                   </div>
                 )}
-                
+
                 <div className="mb-4">
                   <Label htmlFor="valueToPayId">Valor a pagar</Label>
                   <NumericFormat
@@ -213,7 +240,9 @@ const AddPaymentMethod: React.FC<Props> = ({
                     name="price"
                     placeholder="10.000"
                     value={values.valueToPay}
-                    onValueChange={({ value }) => setFieldValue("valueToPay", value)}
+                    onValueChange={({ value }) =>
+                      setFieldValue("valueToPay", value)
+                    }
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -221,15 +250,23 @@ const AddPaymentMethod: React.FC<Props> = ({
                       }
                     }}
                     className={`flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring mt-1 ${
-                      touched.valueToPay && errors.valueToPay ? "border-destructive" : "border-input"
+                      touched.valueToPay && errors.valueToPay
+                        ? "border-destructive"
+                        : "border-input"
                     }`}
                   />
                   {errors.valueToPay && touched.valueToPay && (
-                    <span className="text-sm text-destructive">{errors.valueToPay}</span>
+                    <span className="text-sm text-destructive">
+                      {errors.valueToPay}
+                    </span>
                   )}
                 </div>
-                
-                <div className="flex justify-end">
+
+                <div className="flex justify-end gap-2">
+                  <Button variant="secondary" onClick={handleClose}>
+                    <X className="h-4 w-4" />
+                    <span>Cancelar</span>
+                  </Button>
                   <Button
                     variant="dark"
                     type="button"
