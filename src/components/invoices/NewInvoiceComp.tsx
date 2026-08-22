@@ -314,8 +314,8 @@ const NewInvoiceComp = () => {
                   className="mt-1"
                 >
                   <option value="">Tipo de factura no seleccionado</option>
-                  <option value="Factura-A">Factura A</option>
-                  <option value="Factura-B">Factura B</option>
+                  <option value="FACTURA_A">Factura A</option>
+                  <option value="FACTURA_B">Factura B</option>
                 </Select>
                 {errors.invoiceType && touched.invoiceType && (
                   <span className="text-sm text-destructive">
