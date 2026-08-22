@@ -181,3 +181,18 @@ export const exportToSheets = async (date: string): Promise<ExportToSheetsRespon
   }
   return await response.json();
 }
+
+export const getGoogleSheet = async (date: string): Promise<ExportToSheetsResponse> => {
+  const response = await fetchWithAuth(`${URL_API}/sales/spreadsheet/view?date=${date}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const error: ErrorMessage = await response.json();
+    throw error;
+  }
+  return await response.json();
+}

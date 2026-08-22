@@ -5,6 +5,7 @@ import {
   createSale,
   editSale,
   exportToSheets,
+  getGoogleSheet,
   getSales,
   getSalesAmounts,
   updateSalePaymentMethod,
@@ -168,6 +169,19 @@ const useSales = () => {
     }
   }, []);
 
+  const handleGetGoogleSheet = useCallback(async (date: string) => {
+    try {
+      setLoading(true);
+      return await getGoogleSheet(date);
+    } catch (error) {
+      const err = error as { error: string };
+      toast.error(err.error);
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     sales,
     setSales,
@@ -181,6 +195,7 @@ const useSales = () => {
     handleGetProductSales,
     handleGetSalesAmounts,
     handleExportToSheets,
+    handleGetGoogleSheet
   };
 };
 
