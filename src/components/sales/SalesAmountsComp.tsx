@@ -17,7 +17,7 @@ interface FormValues {
 }
 
 const SalesAmountsComp = () => {
-  const { handleGetSalesAmounts, loading, handleExportToSheets } = useSales();
+  const { handleGetSalesAmounts, loading, handleExportToSheets, handleGetGoogleSheet } = useSales();
   const [show, setShow] = useState(false);
   const [overall, setOverall] = useState<{
     totalCollected: number;
@@ -86,6 +86,41 @@ const SalesAmountsComp = () => {
     }
   };
 
+  const handleClickGetSheets = async () => {
+    if (!values.date) {
+      toast.error("Seleccione una fecha para ver la hoja de cálculo");
+      return;
+    }
+
+    const res = await handleGetGoogleSheet(values.date);
+    if (res) {
+      open(res.sheetUrl, "_blank");
+      toast.success(res.msg, {
+        description: (
+          <div style={{ marginTop: "8px" }}>
+            En caso de la planilla no se abra, podés visualizarla aquí:
+            <br />
+            <a
+              href={res.sheetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#3b82f6",
+                textDecoration: "underline",
+                fontWeight: "bold",
+                marginTop: "4px",
+                display: "inline-block",
+              }}
+            >
+              Ver planilla
+            </a>
+          </div>
+        ),
+        duration: 5000,
+        closeButton: true,
+      });
+    }
+  };
   return (
     <>
       <Button variant="default" onClick={handleShow}>
@@ -118,12 +153,22 @@ const SalesAmountsComp = () => {
             <div className="flex justify-end gap-2">
               <Button
                 type="button"
+                variant="primary"
+                disabled={loading}
+                onClick={handleClickGetSheets}
+              >
+                <Table className="h-4 w-4" />
+                <span>Ver hoja de cálculo</span>
+                
+              </Button>
+              <Button
+                type="button"
                 variant="success"
                 disabled={loading}
                 onClick={handleClickSheets}
               >
                 <Table className="h-4 w-4" />
-                <span>Exportar a Excel</span>
+                <span>Exportar a Excel (regenera la hoja)</span>
               </Button>
               <Button variant="default" type="submit" disabled={loading}>
                 <Calculator className="h-4 w-4" />
