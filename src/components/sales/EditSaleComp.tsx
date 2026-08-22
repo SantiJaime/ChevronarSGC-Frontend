@@ -1,5 +1,4 @@
 import { Formik } from "formik";
-import { useState } from "react";
 import { SELLERS } from "../../constants/const";
 import AddProductComp from "../products/AddProductComp";
 import { formatPrice } from "../../utils/utils";
@@ -14,7 +13,7 @@ import { Label } from "../ui/Label";
 import { Select } from "../ui/Select";
 import { Spinner } from "../ui/Spinner";
 import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
-import { Pencil, User, Users, Trash2, X, Save } from "lucide-react";
+import { User, Users, Trash2, X, Save } from "lucide-react";
 
 interface FormValues {
   clientName: string;
@@ -24,14 +23,12 @@ interface FormValues {
 
 interface Props {
   sale: FullSale;
+  show: boolean;
+  onHide: () => void;
 }
 
-const EditSaleComp: React.FC<Props> = ({ sale }) => {
+const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
   const { handleEdit, loading } = useSales();
-  const [show, setShow] = useState<boolean>(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
 
   const handleSubmitForm = async (values: FormValues) => {
     if (values.products.length === 0) {
@@ -51,17 +48,11 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
     };
 
     await handleEdit(editedSale, newTotal);
-    handleClose();
+    onHide();
   };
 
   return (
-    <>
-      <Button variant="primary" size="sm" onClick={handleShow}>
-        <Pencil className="h-4 w-4" />
-        <span>Editar</span>
-      </Button>
-
-      <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
+    <Modal show={show} onHide={onHide} size="lg" backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Editar presupuesto</Modal.Title>
         </Modal.Header>
@@ -215,7 +206,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
                   <hr className="border-border my-4" />
                   
                   <div className="flex justify-end gap-2">
-                    <Button variant="secondary" onClick={handleClose}>
+                    <Button variant="secondary" onClick={onHide}>
                       <X className="h-4 w-4" />
                       <span>Cancelar</span>
                     </Button>
@@ -238,8 +229,7 @@ const EditSaleComp: React.FC<Props> = ({ sale }) => {
             }}
           </Formik>
         </Modal.Body>
-      </Modal>
-    </>
+    </Modal>
   );
 };
 

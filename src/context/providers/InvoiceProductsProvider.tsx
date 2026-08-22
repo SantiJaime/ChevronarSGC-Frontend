@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useState, useMemo } from 'react';
 import { InvoiceProductsContext } from '../InvoiceProductsContext';
 
 interface Props {
@@ -8,8 +8,10 @@ interface Props {
 const InvoiceProductsProvider: React.FC<Props> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   
+  const value = useMemo(() => ({ products, setProducts }), [products]);
+
   return (
-    <InvoiceProductsContext.Provider value={{ products, setProducts }}>
+    <InvoiceProductsContext.Provider value={value}>
       {children}
     </InvoiceProductsContext.Provider>
   );
