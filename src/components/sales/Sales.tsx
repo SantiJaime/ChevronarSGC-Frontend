@@ -65,9 +65,14 @@ const Sales = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [deletingSaleId, setDeletingSaleId] = useState<string | null>(null);
-  const [selectedEditSale, setSelectedEditSale] = useState<FullSale | null>(null);
-  const [selectedAuthSale, setSelectedAuthSale] = useState<FullSale | null>(null);
-  const [selectedPaymentSale, setSelectedPaymentSale] = useState<FullSaleWithPayments | null>(null);
+  const [selectedEditSale, setSelectedEditSale] = useState<FullSale | null>(
+    null,
+  );
+  const [selectedAuthSale, setSelectedAuthSale] = useState<FullSale | null>(
+    null,
+  );
+  const [selectedPaymentSale, setSelectedPaymentSale] =
+    useState<FullSaleWithPayments | null>(null);
 
   const handleSearch = async (paramPage?: number) => {
     const error = validateSearchSale({
@@ -372,11 +377,19 @@ const Sales = () => {
                       <div className="flex items-center gap-2 flex-wrap">
                         {!sale.authorized ? (
                           <>
-                            <Button variant="primary" size="sm" onClick={() => setSelectedEditSale(sale)}>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => setSelectedEditSale(sale)}
+                            >
                               <Pencil className="h-4 w-4" />
                               <span>Editar</span>
                             </Button>
-                            <Button variant="info" size="sm" onClick={() => setSelectedAuthSale(sale)}>
+                            <Button
+                              variant="info"
+                              size="sm"
+                              onClick={() => setSelectedAuthSale(sale)}
+                            >
                               <BadgeCheck className="h-4 w-4" />
                               <span>Autorizar</span>
                             </Button>
@@ -392,31 +405,41 @@ const Sales = () => {
                               <span>Imprimir</span>
                             </Button>
                             {user && user.role === Role.MARTIN && (
-                              <Button variant="primary" size="sm" onClick={() => setSelectedPaymentSale(sale as FullSaleWithPayments)}>
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() =>
+                                  setSelectedPaymentSale(
+                                    sale as FullSaleWithPayments,
+                                  )
+                                }
+                              >
                                 <Pencil className="h-4 w-4" />
                                 <span>Editar métodos de pago</span>
                               </Button>
                             )}
                           </>
                         )}
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(sale)}
-                          disabled={deleteInProgress}
-                        >
-                          {isThisRowDeleting ? (
-                            <>
-                              <Spinner size="sm" variant="light" />
-                              <span>Eliminando...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Trash2 className="h-4 w-4" />
-                              <span>Eliminar</span>
-                            </>
-                          )}
-                        </Button>
+                        {user && user.role !== Role.VENDEDOR && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(sale)}
+                            disabled={deleteInProgress}
+                          >
+                            {isThisRowDeleting ? (
+                              <>
+                                <Spinner size="sm" variant="light" />
+                                <span>Eliminando...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Trash2 className="h-4 w-4" />
+                                <span>Eliminar</span>
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -450,7 +473,7 @@ const Sales = () => {
           </div>
         </>
       )}
-      
+
       {selectedEditSale && (
         <EditSaleComp
           sale={selectedEditSale}
