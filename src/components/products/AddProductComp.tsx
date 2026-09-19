@@ -154,11 +154,14 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
 
       const products = await handleSearchProducts(code);
       setFilteredProducts(products);
-      const foundByBarcode = products.find((p) => p.barcodes?.includes(code));
+      const cleanCode = code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      const foundByBarcode = products.find((p) =>
+        p.barcodes?.some((b) => b === cleanCode || b === code),
+      );
 
       if (foundByBarcode) {
         handleSelect(foundByBarcode);
-      } else if (filteredProducts.length === 1 && isNaN(Number(code))) {
+      } else if (products.length === 1 && isNaN(Number(code))) {
         handleSelect(products[0]);
       } else {
         setUnlinkedBarcode(code);
