@@ -161,20 +161,14 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
 
       if (foundByBarcode) {
         handleSelect(foundByBarcode);
-      } else if (products.length === 1 && isNaN(Number(code))) {
+      } else if (products.length >= 1 && isNaN(Number(cleanCode))) {
         handleSelect(products[0]);
       } else {
-        setUnlinkedBarcode(code);
+        setUnlinkedBarcode(cleanCode);
+        toast.info(
+          `Código ${cleanCode} detectado. Busque el producto manualmente para vincularlo.`,
+        );
         setSearchTerm("");
-        Swal.fire({
-          title: "Código nuevo detectado",
-          html: `El código <b>${code}</b> no pertenece a ningún producto.<br><br>
-                 Si el producto <b>YA EXISTE</b> en el sistema, búscalo por su nombre ahora mismo y al seleccionarlo se le vinculará este código.<br><br>
-                 <i>¡No crees el producto de nuevo si ya lo tenías cargado!</i>`,
-          icon: "info",
-          confirmButtonColor: "#05b000",
-          confirmButtonText: "Entendido, buscar por nombre"
-        });
       }
     }
   };
@@ -260,8 +254,8 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     onValueChange={({ value }) => {
                       const numberValue = Number(value);
                       if (
-                        (product.productId === 11438 ||
-                          product.productId === 11439) &&
+                        (product.productId === 11903 ||
+                          product.productId === 11904) &&
                         numberValue > 0
                       ) {
                         setFieldValue("price", numberValue * -1);
