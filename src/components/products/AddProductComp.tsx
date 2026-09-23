@@ -151,21 +151,30 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
       e.preventDefault();
       const code = searchTerm.trim();
       if (!code) return;
-
-      const products = await handleSearchProducts(code);
+      
+      const cleanCode = code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      const products = await handleSearchProducts(cleanCode);
       setFilteredProducts(products);
-      const foundByBarcode = products.find((p) => p.barcodes?.includes(code));
+      const foundByBarcode = products.find((p) =>
+        p.barcodes.some((b) => b === cleanCode || b === code),
+      );
 
       if (foundByBarcode) {
         handleSelect(foundByBarcode);
-      } else if (filteredProducts.length === 1 && isNaN(Number(code))) {
+      } else if (products.length === 1 && isNaN(Number(code))) {
         handleSelect(products[0]);
       } else {
         setUnlinkedBarcode(code);
-        toast.info(
-          `Código ${code} detectado. Busque el producto manualmente para vincularlo.`,
-        );
         setSearchTerm("");
+        Swal.fire({
+          title: "Código nuevo detectado",
+          html: `El código <b>${code}</b> no pertenece a ningún producto.<br><br>
+                 Si el producto <b>YA EXISTE</b> en el sistema, búscalo por su nombre ahora mismo y al seleccionarlo se le vinculará este código.<br><br>
+                 <i>¡No crees el producto de nuevo si ya lo tenías cargado!</i>`,
+          icon: "info",
+          confirmButtonColor: "#05b000",
+          confirmButtonText: "Entendido, buscar por nombre"
+        });
       }
     }
   };
