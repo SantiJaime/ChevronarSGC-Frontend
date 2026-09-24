@@ -28,6 +28,12 @@ export const searchProducts = (search: string): Promise<GetAllProductsResponse> 
     cache: "no-store",
   });
 
+// Coincidencia exacta por código de barras (para el lector): nunca devuelve resultados aproximados
+export const findProductsByBarcode = (barcode: string): Promise<GetAllProductsResponse> =>
+  apiRequest(`${URL_API}/products?${new URLSearchParams({ barcode })}`, {
+    cache: "no-store",
+  });
+
 export const getProductSales = (
   data: IGetProductSales,
   productId: number,
