@@ -5,6 +5,7 @@ import {
   createProduct,
   deleteProduct,
   editProduct,
+  findProductsByBarcode,
   searchProducts,
 } from "../helpers/productsQueries";
 import { toast } from "sonner";
@@ -28,6 +29,23 @@ const useProducts = () => {
       }
     },
     [setLoadingProducts],
+  );
+
+  const handleFindByBarcode = useCallback(
+    async (barcode: string): Promise<ProductInDb[] | null> => {
+      try {
+        setLoadingProducts(true);
+        const res = await findProductsByBarcode(barcode);
+        return res.products;
+      } catch (error) {
+        const err = error as { error: string };
+        toast.error(err.error);
+        return null;
+      } finally {
+        setLoadingProducts(false);
+      }
+    },
+    [],
   );
 
   const handleCreateProduct = useCallback(async (
@@ -104,6 +122,7 @@ const useProducts = () => {
     loadingProducts,
     searchProducts,
     handleSearchProducts,
+    handleFindByBarcode,
     handleAddBarcode
   };
 };
