@@ -1,34 +1,27 @@
 import { URL as URL_API } from "../constants/const";
-import { fetchWithAuth } from "./authQueries";
+import { apiRequest } from "./authQueries";
+
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  totalDocs: number;
+  totalPages: number;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
+  prevPage: number | null;
+  nextPage: number | null;
+}
 
 interface GetInvoicesResponse {
   invoices: FullInvoice[];
   msg: string;
-  infoPagination: {
-    page: number;
-    limit: number;
-    totalDocs: number;
-    totalPages: number;
-    hasPrevPage: boolean;
-    hasNextPage: boolean;
-    prevPage: number | null;
-    nextPage: number | null;
-  };
+  infoPagination: PaginationInfo;
 }
 
 interface GetBudgetsResponse {
   budgets: FullBudget[];
   msg: string;
-  infoPagination: {
-    page: number;
-    limit: number;
-    totalDocs: number;
-    totalPages: number;
-    hasPrevPage: boolean;
-    hasNextPage: boolean;
-    prevPage: number | null;
-    nextPage: number | null;
-  };
+  infoPagination: PaginationInfo;
 }
 
 interface CreateInvoiceResponse {
@@ -51,165 +44,58 @@ interface DeleteBudgetResponse {
   msg: string;
 }
 
-export const getInvoices = async (
+// Solo se envían los filtros con valor
+const buildSearchParams = (payload: object, page: number): URLSearchParams => {
+  const params = new URLSearchParams({ page: page.toString() });
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value) params.append(key, String(value));
+  });
+  return params;
+};
+
+export const getInvoices = (
   payload: InvoiceSearch,
-  page: number
-): Promise<GetInvoicesResponse> => {
-  const url = new URL(`${URL_API}/invoices`, window.location.origin);
-  const params = new URLSearchParams({ page: page.toString() });
+  page: number,
+): Promise<GetInvoicesResponse> =>
+  apiRequest(`${URL_API}/invoices?${buildSearchParams(payload, page)}`);
 
-  Object.entries(payload).forEach(([key, value]) => {
-    if (value) params.append(key, value.toString());
-  });
-
-  const response = await fetchWithAuth(`${url}?${params}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
-
-export const getBudgets = async (
+export const getBudgets = (
   payload: BudgetSearch,
-  page: number
-): Promise<GetBudgetsResponse> => {
-  const url = new URL(`${URL_API}/budgets`, window.location.origin);
-  const params = new URLSearchParams({ page: page.toString() });
+  page: number,
+): Promise<GetBudgetsResponse> =>
+  apiRequest(`${URL_API}/budgets?${buildSearchParams(payload, page)}`);
 
-  Object.entries(payload).forEach(([key, value]) => {
-    if (value) params.append(key, value);
-  });
-
-  const response = await fetchWithAuth(`${url}?${params}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
-
-export const createBudget = async (
-  payload: NewBudget
-): Promise<CreateInvoiceResponse> => {
-  try {
-    const response = await fetchWithAuth(`${URL_API}/budgets`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      credentials: "include",
-    });
-    if (!response.ok) {
-      const error: ErrorMessage = await response.json();
-      throw error;
-    }
-    return await response.json();
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const createInvoice = async (
-  payload: NewInvoice
-): Promise<CreateInvoiceResponse> => {
-  const { cuitOption, ...rest } = payload;
-  try {
-    const response = await fetchWithAuth(`${URL_API}/invoices/new-invoice?cuitOption=${cuitOption}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(rest),
-      credentials: "include",
-    });
-    if (!response.ok) {
-      const error: ErrorMessage = await response.json();
-      throw error;
-    }
-    return await response.json();
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const cancelInvoice = async (
-  cuitOption: string, assocInvoiceId: string
-): Promise<CancelInvoiceResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/invoices/new-credit-note/${assocInvoiceId}?cuitOption=${cuitOption}`, {
+export const createBudget = (payload: NewBudget): Promise<CreateInvoiceResponse> =>
+  apiRequest(`${URL_API}/budgets`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
+    body: JSON.stringify(payload),
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
+
+export const createInvoice = (payload: NewInvoice): Promise<CreateInvoiceResponse> => {
+  const { cuitOption, ...rest } = payload;
+  const params = new URLSearchParams({ cuitOption: String(cuitOption) });
+  return apiRequest(`${URL_API}/invoices/new-invoice?${params}`, {
+    method: "POST",
+    body: JSON.stringify(rest),
+  });
 };
 
-export const printInvoice = async (
-  id: string
-): Promise<PrintInvoiceResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/invoices/print/${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
+export const cancelInvoice = (
+  cuitOption: string,
+  assocInvoiceId: string,
+): Promise<CancelInvoiceResponse> => {
+  const params = new URLSearchParams({ cuitOption });
+  return apiRequest(
+    `${URL_API}/invoices/new-credit-note/${encodeURIComponent(assocInvoiceId)}?${params}`,
+    { method: "POST" },
+  );
 };
 
-export const printBudget = async (
-  id: string
-): Promise<PrintInvoiceResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/budgets/print/${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
+export const printInvoice = (id: string): Promise<PrintInvoiceResponse> =>
+  apiRequest(`${URL_API}/invoices/print/${encodeURIComponent(id)}`);
 
-export const deleteBudget = async (id: string): Promise<DeleteBudgetResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/budgets/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-}
+export const printBudget = (id: string): Promise<PrintInvoiceResponse> =>
+  apiRequest(`${URL_API}/budgets/print/${encodeURIComponent(id)}`);
+
+export const deleteBudget = (id: string): Promise<DeleteBudgetResponse> =>
+  apiRequest(`${URL_API}/budgets/${encodeURIComponent(id)}`, { method: "DELETE" });

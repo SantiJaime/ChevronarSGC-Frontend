@@ -1,4 +1,5 @@
 import { Formik } from "formik";
+import { openPendingTab } from "../../utils/pendingTab";
 import { useEffect, useMemo, useState } from "react";
 import { createInvoiceSchema } from "../../utils/validationSchemas";
 import { createInvoice } from "../../helpers/invoicesQueries";
@@ -110,9 +111,10 @@ const NewInvoiceComp = () => {
     };
 
     setLoading(true);
+    const pdfTab = openPendingTab();
     const promise = createInvoice(payload)
       .then((res) => {
-        open(res.result, "_blank");
+        pdfTab.navigate(res.result);
         resetForm();
         setClient(null);
         setSearchTerm("");
@@ -122,6 +124,7 @@ const NewInvoiceComp = () => {
         return res;
       })
       .catch((err) => {
+        pdfTab.close();
         throw err;
       });
 

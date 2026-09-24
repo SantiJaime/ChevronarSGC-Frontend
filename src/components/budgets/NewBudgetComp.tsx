@@ -1,4 +1,5 @@
 import { Formik } from "formik";
+import { openPendingTab } from "../../utils/pendingTab";
 import { useEffect, useState } from "react";
 import { createBudget } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
@@ -136,9 +137,10 @@ const NewBudgetComp = () => {
     };
 
     setLoading(true);
+    const pdfTab = openPendingTab();
     const promise = createBudget(payload)
       .then((res) => {
-        open(res.result, "_blank");
+        pdfTab.navigate(res.result);
         resetForm();
         setClient(null);
         setSearchTerm("");
@@ -148,6 +150,7 @@ const NewBudgetComp = () => {
         return res;
       })
       .catch((err) => {
+        pdfTab.close();
         throw err;
       });
 

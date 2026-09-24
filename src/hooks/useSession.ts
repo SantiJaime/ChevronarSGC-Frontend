@@ -21,25 +21,23 @@ const useSession = () => {
       setSession(true);
       setUser(res.user);
       return res;
-    } catch (error) {
-      console.log(error)
-      throw error;
     } finally {
       setLoading(false);
     }
   }, [setSession, setUser]);
 
   const handleLogout = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       await logoutUser();
+    } catch {
+      // Aunque el servidor no responda (sesión ya vencida, sin conexión), la sesión
+      // local se cierra igual: el usuario siempre tiene que poder salir
+    } finally {
       setSession(false);
       setUser(null);
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-    } finally {
       setLoading(false);
+      navigate("/");
     }
   }, [navigate, setSession, setUser]);
 

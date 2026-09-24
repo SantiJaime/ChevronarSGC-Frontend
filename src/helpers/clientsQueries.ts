@@ -1,5 +1,5 @@
 import { URL } from "../constants/const";
-import { fetchWithAuth } from "./authQueries";
+import { apiRequest } from "./authQueries";
 
 interface GetClientResponse {
   clients: Client[];
@@ -10,43 +10,12 @@ interface CreateClientResponse {
   msg: string;
 }
 
-export const getClients = async (): Promise<GetClientResponse> => {
-  const response = await fetchWithAuth(`${URL}/clients`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
+export const getClients = (): Promise<GetClientResponse> =>
+  apiRequest(`${URL}/clients`);
 
-
-export const createClient = async (
-  client: Client
-): Promise<CreateClientResponse> => {
-  const response = await fetchWithAuth(`${URL}/clients`, {
+// El backend ya devuelve un mensaje legible si el documento está repetido
+export const createClient = (client: Client): Promise<CreateClientResponse> =>
+  apiRequest(`${URL}/clients`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(client),
-    credentials: "include",
   });
-
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    
-    if (typeof error.error === "string" && error.error.includes("E11000")) {
-      error.error =
-        "El documento ingresado ya se encuentra asociado a un cliente";
-    }
-    throw error;
-  }
-
-  return await response.json();
-};

@@ -1,4 +1,5 @@
-import { type ReactNode, useState, useMemo } from "react";
+import { type ReactNode, useState, useMemo, useContext, useEffect } from "react";
+import { SessionContext } from "../SessionContext";
 import { SalesContext } from "../SalesContext";
 
 interface Props {
@@ -7,6 +8,12 @@ interface Props {
 
 const SalesProvider: React.FC<Props> = ({ children }) => {
   const [sales, setSales] = useState<FullSaleWithPayments[]>([]);
+  const session = useContext(SessionContext)?.session;
+
+  // Al cerrar sesión se descarta el listado del usuario anterior
+  useEffect(() => {
+    if (!session) setSales([]);
+  }, [session]);
 
   const value = useMemo(() => ({ sales, setSales }), [sales]);
 

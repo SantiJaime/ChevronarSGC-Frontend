@@ -1,4 +1,5 @@
 import { useFormik } from "formik";
+import { openPendingTab } from "../../utils/pendingTab";
 import { useState } from "react";
 import { salesAmountsSchema } from "../../utils/validationSchemas";
 import { formatPrice } from "../../utils/utils";
@@ -56,9 +57,12 @@ const SalesAmountsComp = () => {
       return;
     }
 
+    const sheetTab = openPendingTab();
     const res = await handleExportToSheets(values.date);
-    if (res) {
-      open(res.sheetUrl, "_blank");
+    if (!res) {
+      sheetTab.close();
+    } else {
+      sheetTab.navigate(res.sheetUrl);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>
@@ -92,9 +96,12 @@ const SalesAmountsComp = () => {
       return;
     }
 
+    const sheetTab = openPendingTab();
     const res = await handleGetGoogleSheet(values.date);
-    if (res) {
-      open(res.sheetUrl, "_blank");
+    if (!res) {
+      sheetTab.close();
+    } else {
+      sheetTab.navigate(res.sheetUrl);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>

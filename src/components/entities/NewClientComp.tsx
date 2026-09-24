@@ -27,10 +27,6 @@ const NewClientComp = () => {
       .then((res) => {
         setClients((prevClients) => [...prevClients, res.client]);
         return res;
-      })
-      .catch((err) => {
-        console.log(err);
-        throw err;
       });
 
     toast.promise(promise, {
