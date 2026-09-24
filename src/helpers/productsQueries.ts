@@ -1,6 +1,6 @@
 import { URL as URL_API } from "../constants/const";
 import { ICreateProduct, IGetProductSales } from "../utils/validationSchemas";
-import { fetchWithAuth } from "./authQueries";
+import { apiRequest } from "./authQueries";
 
 interface GetAllProductsResponse {
   products: ProductInDb[];
@@ -22,112 +22,42 @@ interface GetProductSalesResponse {
   result: number;
 }
 
-export const searchProducts = async (search: string): Promise<GetAllProductsResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/products?s=${search}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
+// URLSearchParams codifica el texto: búsquedas con "&", "#", "%", etc. no rompen la URL
+export const searchProducts = (search: string): Promise<GetAllProductsResponse> =>
+  apiRequest(`${URL_API}/products?${new URLSearchParams({ s: search })}`, {
     cache: "no-store",
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const getProductSales = async (
+export const getProductSales = (
   data: IGetProductSales,
   productId: number,
 ): Promise<GetProductSalesResponse> => {
-  const { fromDate, toDate } = data;
-
-  const url = new URL(`${URL_API}/sales/product/${productId}`, window.location.origin);
-  const params = new URLSearchParams({ fromDate, toDate });
+  const params = new URLSearchParams({ fromDate: data.fromDate, toDate: data.toDate });
   if (data.sellerId) params.append("sellerId", data.sellerId.toString());
 
-  const response = await fetchWithAuth(`${url}?${params}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
+  return apiRequest(`${URL_API}/sales/product/${productId}?${params}`);
 };
 
-export const createProduct = async (
-  data: ICreateProduct,
-): Promise<CreateProductResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/products`, {
+export const createProduct = (data: ICreateProduct): Promise<CreateProductResponse> =>
+  apiRequest(`${URL_API}/products`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data),
-    credentials: "include",
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const editProduct = async (
-  data: ProductInDb,
-): Promise<EditProductResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/products/${data._id}`, {
+export const editProduct = (data: ProductInDb): Promise<EditProductResponse> =>
+  apiRequest(`${URL_API}/products/${encodeURIComponent(data._id)}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data),
-    credentials: "include",
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const addBarcodeToProduct = async (
+export const addBarcodeToProduct = (
   productId: string,
   barcode: string,
-): Promise<EditProductResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/products/${productId}/barcode`, {
+): Promise<EditProductResponse> =>
+  apiRequest(`${URL_API}/products/${encodeURIComponent(productId)}/barcode`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({ barcode }),
-    credentials: "include",
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const deleteProduct = async (id: string): Promise<{ msg: string }> => {
-  const response = await fetchWithAuth(`${URL_API}/products/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
+export const deleteProduct = (id: string): Promise<{ msg: string }> =>
+  apiRequest(`${URL_API}/products/${encodeURIComponent(id)}`, { method: "DELETE" });

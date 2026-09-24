@@ -1,6 +1,7 @@
 import { useFormik } from "formik";
+import { openPendingTab } from "../../utils/pendingTab";
 import { searchBudgetSchema } from "../../utils/validationSchemas";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   deleteBudget,
   getBudgets,
@@ -51,14 +52,23 @@ const Budgets = () => {
   const [loading, setLoading] = useState(false);
   const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null);
 
+  // Filtros de la última búsqueda: la paginación los reutiliza aunque el formulario haya cambiado
+  const lastSearchRef = useRef<typeof values | null>(null);
+
   const handleSearch = (paramPage?: number) => {
-    validateSearchInvoice(values);
+    const isNewSearch = !paramPage || !lastSearchRef.current;
+    if (isNewSearch) {
+      const filters = { ...values };
+      validateSearchInvoice(filters);
+      lastSearchRef.current = filters;
+    }
+    const filters = lastSearchRef.current!;
     setLoading(true);
-    
+
     const pageToFetch = paramPage || 1;
     setPage(pageToFetch);
 
-    getBudgets(values, pageToFetch)
+    getBudgets(filters, pageToFetch)
       .then((res) => {
         setBudgets(res.budgets);
         setTotalPages(res.infoPagination.totalPages);
@@ -83,12 +93,14 @@ const Budgets = () => {
   };
 
   const handlePrint = (id: string) => {
+    const pdfTab = openPendingTab();
     const promise = printBudget(id)
       .then((res) => {
-        open(res.result, "_blank");
+        pdfTab.navigate(res.result);
         return res;
       })
       .catch((err) => {
+        pdfTab.close();
         throw err;
       });
 

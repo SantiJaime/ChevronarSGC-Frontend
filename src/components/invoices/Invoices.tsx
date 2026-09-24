@@ -1,6 +1,7 @@
 import { useFormik } from "formik";
+import { openPendingTab } from "../../utils/pendingTab";
 import { searchInvoiceSchema } from "../../utils/validationSchemas";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   cancelInvoice,
   getInvoices,
@@ -62,15 +63,23 @@ const Invoices = () => {
   const [loading, setLoading] = useState(false);
   const [loadingCancel, setLoadingCancel] = useState(false);
   const [selectedInvoiceDetails, setSelectedInvoiceDetails] = useState<FullInvoice | null>(null);
+  // Filtros de la última búsqueda: la paginación los reutiliza aunque el formulario haya cambiado
+  const lastSearchRef = useRef<typeof values | null>(null);
 
   const handleSearch = (paramPage?: number) => {
-    validateSearchInvoice(values);
+    const isNewSearch = !paramPage || !lastSearchRef.current;
+    if (isNewSearch) {
+      const filters = { ...values };
+      validateSearchInvoice(filters);
+      lastSearchRef.current = filters;
+    }
+    const filters = lastSearchRef.current!;
     setLoading(true);
 
     const pageToFetch = paramPage || 1;
     setPage(pageToFetch);
-    
-    getInvoices(values, pageToFetch)
+
+    getInvoices(filters, pageToFetch)
       .then((res) => {
         setInvoices(res.invoices);
         setTotalPages(res.infoPagination.totalPages);
@@ -107,9 +116,12 @@ const Invoices = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setLoadingCancel(true);
-        const promise = cancelInvoice(values.cuitOption, id)
+        const pdfTab = openPendingTab();
+        // El CUIT es el de la búsqueda que muestra la factura, no el del formulario actual
+        const cuitOption = lastSearchRef.current?.cuitOption ?? values.cuitOption;
+        const promise = cancelInvoice(cuitOption, id)
           .then((res) => {
-            open(res.result, "_blank");
+            pdfTab.navigate(res.result);
 
             setInvoices((prevState) => {
               const updatedInvoices = prevState.map((invoice) =>
@@ -124,6 +136,7 @@ const Invoices = () => {
             return res;
           })
           .catch((err) => {
+            pdfTab.close();
             throw err;
           });
 
@@ -153,12 +166,14 @@ const Invoices = () => {
   };
 
   const handlePrint = (id: string) => {
+    const pdfTab = openPendingTab();
     const promise = printInvoice(id)
       .then((res) => {
-        open(res.result, "_blank");
+        pdfTab.navigate(res.result);
         return res;
       })
       .catch((err) => {
+        pdfTab.close();
         throw err;
       });
 

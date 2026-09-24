@@ -1,4 +1,5 @@
 import { useFormik } from "formik";
+import { openPendingTab } from "../../utils/pendingTab";
 import {
   type IAuthorizeSale,
   searchSalesValidatorSchema,
@@ -7,7 +8,7 @@ import { Role, SELLERS, SELLERS_MAP } from "../../constants/const";
 import Swal from "sweetalert2";
 import { formatPrice } from "../../utils/utils";
 import useSales from "../../hooks/useSales";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { validateSearchSale } from "../../utils/validationFunctions";
 import { toast } from "sonner";
 import { deleteSale, printSale } from "../../helpers/salesQueries";
@@ -74,26 +75,30 @@ const Sales = () => {
   const [selectedPaymentSale, setSelectedPaymentSale] =
     useState<FullSaleWithPayments | null>(null);
 
+  // Filtros de la última búsqueda: la paginación los reutiliza aunque el formulario haya cambiado
+  const lastSearchRef = useRef<SaleSearch | null>(null);
+
   const handleSearch = async (paramPage?: number) => {
-    const error = validateSearchSale({
-      ...values,
-      saleNumber: values.saleNumber ? Number(values.saleNumber) : undefined,
-    });
-    if (error) {
-      toast.error(error);
-      return;
+    const isNewSearch = !paramPage || !lastSearchRef.current;
+    if (isNewSearch) {
+      const error = validateSearchSale({
+        ...values,
+        saleNumber: values.saleNumber ? Number(values.saleNumber) : undefined,
+      });
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      lastSearchRef.current = {
+        ...values,
+        authorized: JSON.parse(values.authorized),
+        saleNumber: Number(values.saleNumber ?? 0),
+      };
     }
     const pageToFetch = paramPage || 1;
     setPage(pageToFetch);
 
-    const res = await handleGetSales(
-      {
-        ...values,
-        authorized: JSON.parse(values.authorized),
-        saleNumber: Number(values.saleNumber ?? 0),
-      },
-      pageToFetch,
-    );
+    const res = await handleGetSales(lastSearchRef.current!, pageToFetch);
     if (!res) return;
 
     setTotalPages(res.totalPages);
@@ -112,14 +117,20 @@ const Sales = () => {
   };
 
   const handlePrint = (id: string) => {
-    const promise = printSale(id);
+    const pdfTab = openPendingTab();
+    const promise = printSale(id)
+      .then((res) => {
+        pdfTab.navigate(res.result);
+        return res;
+      })
+      .catch((err) => {
+        pdfTab.close();
+        throw err;
+      });
 
     toast.promise(promise, {
       loading: "Generando PDF...",
-      success: (res) => {
-        open(res.result, "_blank");
-        return res.msg;
-      },
+      success: (res) => res.msg,
       error: (err) => {
         const error = err as { error: string };
         return error.error;
@@ -165,9 +176,12 @@ const Sales = () => {
     id: string,
     paymentsInfo: FullPaymentsInfo,
   ) => {
+    const pdfTab = openPendingTab();
     const res = await handleAuthorize(id, paymentsInfo);
-    if (res) {
-      open(res.result, "_blank");
+    if (!res) {
+      pdfTab.close();
+    } else {
+      pdfTab.navigate(res.result);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>

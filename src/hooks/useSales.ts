@@ -72,7 +72,6 @@ const useSales = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -150,7 +149,6 @@ const useSales = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error("Error al obtener las ventas del producto:", error);
     } finally {
       setLoading(false);
     }
@@ -163,7 +161,6 @@ const useSales = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -176,7 +173,6 @@ const useSales = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error(error);
     } finally {
       setLoading(false);
     }

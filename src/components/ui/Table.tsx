@@ -2,14 +2,12 @@ import * as React from "react";
 import { cn } from "../../lib/utils";
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
-  striped?: boolean;
   bordered?: boolean;
-  hover?: boolean;
   responsive?: boolean;
 }
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
-  ({ className, striped, bordered, hover, responsive, children, ...props }, ref) => {
+  ({ className, bordered, responsive, children, ...props }, ref) => {
     const tableClasses = cn(
       "w-full text-sm text-left",
       bordered && "border border-border",

@@ -1,6 +1,6 @@
 import { URL as URL_API } from "../constants/const";
 import { type IAuthorizeSale } from "../utils/validationSchemas";
-import { fetchWithAuth } from "./authQueries";
+import { apiRequest } from "./authQueries";
 
 interface FullPaymentsInfo extends IAuthorizeSale {
   totalValue: number;
@@ -10,11 +10,7 @@ interface UpdateSalePayments extends IAuthorizeSale {
   totalWithInterest: number;
 }
 
-export const getSales = async (
-  payload: SaleSearch,
-  page: number,
-): Promise<GetSalesResponse> => {
-  const url = new URL(`${URL_API}/sales`, window.location.origin);
+export const getSales = (payload: SaleSearch, page: number): Promise<GetSalesResponse> => {
   const params = new URLSearchParams({ page: page.toString() });
 
   Object.entries(payload).forEach(([key, value]) => {
@@ -28,171 +24,51 @@ export const getSales = async (
       params.append(key, String(value));
     }
   });
-  const response = await fetchWithAuth(`${url}?${params}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
+
+  return apiRequest(`${URL_API}/sales?${params}`);
 };
 
-export const getSalesAmounts = async (
-  date: string,
-): Promise<GetSalesAmountsResponse> => {
-  const response = await fetchWithAuth(
-    `${URL_API}/sales/day?date=${date}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    },
-  );
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
+export const getSalesAmounts = (date: string): Promise<GetSalesAmountsResponse> =>
+  apiRequest(`${URL_API}/sales/day?${new URLSearchParams({ date })}`);
 
-export const createSale = async (
-  sale: SaleWithProducts,
-): Promise<CreateSaleResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/sales`, {
+export const createSale = (sale: SaleWithProducts): Promise<CreateSaleResponse> =>
+  apiRequest(`${URL_API}/sales`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(sale),
-    credentials: "include",
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const authorizeSale = async (
+export const authorizeSale = (
   id: string,
   paymentsInfo: FullPaymentsInfo,
-): Promise<AuthorizeSaleResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/sales/${id}`, {
+): Promise<AuthorizeSaleResponse> =>
+  apiRequest(`${URL_API}/sales/${encodeURIComponent(id)}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
     body: JSON.stringify(paymentsInfo),
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const updateSalePaymentMethod = async (
+export const updateSalePaymentMethod = (
   id: string,
   paymentsInfo: UpdateSalePayments,
-): Promise<AuthorizeSaleResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/sales/${id}/payment-method`, {
+): Promise<AuthorizeSaleResponse> =>
+  apiRequest(`${URL_API}/sales/${encodeURIComponent(id)}/payment-method`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
     body: JSON.stringify(paymentsInfo),
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const editSale = async (
-  sale: FullSale,
-  newTotal: number,
-): Promise<EditSaleResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/sales/${sale._id}`, {
+export const editSale = (sale: FullSale, newTotal: number): Promise<EditSaleResponse> =>
+  apiRequest(`${URL_API}/sales/${encodeURIComponent(sale._id)}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({ ...sale, totalWithInterest: newTotal }),
-    credentials: "include",
   });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
 
-export const printSale = async (id: string): Promise<PrintInvoiceResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/sales/print/${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
+export const printSale = (id: string): Promise<PrintInvoiceResponse> =>
+  apiRequest(`${URL_API}/sales/print/${encodeURIComponent(id)}`);
 
-export const deleteSale = async (id: string): Promise<{ msg: string }> => {
-  const response = await fetchWithAuth(`${URL_API}/sales/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-};
+export const deleteSale = (id: string): Promise<{ msg: string }> =>
+  apiRequest(`${URL_API}/sales/${encodeURIComponent(id)}`, { method: "DELETE" });
 
-export const exportToSheets = async (date: string): Promise<ExportToSheetsResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/sales/spreadsheet?date=${date}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-}
+export const exportToSheets = (date: string): Promise<ExportToSheetsResponse> =>
+  apiRequest(`${URL_API}/sales/spreadsheet?${new URLSearchParams({ date })}`);
 
-export const getGoogleSheet = async (date: string): Promise<ExportToSheetsResponse> => {
-  const response = await fetchWithAuth(`${URL_API}/sales/spreadsheet/view?date=${date}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-  if (!response.ok) {
-    const error: ErrorMessage = await response.json();
-    throw error;
-  }
-  return await response.json();
-}
+export const getGoogleSheet = (date: string): Promise<ExportToSheetsResponse> =>
+  apiRequest(`${URL_API}/sales/spreadsheet/view?${new URLSearchParams({ date })}`);
