@@ -1,15 +1,15 @@
 import { Formik } from "formik";
 import { SELLERS } from "../../constants/const";
-import AddProductComp from "../products/AddProductComp";
+import AddProduct from "../products/AddProduct";
 import { getLineKey } from "../../utils/productLines";
 import { formatPrice } from "../../utils/utils";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { type NewSale, newSaleSchema } from "../../utils/validationSchemas";
+import { type NewSale as NewSaleFormValues, newSaleSchema } from "../../utils/validationSchemas";
 import { toast } from "sonner";
 import useSales from "../../hooks/useSales";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
-import NewProductComp from "../products/NewProductComp";
+import NewProduct from "../products/NewProduct";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
@@ -18,7 +18,7 @@ import { Spinner } from "../ui/Spinner";
 import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Check, Trash2 } from "lucide-react";
 
-const NewSaleComp = () => {
+const NewSale = () => {
   const [productsTotal, setProductsTotal] = useState(0);
   const { handleCreate, loading } = useSales();
   const { products, setProducts } = useInvoiceProducts();
@@ -32,7 +32,7 @@ const NewSaleComp = () => {
     setProductsTotal(total);
   }, [products]);
 
-  const handleSubmit = async (values: NewSale, resetForm: () => void) => {
+  const handleSubmit = async (values: NewSaleFormValues, resetForm: () => void) => {
     if (products.length === 0) {
       toast.error("El presupuesto para venta debe tener al menos un producto");
       return;
@@ -138,7 +138,7 @@ const NewSaleComp = () => {
             
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-semibold">Productos</h4>
-              <AddProductComp />
+              <AddProduct />
             </div>
             
             {products.length === 0 ? (
@@ -201,9 +201,9 @@ const NewSaleComp = () => {
           </form>
         )}
       </Formik>
-      <NewProductComp />
+      <NewProduct />
     </>
   );
 };
 
-export default NewSaleComp;
+export default NewSale;

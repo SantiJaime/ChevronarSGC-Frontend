@@ -10,7 +10,7 @@ import { Spinner } from "../ui/Spinner";
 import { Badge } from "../ui/Badge";
 import { Tag, DollarSign, Barcode, Plus, X } from "lucide-react";
 
-const NewProductComp = () => {
+const NewProduct = () => {
   const { handleCreateProduct, loading } = useProducts();
   const [barcodeInput, setBarcodeInput] = useState("");
 
@@ -191,4 +191,4 @@ const NewProductComp = () => {
   );
 };
 
-export default NewProductComp;
+export default NewProduct;

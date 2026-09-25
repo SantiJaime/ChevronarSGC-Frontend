@@ -16,7 +16,7 @@ interface Props {
   onProductUpdated?: (product: ProductInDb) => void;
 }
 
-const EditProductInDbComp: React.FC<Props> = ({
+const EditProductInDb: React.FC<Props> = ({
   product,
   onProductUpdated,
 }) => {
@@ -229,4 +229,4 @@ const EditProductInDbComp: React.FC<Props> = ({
   );
 };
 
-export default EditProductInDbComp;
+export default EditProductInDb;

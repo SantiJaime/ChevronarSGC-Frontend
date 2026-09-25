@@ -24,7 +24,7 @@ interface Props {
 
 const NAME_SEARCH_DEBOUNCE_MS = 500;
 
-const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
+const AddProduct: React.FC<Props> = ({ setEditProducts }) => {
   const [show, setShow] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [product, setProduct] = useState<ProductInDb | null>(null);
@@ -394,4 +394,4 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   );
 };
 
-export default AddProductComp;
+export default AddProduct;

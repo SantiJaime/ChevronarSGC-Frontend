@@ -12,9 +12,9 @@ import { useRef, useState } from "react";
 import { validateSearchSale } from "../../utils/validationFunctions";
 import { toast } from "sonner";
 import { deleteSale, printSale } from "../../helpers/salesQueries";
-import EditSaleComp from "./EditSaleComp";
-import AuthorizeSaleComp from "./AuthorizeSaleComp";
-import SalesAmountsComp from "./SalesAmountsComp";
+import EditSale from "./EditSale";
+import AuthorizeSale from "./AuthorizeSale";
+import SalesAmounts from "./SalesAmounts";
 import useSession from "../../hooks/useSession";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
@@ -217,7 +217,7 @@ const Sales = () => {
         <h2 className="text-xl font-bold">
           Historial de presupuestos de ventas
         </h2>
-        {user && user.role !== Role.VENDEDOR && <SalesAmountsComp />}
+        {user && user.role !== Role.VENDEDOR && <SalesAmounts />}
       </div>
       <hr className="border-border mb-4" />
 
@@ -489,14 +489,14 @@ const Sales = () => {
       )}
 
       {selectedEditSale && (
-        <EditSaleComp
+        <EditSale
           sale={selectedEditSale}
           show={!!selectedEditSale}
           onHide={() => setSelectedEditSale(null)}
         />
       )}
       {selectedAuthSale && (
-        <AuthorizeSaleComp
+        <AuthorizeSale
           sale={selectedAuthSale}
           handleAuthorizeSale={handleAuthorizeSale}
           show={!!selectedAuthSale}

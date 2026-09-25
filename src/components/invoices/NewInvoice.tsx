@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createInvoiceSchema } from "../../utils/validationSchemas";
 import { createInvoice } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
-import AddProductComp from "../products/AddProductComp";
+import AddProduct from "../products/AddProduct";
 import { getLineKey } from "../../utils/productLines";
 import useClients from "../../hooks/useClients";
 import {
@@ -20,7 +20,7 @@ import AddPaymentMethod from "../payments/AddPaymentMethod";
 import Swal from "sweetalert2";
 import { formatPrice } from "../../utils/utils";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
-import NewProductComp from "../products/NewProductComp";
+import NewProduct from "../products/NewProduct";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
@@ -38,7 +38,7 @@ import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
 import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
-const NewInvoiceComp = () => {
+const NewInvoice = () => {
   const { clients } = useClients();
   const { products, setProducts } = useInvoiceProducts();
 
@@ -412,7 +412,7 @@ const NewInvoiceComp = () => {
 
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-semibold">Productos</h4>
-              <AddProductComp />
+              <AddProduct />
             </div>
 
             {products.length === 0 ? (
@@ -493,9 +493,9 @@ const NewInvoiceComp = () => {
           </form>
         )}
       </Formik>
-      <NewProductComp />
+      <NewProduct />
     </>
   );
 };
 
-export default NewInvoiceComp;
+export default NewInvoice;

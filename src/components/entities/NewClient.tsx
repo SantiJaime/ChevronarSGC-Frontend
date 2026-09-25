@@ -9,7 +9,7 @@ import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { Select } from "../ui/Select";
 
-const NewClientComp = () => {
+const NewClient = () => {
   const { setClients } = useClients();
   const { cities } = useCities();
   const IVA_CONDITIONS = [
@@ -196,4 +196,4 @@ const NewClientComp = () => {
   );
 };
 
-export default NewClientComp;
+export default NewClient;

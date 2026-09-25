@@ -17,7 +17,7 @@ interface FormValues {
   date: string;
 }
 
-const SalesAmountsComp = () => {
+const SalesAmounts = () => {
   const { handleGetSalesAmounts, loading, handleExportToSheets, handleGetGoogleSheet } = useSales();
   const [show, setShow] = useState(false);
   const [overall, setOverall] = useState<{
@@ -218,4 +218,4 @@ const SalesAmountsComp = () => {
   );
 };
 
-export default SalesAmountsComp;
+export default SalesAmounts;
