@@ -1,6 +1,8 @@
 import { Formik } from "formik";
 import { SELLERS } from "../../constants/const";
 import AddProductComp from "../products/AddProductComp";
+import { getLineKey, withLineIds } from "../../utils/productLines";
+import { useMemo } from "react";
 import { formatPrice } from "../../utils/utils";
 import { newSaleSchema } from "../../utils/validationSchemas";
 import Swal from "sweetalert2";
@@ -29,6 +31,10 @@ interface Props {
 
 const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
   const { handleEdit, loading } = useSales();
+
+  // Las líneas guardadas no tienen identificador: se asigna una sola vez por venta
+  // (si se generara en cada render, enableReinitialize reiniciaría el formulario)
+  const initialProducts = useMemo(() => withLineIds(sale.products), [sale.products]);
 
   const handleSubmitForm = async (values: FormValues) => {
     if (values.products.length === 0) {
@@ -62,7 +68,7 @@ const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
             initialValues={{
               clientName: sale.clientName,
               sellerId: sale.sellerId,
-              products: sale.products,
+              products: initialProducts,
             }}
             onSubmit={handleSubmitForm}
             enableReinitialize={true}
@@ -89,7 +95,9 @@ const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
                 setFieldValue("products", newProducts);
               };
 
-              const handleDeleteProduct = (productId: number) => {
+              // Se elimina por identificador de línea: si el mismo producto está
+              // cargado dos veces, solo se quita la línea elegida
+              const handleDeleteProduct = (lineId: string) => {
                 Swal.fire({
                   title: "Estas seguro de eliminar este producto?",
                   text: "Esta accion no se puede deshacer",
@@ -102,7 +110,7 @@ const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
                 }).then((result) => {
                   if (result.isConfirmed) {
                     const filtered = values.products.filter(
-                      (p) => p.productId !== productId,
+                      (product) => product.lineId !== lineId,
                     );
                     setFieldValue("products", filtered);
                   }
@@ -181,8 +189,8 @@ const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
                         </TableRow>
                       </TableHead>
                       <TableBody striped hover>
-                        {values.products.map((product) => (
-                          <TableRow key={product.productId}>
+                        {values.products.map((product, index) => (
+                          <TableRow key={getLineKey(product, index)}>
                             <TableCell>{product.productName}</TableCell>
                             <TableCell>${formatPrice(product.price)}</TableCell>
                             <TableCell>{product.quantity}</TableCell>
@@ -191,7 +199,7 @@ const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
                               <Button
                                 variant="destructive"
                                 size="sm"
-                                onClick={() => handleDeleteProduct(product.productId)}
+                                onClick={() => handleDeleteProduct(getLineKey(product, index))}
                               >
                                 <Trash2 className="h-4 w-4" />
                                 <span>Eliminar</span>

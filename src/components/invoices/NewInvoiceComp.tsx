@@ -5,6 +5,7 @@ import { createInvoiceSchema } from "../../utils/validationSchemas";
 import { createInvoice } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProductComp from "../products/AddProductComp";
+import { getLineKey } from "../../utils/productLines";
 import useClients from "../../hooks/useClients";
 import {
   CREDIT_CARDS,
@@ -165,7 +166,9 @@ const NewInvoiceComp = () => {
     setPaymentMethods(newPaymentMethods);
   };
 
-  const handleDelete = (productId: number) => {
+  // Se elimina por identificador de línea: si el mismo producto está cargado dos
+  // veces, solo se quita la línea elegida
+  const handleDelete = (lineId: string) => {
     Swal.fire({
       title: "Estas seguro de eliminar este producto?",
       text: "Esta accion no se puede deshacer",
@@ -178,7 +181,7 @@ const NewInvoiceComp = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         const newProducts = products.filter(
-          (product) => product.productId !== productId,
+          (product) => product.lineId !== lineId,
         );
         setProducts(newProducts);
       }
@@ -429,8 +432,8 @@ const NewInvoiceComp = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody striped hover>
-                    {products.map((product) => (
-                      <TableRow key={product.productId}>
+                    {products.map((product, index) => (
+                      <TableRow key={getLineKey(product, index)}>
                         <TableCell>{product.productName}</TableCell>
                         <TableCell>${formatPrice(product.price)}</TableCell>
                         <TableCell>{product.quantity}</TableCell>
@@ -441,7 +444,7 @@ const NewInvoiceComp = () => {
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDelete(product.productId)}
+                            onClick={() => handleDelete(getLineKey(product, index))}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
                             Eliminar
