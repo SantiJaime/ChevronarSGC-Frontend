@@ -1,6 +1,7 @@
 import { Formik } from "formik";
 import { SELLERS } from "../../constants/const";
 import AddProductComp from "../products/AddProductComp";
+import { getLineKey } from "../../utils/productLines";
 import { formatPrice } from "../../utils/utils";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
@@ -45,10 +46,12 @@ const NewSaleComp = () => {
     }
   };
 
-  const handleDelete = (productName: string) => {
+  // Se elimina por identificador de línea: si el mismo producto está cargado dos
+  // veces, solo se quita la línea elegida
+  const handleDelete = (lineId: string) => {
     Swal.fire({
-      title: "Estas seguro de eliminar este producto?",
-      text: "Esta accion no se puede deshacer",
+      title: "¿Estás seguro de eliminar este producto?",
+      text: "Esta acción no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -57,10 +60,9 @@ const NewSaleComp = () => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        const newProducts = products.filter(
-          (product) => product.productName !== productName,
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product.lineId !== lineId),
         );
-        setProducts(newProducts);
       }
     });
   };
@@ -154,8 +156,8 @@ const NewSaleComp = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody striped hover>
-                    {products.map((product) => (
-                      <TableRow key={product.productName}>
+                    {products.map((product, index) => (
+                      <TableRow key={getLineKey(product, index)}>
                         <TableCell>{product.productName}</TableCell>
                         <TableCell>${formatPrice(product.price)}</TableCell>
                         <TableCell>{product.quantity}</TableCell>
@@ -164,7 +166,7 @@ const NewSaleComp = () => {
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDelete(product.productName)}
+                            onClick={() => handleDelete(getLineKey(product, index))}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
                             Eliminar

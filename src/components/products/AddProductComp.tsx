@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { NumericFormat } from "react-number-format";
 import useProducts from "../../hooks/useProducts";
 import useBarcodeScanner from "../../hooks/useBarcodeScanner";
+import { newLineId } from "../../utils/productLines";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
 import { formatPrice } from "../../utils/utils";
 import Swal from "sweetalert2";
@@ -125,6 +126,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
       quantity: values.quantity,
       price: values.price,
       productSubtotal: values.quantity * values.price,
+      lineId: newLineId(),
     };
 
     if (setEditProducts) {

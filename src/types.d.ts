@@ -4,6 +4,7 @@ interface Product {
   quantity: number;
   productSubtotal: number;
   productId: number;
+  lineId?: string;
 }
 interface Sale {
   clientName: string;
