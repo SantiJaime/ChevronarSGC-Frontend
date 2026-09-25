@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { openPendingTab } from "../../utils/pendingTab";
+import { openInNewTab } from "../../utils/openInNewTab";
 import { searchBudgetSchema } from "../../utils/validationSchemas";
 import { useRef, useState } from "react";
 import {
@@ -93,20 +93,28 @@ const Budgets = () => {
   };
 
   const handlePrint = (id: string) => {
-    const pdfTab = openPendingTab();
     const promise = printBudget(id)
       .then((res) => {
-        pdfTab.navigate(res.result);
+        openInNewTab(res.result);
         return res;
-      })
-      .catch((err) => {
-        pdfTab.close();
-        throw err;
       });
 
     toast.promise(promise, {
       loading: "Generando PDF...",
-      success: (res) => `${res.msg}`,
+      success: (res) => (
+        <span>
+          <b>{res.msg}</b>
+          <br />
+          <a
+            href={res.result}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: "bold", textDecoration: "underline" }}
+          >
+            Ver PDF
+          </a>
+        </span>
+      ),
       error: (err) => `${err.error}`,
     });
   };
