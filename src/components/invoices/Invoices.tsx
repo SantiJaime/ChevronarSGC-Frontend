@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { openPendingTab } from "../../utils/pendingTab";
+import { openInNewTab } from "../../utils/openInNewTab";
 import { searchInvoiceSchema } from "../../utils/validationSchemas";
 import { useRef, useState } from "react";
 import {
@@ -116,12 +116,11 @@ const Invoices = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setLoadingCancel(true);
-        const pdfTab = openPendingTab();
         // El CUIT es el de la búsqueda que muestra la factura, no el del formulario actual
         const cuitOption = lastSearchRef.current?.cuitOption ?? values.cuitOption;
         const promise = cancelInvoice(cuitOption, id)
           .then((res) => {
-            pdfTab.navigate(res.result);
+            openInNewTab(res.result);
 
             setInvoices((prevState) => {
               const updatedInvoices = prevState.map((invoice) =>
@@ -134,10 +133,6 @@ const Invoices = () => {
             });
 
             return res;
-          })
-          .catch((err) => {
-            pdfTab.close();
-            throw err;
           });
 
         toast.promise(promise, {
@@ -166,20 +161,28 @@ const Invoices = () => {
   };
 
   const handlePrint = (id: string) => {
-    const pdfTab = openPendingTab();
     const promise = printInvoice(id)
       .then((res) => {
-        pdfTab.navigate(res.result);
+        openInNewTab(res.result);
         return res;
-      })
-      .catch((err) => {
-        pdfTab.close();
-        throw err;
       });
 
     toast.promise(promise, {
       loading: "Generando PDF...",
-      success: (res) => `${res.msg}`,
+      success: (res) => (
+        <span>
+          <b>{res.msg}</b>
+          <br />
+          <a
+            href={res.result}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: "bold", textDecoration: "underline" }}
+          >
+            Ver PDF
+          </a>
+        </span>
+      ),
       error: (err) => `${err.error}`,
     });
   };

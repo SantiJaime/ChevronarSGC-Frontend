@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { openPendingTab } from "../../utils/pendingTab";
+import { openInNewTab } from "../../utils/openInNewTab";
 import { useState } from "react";
 import { salesAmountsSchema } from "../../utils/validationSchemas";
 import { formatPrice } from "../../utils/utils";
@@ -57,12 +57,9 @@ const SalesAmounts = () => {
       return;
     }
 
-    const sheetTab = openPendingTab();
     const res = await handleExportToSheets(values.date);
-    if (!res) {
-      sheetTab.close();
-    } else {
-      sheetTab.navigate(res.sheetUrl);
+    if (res) {
+      openInNewTab(res.sheetUrl);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>
@@ -96,16 +93,13 @@ const SalesAmounts = () => {
       return;
     }
 
-    const sheetTab = openPendingTab();
     const res = await handleGetGoogleSheet(values.date);
-    if (!res) {
-      sheetTab.close();
-    } else {
-      sheetTab.navigate(res.sheetUrl);
+    if (res) {
+      openInNewTab(res.sheetUrl);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>
-            En caso de la planilla no se abra, podés visualizarla aquí:
+            En caso de que la planilla no se abra, podés visualizarla aquí:
             <br />
             <a
               href={res.sheetUrl}
