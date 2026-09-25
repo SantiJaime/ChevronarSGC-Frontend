@@ -9,7 +9,7 @@ import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { Select } from "../ui/Select";
 
-const NewCityComp = () => {
+const NewCity = () => {
   const { setCities } = useCities();
 
   const newCity = (values: City) => {
@@ -88,4 +88,4 @@ const NewCityComp = () => {
   );
 };
 
-export default NewCityComp;
+export default NewCity;

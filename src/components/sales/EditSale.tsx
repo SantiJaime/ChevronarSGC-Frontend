@@ -1,6 +1,6 @@
 import { Formik } from "formik";
 import { SELLERS } from "../../constants/const";
-import AddProductComp from "../products/AddProductComp";
+import AddProduct from "../products/AddProduct";
 import { getLineKey, withLineIds } from "../../utils/productLines";
 import { useMemo } from "react";
 import { formatPrice } from "../../utils/utils";
@@ -29,7 +29,7 @@ interface Props {
   onHide: () => void;
 }
 
-const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
+const EditSale: React.FC<Props> = ({ sale, show, onHide }) => {
   const { handleEdit, loading } = useSales();
 
   // Las líneas guardadas no tienen identificador: se asigna una sola vez por venta
@@ -172,7 +172,7 @@ const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
                   <hr className="border-border my-4" />
                   
                   <div className="flex justify-end mb-4">
-                    <AddProductComp setEditProducts={handleProductsUpdate} />
+                    <AddProduct setEditProducts={handleProductsUpdate} />
                   </div>
                   
                   {values.products.length === 0 ? (
@@ -241,4 +241,4 @@ const EditSaleComp: React.FC<Props> = ({ sale, show, onHide }) => {
   );
 };
 
-export default EditSaleComp;
+export default EditSale;

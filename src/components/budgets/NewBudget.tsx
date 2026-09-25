@@ -3,7 +3,7 @@ import { openPendingTab } from "../../utils/pendingTab";
 import { useEffect, useState } from "react";
 import { createBudget } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
-import AddProductComp from "../products/AddProductComp";
+import AddProduct from "../products/AddProduct";
 import { getLineKey } from "../../utils/productLines";
 import useClients from "../../hooks/useClients";
 import {
@@ -18,7 +18,7 @@ import Swal from "sweetalert2";
 import { createBudgetSchema } from "../../utils/validationSchemas";
 import { formatPrice } from "../../utils/utils";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
-import NewProductComp from "../products/NewProductComp";
+import NewProduct from "../products/NewProduct";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
@@ -36,7 +36,7 @@ import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
 import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
-const NewBudgetComp = () => {
+const NewBudget = () => {
   const [loading, setLoading] = useState(false);
   const { products, setProducts } = useInvoiceProducts();
   const [client, setClient] = useState<Client | null>(null);
@@ -351,7 +351,7 @@ const NewBudgetComp = () => {
 
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-semibold">Productos</h4>
-              <AddProductComp />
+              <AddProduct />
             </div>
 
             {products.length === 0 ? (
@@ -432,9 +432,9 @@ const NewBudgetComp = () => {
           </form>
         )}
       </Formik>
-      <NewProductComp />
+      <NewProduct />
     </>
   );
 };
 
-export default NewBudgetComp;
+export default NewBudget;
