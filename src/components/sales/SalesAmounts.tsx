@@ -1,4 +1,5 @@
 import { useFormik } from "formik";
+import { openInNewTab } from "../../utils/openInNewTab";
 import { useState } from "react";
 import { salesAmountsSchema } from "../../utils/validationSchemas";
 import { formatPrice } from "../../utils/utils";
@@ -16,7 +17,7 @@ interface FormValues {
   date: string;
 }
 
-const SalesAmountsComp = () => {
+const SalesAmounts = () => {
   const { handleGetSalesAmounts, loading, handleExportToSheets, handleGetGoogleSheet } = useSales();
   const [show, setShow] = useState(false);
   const [overall, setOverall] = useState<{
@@ -58,7 +59,7 @@ const SalesAmountsComp = () => {
 
     const res = await handleExportToSheets(values.date);
     if (res) {
-      open(res.sheetUrl, "_blank");
+      openInNewTab(res.sheetUrl);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>
@@ -94,11 +95,11 @@ const SalesAmountsComp = () => {
 
     const res = await handleGetGoogleSheet(values.date);
     if (res) {
-      open(res.sheetUrl, "_blank");
+      openInNewTab(res.sheetUrl);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>
-            En caso de la planilla no se abra, podés visualizarla aquí:
+            En caso de que la planilla no se abra, podés visualizarla aquí:
             <br />
             <a
               href={res.sheetUrl}
@@ -211,4 +212,4 @@ const SalesAmountsComp = () => {
   );
 };
 
-export default SalesAmountsComp;
+export default SalesAmounts;

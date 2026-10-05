@@ -1,24 +1,24 @@
 import { Formik } from "formik";
-import { useEffect, useMemo, useState } from "react";
-import { createInvoiceSchema } from "../../utils/validationSchemas";
-import { createInvoice } from "../../helpers/invoicesQueries";
+import { openInNewTab } from "../../utils/openInNewTab";
+import { useEffect, useState } from "react";
+import { createBudget } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
-import AddProductComp from "../products/AddProductComp";
+import AddProduct from "../products/AddProduct";
+import { getLineKey } from "../../utils/productLines";
 import useClients from "../../hooks/useClients";
 import {
+  BUDGET_SALE_POINTS,
   CREDIT_CARDS,
-  CUIT_MAP,
   DEBIT_CARDS,
-  normalizeText,
   SALE_CONDITIONS,
-  SALE_POINTS,
 } from "../../constants/const";
 import { validateInvoice } from "../../utils/validationFunctions";
 import AddPaymentMethod from "../payments/AddPaymentMethod";
 import Swal from "sweetalert2";
+import { createBudgetSchema } from "../../utils/validationSchemas";
 import { formatPrice } from "../../utils/utils";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
-import NewProductComp from "../products/NewProductComp";
+import NewProduct from "../products/NewProduct";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
@@ -36,118 +36,60 @@ import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
 import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
-const NewInvoiceComp = () => {
-  const { clients } = useClients();
-  const { products, setProducts } = useInvoiceProducts();
-
+const NewBudget = () => {
   const [loading, setLoading] = useState(false);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
+  const { products, setProducts } = useInvoiceProducts();
+  const [client, setClient] = useState<Client | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredItems, setFilteredItems] = useState<Client[]>([]);
   const [productsTotal, setProductsTotal] = useState({
     total: 0,
     iva: 0,
     precioSinIva: 0,
   });
-  const [paymentsLeftValue, setPaymentsLeftValue] = useState(0);
-  const [client, setClient] = useState<Client | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const filteredClients = useMemo(() => {
-    const query = searchTerm.trim();
-    if (query.length < 3) return [];
-    const normalizedSearch = normalizeText(query);
-
-    return clients.filter((c) => {
-      const normalizedName = normalizeText(c.name);
-      const documentString = c.document.toString();
-
-      return (
-        normalizedName.includes(normalizedSearch) ||
-        documentString.includes(normalizedSearch)
-      );
-    });
-  }, [clients, searchTerm]);
+  const [paymentsLeftValue, setPaymentsLeftValue] = useState(
+    productsTotal.total,
+  );
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
+  const { clients } = useClients();
 
   useEffect(() => {
     const total = products.reduce(
-      (acc, product) => acc + product.productSubtotal,
+      (total, product) => total + product.productSubtotal,
       0,
     );
-
     const precioSinIva = total / 1.21;
-    const iva = total - precioSinIva;
+    const iva = precioSinIva * 0.21;
 
     setProductsTotal({ total, iva, precioSinIva });
     setPaymentsLeftValue(total);
   }, [products]);
 
-  const handleInputChange = (value: string) => {
+  const handleInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const value = ev.target.value;
     setSearchTerm(value);
-    setClient(null);
-    setIsDropdownOpen(true);
-  };
 
-  const handleSelect = (selectedClient: Client) => {
-    setClient({
-      ...selectedClient,
-      document: selectedClient.document.toString(),
-    });
-    setSearchTerm(`${selectedClient.name} - ${selectedClient.document}`);
-    setIsDropdownOpen(false);
-  };
-
-  const newInvoice = (values: InvoiceData, resetForm: () => void) => {
-    const error = validateInvoice(values, client, products, paymentsLeftValue);
-    if (error) {
-      toast.error(error);
+    if (value.trim().length < 3) {
+      setFilteredItems([]);
+      setShowDropdown(false);
       return;
     }
-    const payload: NewInvoice = {
-      ...values,
-      client: client as Client,
-      products,
-      payments: paymentMethods,
-    };
 
-    setLoading(true);
-    const promise = createInvoice(payload)
-      .then((res) => {
-        open(res.result, "_blank");
-        resetForm();
-        setClient(null);
-        setSearchTerm("");
-        setProducts([]);
-        setPaymentsLeftValue(0);
-        setPaymentMethods([]);
-        return res;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    const filtered = clients.filter((client) => {
+      const name = client.name.toLowerCase();
+      const document = client.document.toString();
 
-    toast.promise(promise, {
-      loading: "Generando factura...",
-      success: (data) => (
-        <span>
-          <b>{data.msg}</b>
-          <br />
-          {
-            "En caso de que la factura no se abra, podés visualizarla en el siguiente enlace: "
-          }
-          <br />
-          <a
-            href={data.result}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontWeight: "bold", textDecoration: "underline" }}
-          >
-            Ver factura
-          </a>
-        </span>
-      ),
-      error: (err) => `${err.error}`,
-      finally: () => setLoading(false),
+      return name.includes(value.toLowerCase()) || document.includes(value);
     });
+    setFilteredItems(filtered);
+    setShowDropdown(filtered.length > 0);
+  };
+
+  const handleSelect = (client: Client) => {
+    setSearchTerm(`${client.name} - ${client.document}`);
+    setClient({ ...client, document: client.document.toString() });
+    setShowDropdown(false);
   };
 
   const handleDeletePaymentMethod = (id: string) => {
@@ -162,7 +104,9 @@ const NewInvoiceComp = () => {
     setPaymentMethods(newPaymentMethods);
   };
 
-  const handleDelete = (productId: number) => {
+  // Se elimina por identificador de línea: si el mismo producto está cargado dos
+  // veces, solo se quita la línea elegida
+  const handleDelete = (lineId: string) => {
     Swal.fire({
       title: "Estas seguro de eliminar este producto?",
       text: "Esta accion no se puede deshacer",
@@ -175,25 +119,74 @@ const NewInvoiceComp = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         const newProducts = products.filter(
-          (product) => product.productId !== productId,
+          (product) => product.lineId !== lineId,
         );
         setProducts(newProducts);
       }
     });
   };
 
+  const newBudget = (values: BudgetData, resetForm: () => void) => {
+    const error = validateInvoice(values, client, products, paymentsLeftValue);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    const payload = {
+      ...values,
+      client: client as Client,
+      products,
+      payments: paymentMethods ? paymentMethods : [],
+    };
+
+    setLoading(true);
+    const promise = createBudget(payload)
+      .then((res) => {
+        openInNewTab(res.result);
+        resetForm();
+        setClient(null);
+        setSearchTerm("");
+        setProducts([]);
+        setPaymentsLeftValue(0);
+        setPaymentMethods([]);
+        return res;
+      });
+
+    toast.promise(promise, {
+      loading: "Generando presupuesto...",
+      success: (data) => (
+        <span>
+          <b>{data.msg}</b>
+          <br />
+          {
+            "En caso de que el presupuesto no se abra, podés visualizarlo en el siguiente enlace: "
+          }
+          <br />
+          <a
+            href={data.result}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: "bold", textDecoration: "underline" }}
+          >
+            Ver presupuesto
+          </a>
+        </span>
+      ),
+      error: (err) => `${err.error}`,
+      finally: () => setLoading(false),
+    });
+  };
+
   return (
     <>
       <Formik
-        validationSchema={createInvoiceSchema}
-        onSubmit={(values, { resetForm }) => newInvoice(values, resetForm)}
+        validationSchema={createBudgetSchema}
+        onSubmit={(values, { resetForm }) => newBudget(values, resetForm)}
         initialValues={{
           saleCond: "",
           salePoint: "",
-          invoiceType: "",
           creditCard: "",
           debitCard: "",
-          cuitOption: "",
           paymentsQuantity: "1",
         }}
       >
@@ -209,15 +202,12 @@ const NewInvoiceComp = () => {
                 placeholder="Escriba el CUIT o nombre del cliente (al menos 3 caracteres)"
                 value={searchTerm}
                 autoComplete="off"
-                onChange={(ev) => handleInputChange(ev.target.value)}
+                onChange={handleInputChange}
                 className="mt-1"
               />
 
-              <Dropdown.Menu
-                show={isDropdownOpen && filteredClients.length > 0}
-                className="mt-1"
-              >
-                {filteredClients.map((client) => (
+              <Dropdown.Menu show={showDropdown} className="mt-1">
+                {filteredItems.map((client) => (
                   <Dropdown.Item
                     key={client.document}
                     onClick={() => handleSelect(client)}
@@ -228,33 +218,7 @@ const NewInvoiceComp = () => {
               </Dropdown.Menu>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <Label htmlFor="cuitOptionId">CUIT de facturacion</Label>
-                <Select
-                  id="cuitOptionId"
-                  onChange={handleChange}
-                  value={values.cuitOption}
-                  name="cuitOption"
-                  error={touched.cuitOption && !!errors.cuitOption}
-                  className="mt-1"
-                >
-                  <option value="">CUIT no seleccionado</option>
-                  {CUIT_MAP.map(({ value, label }) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </Select>
-                {errors.cuitOption && touched.cuitOption && (
-                  <span className="text-sm text-destructive">
-                    {errors.cuitOption}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <Label htmlFor="saleConditionId">Condición de venta</Label>
                 <Select
@@ -290,7 +254,7 @@ const NewInvoiceComp = () => {
                   className="mt-1"
                 >
                   <option value="">Punto de venta no seleccionado</option>
-                  {SALE_POINTS.map((point) => (
+                  {BUDGET_SALE_POINTS.map((point) => (
                     <option key={point.name} value={point.value}>
                       {point.name}
                     </option>
@@ -299,27 +263,6 @@ const NewInvoiceComp = () => {
                 {errors.salePoint && touched.salePoint && (
                   <span className="text-sm text-destructive">
                     {errors.salePoint}
-                  </span>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="invoiceTypeId">Tipo de factura</Label>
-                <Select
-                  id="invoiceTypeId"
-                  onChange={handleChange}
-                  value={values.invoiceType}
-                  name="invoiceType"
-                  error={touched.invoiceType && !!errors.invoiceType}
-                  className="mt-1"
-                >
-                  <option value="">Tipo de factura no seleccionado</option>
-                  <option value="FACTURA_A">Factura A</option>
-                  <option value="FACTURA_B">Factura B</option>
-                </Select>
-                {errors.invoiceType && touched.invoiceType && (
-                  <span className="text-sm text-destructive">
-                    {errors.invoiceType}
                   </span>
                 )}
               </div>
@@ -385,10 +328,7 @@ const NewInvoiceComp = () => {
 
             {values.saleCond === "Múltiples métodos de pago" &&
               products.length > 0 && (
-                <div className="mb-4 flex justify-between">
-                  <h4 className="text-lg font-semibold">
-                    {paymentMethods.length > 0 && "Métodos de pago"}
-                  </h4>
+                <div className="mb-4">
                   <AddPaymentMethod
                     setPaymentMethods={setPaymentMethods}
                     setPaymentsLeftValue={setPaymentsLeftValue}
@@ -406,7 +346,7 @@ const NewInvoiceComp = () => {
 
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-semibold">Productos</h4>
-              <AddProductComp />
+              <AddProduct />
             </div>
 
             {products.length === 0 ? (
@@ -426,8 +366,8 @@ const NewInvoiceComp = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody striped hover>
-                    {products.map((product) => (
-                      <TableRow key={product.productId}>
+                    {products.map((product, index) => (
+                      <TableRow key={getLineKey(product, index)}>
                         <TableCell>{product.productName}</TableCell>
                         <TableCell>${formatPrice(product.price)}</TableCell>
                         <TableCell>{product.quantity}</TableCell>
@@ -438,7 +378,7 @@ const NewInvoiceComp = () => {
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDelete(product.productId)}
+                            onClick={() => handleDelete(getLineKey(product, index))}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
                             Eliminar
@@ -470,7 +410,7 @@ const NewInvoiceComp = () => {
             )}
 
             <div className="flex justify-end mt-6 mb-4">
-              <Button type="submit" disabled={loading} variant="default">
+              <Button type="submit" disabled={loading}>
                 {loading ? (
                   <>
                     <Spinner size="sm" variant="dark" />
@@ -479,7 +419,7 @@ const NewInvoiceComp = () => {
                 ) : (
                   <>
                     <Check className="h-4 w-4" />
-                    <span>Generar factura</span>
+                    <span>Generar presupuesto</span>
                   </>
                 )}
               </Button>
@@ -487,9 +427,9 @@ const NewInvoiceComp = () => {
           </form>
         )}
       </Formik>
-      <NewProductComp />
+      <NewProduct />
     </>
   );
 };
 
-export default NewInvoiceComp;
+export default NewBudget;

@@ -1,13 +1,13 @@
-import NewClientComp from "../entities/NewClientComp";
-import NewInvoiceComp from "../invoices/NewInvoiceComp";
-import NewCityComp from "../entities/NewCityComp";
+import NewClient from "../entities/NewClient";
+import NewInvoice from "../invoices/NewInvoice";
+import NewCity from "../entities/NewCity";
 import Invoices from "../invoices/Invoices";
-import NewBudgetComp from "../budgets/NewBudgetComp";
+import NewBudget from "../budgets/NewBudget";
 import { NAV_LINKS } from "../../constants/const";
 import Budgets from "../budgets/Budgets";
-import NewSaleComp from "../sales/NewSaleComp";
+import NewSale from "../sales/NewSale";
 import Sales from "../sales/Sales";
-import ProductsTableComp from "../products/ProductsTableComp";
+import ProductsTable from "../products/ProductsTable";
 import ProductsLogs from "../products/ProductsLogs";
 import { Card, CardContent } from "../ui/Card";
 
@@ -17,17 +17,17 @@ interface Props {
   activeTab: TabKey;
 }
 
-const TabsComp: React.FC<Props> = ({ activeTab }) => {
+const Tabs: React.FC<Props> = ({ activeTab }) => {
   const tabContentMap = {
-    "Creación de facturas": <NewInvoiceComp />,
-    "Creación de presupuestos": <NewBudgetComp />,
+    "Creación de facturas": <NewInvoice />,
+    "Creación de presupuestos": <NewBudget />,
     "Historial de facturas": <Invoices />,
-    Ciudades: <NewCityComp />,
-    Clientes: <NewClientComp />,
+    Ciudades: <NewCity />,
+    Clientes: <NewClient />,
     "Historial de presupuestos": <Budgets />,
-    "Creación de presupuesto de ventas": <NewSaleComp />,
+    "Creación de presupuesto de ventas": <NewSale />,
     "Historial de presupuestos de ventas": <Sales />,
-    "Tabla de productos": <ProductsTableComp />,
+    "Tabla de productos": <ProductsTable />,
     "Consultar ventas de productos": <ProductsLogs />,
   } satisfies Record<TabKey, React.ReactElement>;
 
@@ -40,4 +40,4 @@ const TabsComp: React.FC<Props> = ({ activeTab }) => {
   );
 };
 
-export default TabsComp;
+export default Tabs;

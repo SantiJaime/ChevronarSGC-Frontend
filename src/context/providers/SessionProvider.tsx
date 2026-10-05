@@ -1,6 +1,6 @@
-import { type ReactNode, useEffect, useState, useMemo } from "react";
+import { type ReactNode, useEffect, useState, useMemo, useRef } from "react";
 import { SessionContext } from "../SessionContext";
-import { fetchCurrentUser } from "../../helpers/authQueries";
+import { fetchCurrentUser, onSessionExpired } from "../../helpers/authQueries";
 import { toast } from "sonner";
 
 interface Props {
@@ -10,6 +10,8 @@ const SessionProvider: React.FC<Props> = ({ children }) => {
   const [sessionReady, setSessionReady] = useState(false);
   const [session, setSession] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
 
   useEffect(() => {
     let cancelled = false;
@@ -26,8 +28,7 @@ const SessionProvider: React.FC<Props> = ({ children }) => {
         }
       } catch (error) {
         if (cancelled) return;
-        const err = error as ErrorMessage
-        console.error("Error al validar sesión:", error);
+        const err = error as ErrorMessage;
         toast.error(err.error || "Error al validar sesión");
         setUser(null);
         setSession(false);
@@ -39,6 +40,19 @@ const SessionProvider: React.FC<Props> = ({ children }) => {
       cancelled = true;
     };
   }, []);
+
+  // Si la sesión vence y no se puede renovar, se cierra localmente: PrivateRoutes
+  // redirige al login en lugar de dejar al usuario en una pantalla que ya no funciona
+  useEffect(
+    () =>
+      onSessionExpired(() => {
+        if (!sessionRef.current) return;
+        toast.error("Tu sesión expiró. Por favor, iniciá sesión nuevamente");
+        setUser(null);
+        setSession(false);
+      }),
+    [],
+  );
 
   const value = useMemo(() => ({
     session, sessionReady, setSession, user, setUser

@@ -5,6 +5,7 @@ import {
   createProduct,
   deleteProduct,
   editProduct,
+  findProductsByBarcode,
   searchProducts,
 } from "../helpers/productsQueries";
 import { toast } from "sonner";
@@ -20,7 +21,6 @@ const useProducts = () => {
         const res = await searchProducts(search);
         return res.products;
       } catch (error) {
-        console.error("Error al buscar productos:", error);
         const err = error as { error: string };
         toast.error(err.error);
         return [];
@@ -29,6 +29,23 @@ const useProducts = () => {
       }
     },
     [setLoadingProducts],
+  );
+
+  const handleFindByBarcode = useCallback(
+    async (barcode: string): Promise<ProductInDb[] | null> => {
+      try {
+        setLoadingProducts(true);
+        const res = await findProductsByBarcode(barcode);
+        return res.products;
+      } catch (error) {
+        const err = error as { error: string };
+        toast.error(err.error);
+        return null;
+      } finally {
+        setLoadingProducts(false);
+      }
+    },
+    [],
   );
 
   const handleCreateProduct = useCallback(async (
@@ -41,7 +58,6 @@ const useProducts = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error("Error al crear el producto:", error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +79,6 @@ const useProducts = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error("Error al editar el producto:", error);
     } finally {
       setLoading(false);
     }
@@ -77,7 +92,6 @@ const useProducts = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error("Error al agregar el código de barras:", error);
     }
     finally {
       setLoading(false);
@@ -93,7 +107,6 @@ const useProducts = () => {
     } catch (error) {
       const err = error as { error: string };
       toast.error(err.error);
-      console.error("Error al eliminar el producto:", error);
       return false;
     } finally {
       setLoading(false);
@@ -109,6 +122,7 @@ const useProducts = () => {
     loadingProducts,
     searchProducts,
     handleSearchProducts,
+    handleFindByBarcode,
     handleAddBarcode
   };
 };

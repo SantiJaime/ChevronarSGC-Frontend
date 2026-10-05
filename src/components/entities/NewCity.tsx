@@ -9,7 +9,7 @@ import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { Select } from "../ui/Select";
 
-const NewCityComp = () => {
+const NewCity = () => {
   const { setCities } = useCities();
 
   const newCity = (values: City) => {
@@ -24,7 +24,7 @@ const NewCityComp = () => {
   return (
     <Formik
       validationSchema={createCitySchema}
-      onSubmit={(values) => newCity(values)}
+      onSubmit={(values) => newCity({ ...values, city: values.city.trim() })}
       initialValues={{
         province: "",
         city: "",
@@ -33,7 +33,7 @@ const NewCityComp = () => {
       {({ values, errors, touched, handleChange, handleSubmit }) => (
         <form noValidate onSubmit={handleSubmit}>
           <h4 className="text-lg font-semibold mb-4">Crear nueva localidad</h4>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <Label htmlFor="provinceId">Provincia</Label>
@@ -53,10 +53,12 @@ const NewCityComp = () => {
                 ))}
               </Select>
               {errors.province && touched.province && (
-                <span className="text-sm text-destructive">{errors.province}</span>
+                <span className="text-sm text-destructive">
+                  {errors.province}
+                </span>
               )}
             </div>
-            
+
             {values.province && (
               <div>
                 <Label htmlFor="cityId">Localidad</Label>
@@ -71,16 +73,16 @@ const NewCityComp = () => {
                   className="mt-1"
                 />
                 {errors.city && touched.city && (
-                  <span className="text-sm text-destructive">{errors.city}</span>
+                  <span className="text-sm text-destructive">
+                    {errors.city}
+                  </span>
                 )}
               </div>
             )}
           </div>
-          
+
           <div className="flex justify-end">
-            <Button type="submit">
-              Crear localidad
-            </Button>
+            <Button type="submit">Crear localidad</Button>
           </div>
         </form>
       )}
@@ -88,4 +90,4 @@ const NewCityComp = () => {
   );
 };
 
-export default NewCityComp;
+export default NewCity;

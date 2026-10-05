@@ -1,6 +1,7 @@
 import { useFormik } from "formik";
+import { openInNewTab } from "../../utils/openInNewTab";
 import { searchBudgetSchema } from "../../utils/validationSchemas";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   deleteBudget,
   getBudgets,
@@ -51,14 +52,23 @@ const Budgets = () => {
   const [loading, setLoading] = useState(false);
   const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null);
 
+  // Filtros de la última búsqueda: la paginación los reutiliza aunque el formulario haya cambiado
+  const lastSearchRef = useRef<typeof values | null>(null);
+
   const handleSearch = (paramPage?: number) => {
-    validateSearchInvoice(values);
+    const isNewSearch = !paramPage || !lastSearchRef.current;
+    if (isNewSearch) {
+      const filters = { ...values };
+      validateSearchInvoice(filters);
+      lastSearchRef.current = filters;
+    }
+    const filters = lastSearchRef.current!;
     setLoading(true);
-    
+
     const pageToFetch = paramPage || 1;
     setPage(pageToFetch);
 
-    getBudgets(values, pageToFetch)
+    getBudgets(filters, pageToFetch)
       .then((res) => {
         setBudgets(res.budgets);
         setTotalPages(res.infoPagination.totalPages);
@@ -85,16 +95,26 @@ const Budgets = () => {
   const handlePrint = (id: string) => {
     const promise = printBudget(id)
       .then((res) => {
-        open(res.result, "_blank");
+        openInNewTab(res.result);
         return res;
-      })
-      .catch((err) => {
-        throw err;
       });
 
     toast.promise(promise, {
       loading: "Generando PDF...",
-      success: (res) => `${res.msg}`,
+      success: (res) => (
+        <span>
+          <b>{res.msg}</b>
+          <br />
+          <a
+            href={res.result}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: "bold", textDecoration: "underline" }}
+          >
+            Ver PDF
+          </a>
+        </span>
+      ),
       error: (err) => `${err.error}`,
     });
   };

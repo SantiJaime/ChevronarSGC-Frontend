@@ -4,6 +4,8 @@ import { addProductSchema, IAddProduct } from "../../utils/validationSchemas";
 import { toast } from "sonner";
 import { NumericFormat } from "react-number-format";
 import useProducts from "../../hooks/useProducts";
+import useBarcodeScanner from "../../hooks/useBarcodeScanner";
+import { newLineId } from "../../utils/productLines";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
 import { formatPrice } from "../../utils/utils";
 import Swal from "sweetalert2";
@@ -20,16 +22,26 @@ interface Props {
   setEditProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
 }
 
-const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
+const NAME_SEARCH_DEBOUNCE_MS = 500;
+
+const AddProduct: React.FC<Props> = ({ setEditProducts }) => {
   const [show, setShow] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [product, setProduct] = useState<ProductInDb | null>(null);
   const [unlinkedBarcode, setUnlinkedBarcode] = useState<string | null>(null);
   const [filteredProducts, setFilteredProducts] = useState<ProductInDb[]>([]);
   const isSelectingProduct = useRef(false);
+  // Identifica la última búsqueda: las respuestas de búsquedas anteriores se descartan
+  const searchIdRef = useRef(0);
+  const nameSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scanInFlightRef = useRef(false);
 
-  const { handleSearchProducts, loadingProducts, handleAddBarcode } =
-    useProducts();
+  const {
+    handleSearchProducts,
+    handleFindByBarcode,
+    loadingProducts,
+    handleAddBarcode,
+  } = useProducts();
   const { setProducts } = useInvoiceProducts();
 
   const handleClose = () => {
@@ -79,17 +91,29 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
       return;
     }
 
-    const handler = setTimeout(async () => {
+    const timer = setTimeout(async () => {
+      const searchId = ++searchIdRef.current;
       const products = await handleSearchProducts(term);
+      // Si mientras tanto hubo otra búsqueda (otro texto o un escaneo), se descarta
+      if (searchId !== searchIdRef.current) return;
+
       setFilteredProducts(products);
 
       if (products.length === 0) {
         toast.info("No se encontraron productos para la busqueda ingresada");
       }
-    }, 500);
+    }, NAME_SEARCH_DEBOUNCE_MS);
+    nameSearchTimerRef.current = timer;
 
-    return () => clearTimeout(handler);
+    return () => clearTimeout(timer);
   }, [searchTerm, handleSearchProducts]);
+
+  // Cambia el texto del buscador sin disparar la búsqueda por nombre
+  const setSearchTermSilently = (value: string) => {
+    if (value === searchTerm) return;
+    isSelectingProduct.current = true;
+    setSearchTerm(value);
+  };
 
   const addProduct = (values: IAddProduct) => {
     if (product === null) {
@@ -102,6 +126,7 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
       quantity: values.quantity,
       price: values.price,
       productSubtotal: values.quantity * values.price,
+      lineId: newLineId(),
     };
 
     if (setEditProducts) {
@@ -120,8 +145,10 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
     setProduct(null);
   };
 
-  const handleSelect = async (selectedProduct: ProductInDb) => {
-    if (unlinkedBarcode) {
+  // allowLinking = false cuando el producto se eligió escaneando su propio código:
+  // no corresponde ofrecer vincularle un código pendiente anterior
+  const handleSelect = async (selectedProduct: ProductInDb, allowLinking = true) => {
+    if (unlinkedBarcode && allowLinking) {
       Swal.fire({
         title: `¿Deseas vincular el código de barras ${unlinkedBarcode} al producto "${selectedProduct.productName}"?`,
         text: "Esta acción no se puede deshacer",
@@ -138,46 +165,64 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
         }
       });
     }
-    isSelectingProduct.current = true;
     setProduct({ ...selectedProduct });
-    setSearchTerm(
+    setSearchTermSilently(
       `${selectedProduct.productName} - $${formatPrice(selectedProduct.price)}`,
     );
     setFilteredProducts([]);
   };
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const code = searchTerm.trim();
-      if (!code) return;
-      
-      const cleanCode = code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-      const products = await handleSearchProducts(cleanCode);
-      setFilteredProducts(products);
-      const foundByBarcode = products.find((p) =>
-        p.barcodes.some((b) => b === cleanCode || b === code),
-      );
+  const handleBarcodeScan = async (code: string) => {
+    // Algunos lectores envían dos "Enter" seguidos: se ignora el segundo
+    if (scanInFlightRef.current) return;
 
-      if (foundByBarcode) {
-        handleSelect(foundByBarcode);
-      } else if (products.length === 1 && isNaN(Number(code))) {
-        handleSelect(products[0]);
-      } else {
-        setUnlinkedBarcode(code);
-        setSearchTerm("");
-        Swal.fire({
-          title: "Código nuevo detectado",
-          html: `El código <b>${code}</b> no pertenece a ningún producto.<br><br>
-                 Si el producto <b>YA EXISTE</b> en el sistema, búscalo por su nombre ahora mismo y al seleccionarlo se le vinculará este código.<br><br>
-                 <i>¡No crees el producto de nuevo si ya lo tenías cargado!</i>`,
-          icon: "info",
-          confirmButtonColor: "#05b000",
-          confirmButtonText: "Entendido, buscar por nombre"
-        });
+    // El escaneo reemplaza a cualquier búsqueda por nombre pendiente o en curso
+    if (nameSearchTimerRef.current) clearTimeout(nameSearchTimerRef.current);
+    const searchId = ++searchIdRef.current;
+
+    scanInFlightRef.current = true;
+    try {
+      const matches = await handleFindByBarcode(code);
+      if (matches === null || searchId !== searchIdRef.current) return;
+
+      if (matches.length === 1) {
+        setUnlinkedBarcode(null);
+        handleSelect(matches[0], false);
+        return;
       }
+
+      if (matches.length > 1) {
+        setProduct(null);
+        setSearchTermSilently(code);
+        setFilteredProducts(matches);
+        toast.info(
+          `Hay ${matches.length} productos con el código ${code}. Elegí el correcto de la lista`,
+        );
+        return;
+      }
+
+      // Código desconocido: nunca se elige un producto "parecido"
+      setProduct(null);
+      setFilteredProducts([]);
+      setUnlinkedBarcode(code);
+      setSearchTermSilently("");
+      toast.info(
+        `Código ${code} sin vincular. Busque el producto manualmente para vincularlo.`,
+      );
+    } finally {
+      scanInFlightRef.current = false;
     }
   };
+
+  const handleKeyDown = useBarcodeScanner({
+    onScan: (code) => void handleBarcodeScan(code),
+    // Enter escrito a mano: elige el primer resultado de la lista visible
+    onManualEnter: () => {
+      if (!product && !loadingProducts && filteredProducts.length > 0) {
+        handleSelect(filteredProducts[0]);
+      }
+    },
+  });
 
   return (
     <>
@@ -260,8 +305,8 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
                     onValueChange={({ value }) => {
                       const numberValue = Number(value);
                       if (
-                        (product.productId === 11438 ||
-                          product.productId === 11439) &&
+                        (product.productId === 11903 ||
+                          product.productId === 11904) &&
                         numberValue > 0
                       ) {
                         setFieldValue("price", numberValue * -1);
@@ -349,4 +394,4 @@ const AddProductComp: React.FC<Props> = ({ setEditProducts }) => {
   );
 };
 
-export default AddProductComp;
+export default AddProduct;

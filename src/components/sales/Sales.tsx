@@ -1,4 +1,5 @@
 import { useFormik } from "formik";
+import { openInNewTab } from "../../utils/openInNewTab";
 import {
   type IAuthorizeSale,
   searchSalesValidatorSchema,
@@ -7,13 +8,13 @@ import { Role, SELLERS, SELLERS_MAP } from "../../constants/const";
 import Swal from "sweetalert2";
 import { formatPrice } from "../../utils/utils";
 import useSales from "../../hooks/useSales";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { validateSearchSale } from "../../utils/validationFunctions";
 import { toast } from "sonner";
 import { deleteSale, printSale } from "../../helpers/salesQueries";
-import EditSaleComp from "./EditSaleComp";
-import AuthorizeSaleComp from "./AuthorizeSaleComp";
-import SalesAmountsComp from "./SalesAmountsComp";
+import EditSale from "./EditSale";
+import AuthorizeSale from "./AuthorizeSale";
+import SalesAmounts from "./SalesAmounts";
 import useSession from "../../hooks/useSession";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
@@ -74,26 +75,30 @@ const Sales = () => {
   const [selectedPaymentSale, setSelectedPaymentSale] =
     useState<FullSaleWithPayments | null>(null);
 
+  // Filtros de la última búsqueda: la paginación los reutiliza aunque el formulario haya cambiado
+  const lastSearchRef = useRef<SaleSearch | null>(null);
+
   const handleSearch = async (paramPage?: number) => {
-    const error = validateSearchSale({
-      ...values,
-      saleNumber: values.saleNumber ? Number(values.saleNumber) : undefined,
-    });
-    if (error) {
-      toast.error(error);
-      return;
+    const isNewSearch = !paramPage || !lastSearchRef.current;
+    if (isNewSearch) {
+      const error = validateSearchSale({
+        ...values,
+        saleNumber: values.saleNumber ? Number(values.saleNumber) : undefined,
+      });
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      lastSearchRef.current = {
+        ...values,
+        authorized: JSON.parse(values.authorized),
+        saleNumber: Number(values.saleNumber ?? 0),
+      };
     }
     const pageToFetch = paramPage || 1;
     setPage(pageToFetch);
 
-    const res = await handleGetSales(
-      {
-        ...values,
-        authorized: JSON.parse(values.authorized),
-        saleNumber: Number(values.saleNumber ?? 0),
-      },
-      pageToFetch,
-    );
+    const res = await handleGetSales(lastSearchRef.current!, pageToFetch);
     if (!res) return;
 
     setTotalPages(res.totalPages);
@@ -112,14 +117,27 @@ const Sales = () => {
   };
 
   const handlePrint = (id: string) => {
-    const promise = printSale(id);
+    const promise = printSale(id).then((res) => {
+      openInNewTab(res.result);
+      return res;
+    });
 
     toast.promise(promise, {
       loading: "Generando PDF...",
-      success: (res) => {
-        open(res.result, "_blank");
-        return res.msg;
-      },
+      success: (res) => (
+        <span>
+          <b>{res.msg}</b>
+          <br />
+          <a
+            href={res.result}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: "bold", textDecoration: "underline" }}
+          >
+            Ver PDF
+          </a>
+        </span>
+      ),
       error: (err) => {
         const error = err as { error: string };
         return error.error;
@@ -129,8 +147,8 @@ const Sales = () => {
 
   const handleDelete = (sale: FullSale) => {
     Swal.fire({
-      title: "Estas seguro de eliminar este presupuesto de venta?",
-      text: "Esta accion no se puede deshacer",
+      title: "¿Estás seguro de eliminar este presupuesto de venta?",
+      text: "Esta acción no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -167,7 +185,7 @@ const Sales = () => {
   ) => {
     const res = await handleAuthorize(id, paymentsInfo);
     if (res) {
-      open(res.result, "_blank");
+      openInNewTab(res.result);
       toast.success(res.msg, {
         description: (
           <div style={{ marginTop: "8px" }}>
@@ -203,7 +221,7 @@ const Sales = () => {
         <h2 className="text-xl font-bold">
           Historial de presupuestos de ventas
         </h2>
-        {user && user.role !== Role.VENDEDOR && <SalesAmountsComp />}
+        {user && user.role !== Role.VENDEDOR && <SalesAmounts />}
       </div>
       <hr className="border-border mb-4" />
 
@@ -475,14 +493,14 @@ const Sales = () => {
       )}
 
       {selectedEditSale && (
-        <EditSaleComp
+        <EditSale
           sale={selectedEditSale}
           show={!!selectedEditSale}
           onHide={() => setSelectedEditSale(null)}
         />
       )}
       {selectedAuthSale && (
-        <AuthorizeSaleComp
+        <AuthorizeSale
           sale={selectedAuthSale}
           handleAuthorizeSale={handleAuthorizeSale}
           show={!!selectedAuthSale}

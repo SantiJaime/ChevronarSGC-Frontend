@@ -1,7 +1,7 @@
 import useProducts from "../../hooks/useProducts";
 import { formatPrice } from "../../utils/utils";
 import { useEffect, useState } from "react";
-import EditProductInDbComp from "./EditProductInDbComp";
+import EditProductInDb from "./EditProductInDb";
 import Swal from "sweetalert2";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
@@ -9,7 +9,7 @@ import { Spinner } from "../ui/Spinner";
 import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Search, Trash2 } from "lucide-react";
 
-const ProductsTableComp = () => {
+const ProductsTable = () => {
   const { handleSearchProducts, loadingProducts, handleDeleteProduct } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState<ProductInDb[]>([]);
@@ -127,7 +127,7 @@ const ProductsTableComp = () => {
                   <TableCell>{prod.stock} unidades</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <EditProductInDbComp
+                      <EditProductInDb
                         product={prod}
                         onProductUpdated={(updated) =>
                           setProducts((prev) =>
@@ -167,4 +167,4 @@ const ProductsTableComp = () => {
   );
 };
 
-export default ProductsTableComp;
+export default ProductsTable;

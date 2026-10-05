@@ -1,5 +1,5 @@
 import { useState } from "react";
-import TabsComp from "../components/shared/TabsComp";
+import Tabs from "../components/shared/Tabs";
 import { NAV_LINKS } from "../constants/const";
 
 const SalesView = () => {
@@ -30,7 +30,7 @@ const SalesView = () => {
       </nav>
       {NAV_LINKS.map(
         (link) =>
-          link === activeTab && <TabsComp key={link} activeTab={activeTab} />
+          link === activeTab && <Tabs key={link} activeTab={activeTab} />
       )}
     </div>
   );

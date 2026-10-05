@@ -1,5 +1,5 @@
 import { useState } from "react";
-import TabsComp from "../components/shared/TabsComp";
+import Tabs from "../components/shared/Tabs";
 import { NAV_LINKS, NAV_LINKS_MENU_CREACION } from "../constants/const";
 
 const CreationMenuView = () => {
@@ -25,7 +25,7 @@ const CreationMenuView = () => {
       </nav>
       {NAV_LINKS.map(
         (link) =>
-          link === activeTab && <TabsComp key={link} activeTab={activeTab} />
+          link === activeTab && <Tabs key={link} activeTab={activeTab} />
       )}
     </div>
   );

@@ -14,7 +14,7 @@ interface Props {
   index: number;
 }
 
-const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
+const EditProduct: React.FC<Props> = ({ product, setProducts, index }) => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -147,4 +147,4 @@ const EditProductComp: React.FC<Props> = ({ product, setProducts, index }) => {
   );
 };
 
-export default EditProductComp;
+export default EditProduct;

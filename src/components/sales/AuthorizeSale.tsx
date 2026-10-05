@@ -35,7 +35,7 @@ interface Props {
   onHide: () => void;
 }
 
-const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale, show, onHide }) => {
+const AuthorizeSale: React.FC<Props> = ({ sale, handleAuthorizeSale, show, onHide }) => {
   const [loading, setLoading] = useState(false);
   const [paymentsLeftValue, setPaymentsLeftValue] = useState(sale.total);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
@@ -321,4 +321,4 @@ const AuthorizeSaleComp: React.FC<Props> = ({ sale, handleAuthorizeSale, show, o
   );
 };
 
-export default AuthorizeSaleComp;
+export default AuthorizeSale;

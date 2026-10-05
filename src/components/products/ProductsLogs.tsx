@@ -2,6 +2,7 @@ import { useFormik } from "formik";
 import { SELLERS, SELLERS_MAP } from "../../constants/const";
 import { useEffect, useRef, useState } from "react";
 import useProducts from "../../hooks/useProducts";
+import useBarcodeScanner from "../../hooks/useBarcodeScanner";
 import {
   getProductSalesSchema,
   type IGetProductSales,
@@ -16,6 +17,8 @@ import { Spinner } from "../ui/Spinner";
 import { Dropdown } from "../ui/Dropdown";
 import { Search, Barcode } from "lucide-react";
 
+const NAME_SEARCH_DEBOUNCE_MS = 500;
+
 interface ProductFormValues {
   fromDate: string;
   toDate: string;
@@ -23,7 +26,7 @@ interface ProductFormValues {
 }
 
 const ProductsLogs = () => {
-  const { handleSearchProducts, loadingProducts } = useProducts();
+  const { handleSearchProducts, handleFindByBarcode, loadingProducts } = useProducts();
   const { handleGetProductSales, loading } = useSales();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +34,10 @@ const ProductsLogs = () => {
   const [filteredProducts, setFilteredProducts] = useState<ProductInDb[]>([]);
   const [result, setResult] = useState("");
   const isSelectingProduct = useRef(false);
+  // Identifica la última búsqueda: las respuestas de búsquedas anteriores se descartan
+  const searchIdRef = useRef(0);
+  const nameSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scanInFlightRef = useRef(false);
 
   const formik = useFormik<ProductFormValues>({
     initialValues: {
@@ -56,16 +63,28 @@ const ProductsLogs = () => {
       return;
     }
 
-    const handler = setTimeout(async () => {
+    const timer = setTimeout(async () => {
+      const searchId = ++searchIdRef.current;
       const products = await handleSearchProducts(term);
+      // Si mientras tanto hubo otra búsqueda (otro texto o un escaneo), se descarta
+      if (searchId !== searchIdRef.current) return;
+
       setFilteredProducts(products);
       if (products.length === 0) {
         toast.info("No se encontraron productos para la busqueda ingresada");
       }
-    }, 500);
+    }, NAME_SEARCH_DEBOUNCE_MS);
+    nameSearchTimerRef.current = timer;
 
-    return () => clearTimeout(handler);
+    return () => clearTimeout(timer);
   }, [searchTerm, handleSearchProducts]);
+
+  // Cambia el texto del buscador sin disparar la búsqueda por nombre
+  const setSearchTermSilently = (value: string) => {
+    if (value === searchTerm) return;
+    isSelectingProduct.current = true;
+    setSearchTerm(value);
+  };
 
   const handleInputChange = (value: string) => {
     setSearchTerm(value);
@@ -73,32 +92,58 @@ const ProductsLogs = () => {
   };
 
   const handleSelect = (selectedProduct: ProductInDb) => {
-    isSelectingProduct.current = true;
     setProduct({ ...selectedProduct });
-    setSearchTerm(selectedProduct.productName);
+    setSearchTermSilently(selectedProduct.productName);
     setFilteredProducts([]);
   };
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
+  const handleBarcodeScan = async (code: string) => {
+    // Algunos lectores envían dos "Enter" seguidos: se ignora el segundo
+    if (scanInFlightRef.current) return;
 
-      const code = searchTerm.trim();
-      if (!code) return;
+    // El escaneo reemplaza a cualquier búsqueda por nombre pendiente o en curso
+    if (nameSearchTimerRef.current) clearTimeout(nameSearchTimerRef.current);
+    const searchId = ++searchIdRef.current;
 
-      const products = await handleSearchProducts(code);
-      setFilteredProducts(products);
-      const foundByBarcode = products.find((p) => p.barcodes?.includes(code));
+    scanInFlightRef.current = true;
+    try {
+      const matches = await handleFindByBarcode(code);
+      if (matches === null || searchId !== searchIdRef.current) return;
 
-      if (foundByBarcode) {
-        handleSelect(foundByBarcode);
-      } else if (products.length === 1 && isNaN(Number(code))) {
-        handleSelect(products[0]);
-      } else {
-        toast.warning("Producto no encontrado. Seleccione manualmente.");
+      if (matches.length === 1) {
+        handleSelect(matches[0]);
+        return;
       }
+
+      if (matches.length > 1) {
+        setProduct(null);
+        setSearchTermSilently(code);
+        setFilteredProducts(matches);
+        toast.info(
+          `Hay ${matches.length} productos con el código ${code}. Elegí el correcto de la lista`,
+        );
+        return;
+      }
+
+      // Código desconocido: nunca se elige un producto "parecido"
+      setProduct(null);
+      setFilteredProducts([]);
+      setSearchTermSilently("");
+      toast.warning(`No hay ningún producto con el código ${code}. Buscalo por nombre.`);
+    } finally {
+      scanInFlightRef.current = false;
     }
   };
+
+  const handleKeyDown = useBarcodeScanner({
+    onScan: (code) => void handleBarcodeScan(code),
+    // Enter escrito a mano: elige el primer resultado de la lista visible
+    onManualEnter: () => {
+      if (!product && !loadingProducts && filteredProducts.length > 0) {
+        handleSelect(filteredProducts[0]);
+      }
+    },
+  });
 
   const handleSearch = async (values: IGetProductSales) => {
     if (product === null) {

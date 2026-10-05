@@ -1,14 +1,15 @@
 import { Formik } from "formik";
 import { SELLERS } from "../../constants/const";
-import AddProductComp from "../products/AddProductComp";
+import AddProduct from "../products/AddProduct";
+import { getLineKey } from "../../utils/productLines";
 import { formatPrice } from "../../utils/utils";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { type NewSale, newSaleSchema } from "../../utils/validationSchemas";
+import { type NewSale as NewSaleFormValues, newSaleSchema } from "../../utils/validationSchemas";
 import { toast } from "sonner";
 import useSales from "../../hooks/useSales";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
-import NewProductComp from "../products/NewProductComp";
+import NewProduct from "../products/NewProduct";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
@@ -17,7 +18,7 @@ import { Spinner } from "../ui/Spinner";
 import { Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell } from "../ui/Table";
 import { Check, Trash2 } from "lucide-react";
 
-const NewSaleComp = () => {
+const NewSale = () => {
   const [productsTotal, setProductsTotal] = useState(0);
   const { handleCreate, loading } = useSales();
   const { products, setProducts } = useInvoiceProducts();
@@ -31,7 +32,7 @@ const NewSaleComp = () => {
     setProductsTotal(total);
   }, [products]);
 
-  const handleSubmit = async (values: NewSale, resetForm: () => void) => {
+  const handleSubmit = async (values: NewSaleFormValues, resetForm: () => void) => {
     if (products.length === 0) {
       toast.error("El presupuesto para venta debe tener al menos un producto");
       return;
@@ -45,10 +46,12 @@ const NewSaleComp = () => {
     }
   };
 
-  const handleDelete = (productName: string) => {
+  // Se elimina por identificador de línea: si el mismo producto está cargado dos
+  // veces, solo se quita la línea elegida
+  const handleDelete = (lineId: string) => {
     Swal.fire({
-      title: "Estas seguro de eliminar este producto?",
-      text: "Esta accion no se puede deshacer",
+      title: "¿Estás seguro de eliminar este producto?",
+      text: "Esta acción no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#05b000",
@@ -57,10 +60,9 @@ const NewSaleComp = () => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        const newProducts = products.filter(
-          (product) => product.productName !== productName,
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product.lineId !== lineId),
         );
-        setProducts(newProducts);
       }
     });
   };
@@ -136,7 +138,7 @@ const NewSaleComp = () => {
             
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-semibold">Productos</h4>
-              <AddProductComp />
+              <AddProduct />
             </div>
             
             {products.length === 0 ? (
@@ -154,8 +156,8 @@ const NewSaleComp = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody striped hover>
-                    {products.map((product) => (
-                      <TableRow key={product.productName}>
+                    {products.map((product, index) => (
+                      <TableRow key={getLineKey(product, index)}>
                         <TableCell>{product.productName}</TableCell>
                         <TableCell>${formatPrice(product.price)}</TableCell>
                         <TableCell>{product.quantity}</TableCell>
@@ -164,7 +166,7 @@ const NewSaleComp = () => {
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDelete(product.productName)}
+                            onClick={() => handleDelete(getLineKey(product, index))}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
                             Eliminar
@@ -199,9 +201,9 @@ const NewSaleComp = () => {
           </form>
         )}
       </Formik>
-      <NewProductComp />
+      <NewProduct />
     </>
   );
 };
 
-export default NewSaleComp;
+export default NewSale;

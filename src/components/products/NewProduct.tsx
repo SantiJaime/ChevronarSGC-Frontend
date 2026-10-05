@@ -10,20 +10,26 @@ import { Spinner } from "../ui/Spinner";
 import { Badge } from "../ui/Badge";
 import { Tag, DollarSign, Barcode, Plus, X } from "lucide-react";
 
-const NewProductComp = () => {
+interface FormikValues {
+  productName: string;
+  price: string;
+  barcodes: string[];
+}
+
+const NewProduct = () => {
   const { handleCreateProduct, loading } = useProducts();
   const [barcodeInput, setBarcodeInput] = useState("");
 
-  const formik = useFormik({
+  const formik = useFormik<FormikValues>({
     initialValues: {
       productName: "",
       price: "",
-      barcodes: [] as string[],
+      barcodes: [],
     },
     validationSchema: createNewProduct,
     onSubmit: async (values, { resetForm }) => {
       await handleCreateProduct({
-        productName: values.productName.trim(),
+        productName: values.productName.trim().toUpperCase(),
         price: Number(values.price),
         barcodes: values.barcodes,
       });
@@ -191,4 +197,4 @@ const NewProductComp = () => {
   );
 };
 
-export default NewProductComp;
+export default NewProduct;
