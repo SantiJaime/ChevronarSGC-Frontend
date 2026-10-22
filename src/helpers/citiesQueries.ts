@@ -1,4 +1,3 @@
-import { URL } from "../constants/const";
 import { apiRequest } from "./authQueries";
 
 interface GetCitiesResponse {
@@ -11,11 +10,7 @@ interface CreateCityResponse {
   msg: string;
 }
 
-export const getCities = (): Promise<GetCitiesResponse> =>
-  apiRequest(`${URL}/cities`);
+export const getCities = (): Promise<GetCitiesResponse> => apiRequest("/cities");
 
 export const createCity = (city: City): Promise<CreateCityResponse> =>
-  apiRequest(`${URL}/cities`, {
-    method: "POST",
-    body: JSON.stringify(city),
-  });
+  apiRequest("/cities", { method: "POST", data: city });
