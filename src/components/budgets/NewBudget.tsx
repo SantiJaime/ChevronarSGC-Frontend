@@ -5,7 +5,7 @@ import { createBudget } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProduct from "../products/AddProduct";
 import { getLineKey } from "../../utils/productLines";
-import useClients from "../../hooks/useClients";
+import ClientSearch from "../entities/ClientSearch";
 import {
   BUDGET_SALE_POINTS,
   CREDIT_CARDS,
@@ -32,7 +32,6 @@ import {
   TableCell,
   TableHeaderCell,
 } from "../ui/Table";
-import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
 import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
@@ -41,8 +40,6 @@ const NewBudget = () => {
   const { products, setProducts } = useInvoiceProducts();
   const [client, setClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredItems, setFilteredItems] = useState<Client[]>([]);
   const [productsTotal, setProductsTotal] = useState({
     total: 0,
     iva: 0,
@@ -52,7 +49,6 @@ const NewBudget = () => {
     productsTotal.total,
   );
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethods[]>([]);
-  const { clients } = useClients();
 
   useEffect(() => {
     const total = products.reduce(
@@ -65,32 +61,6 @@ const NewBudget = () => {
     setProductsTotal({ total, iva, precioSinIva });
     setPaymentsLeftValue(total);
   }, [products]);
-
-  const handleInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const value = ev.target.value;
-    setSearchTerm(value);
-
-    if (value.trim().length < 3) {
-      setFilteredItems([]);
-      setShowDropdown(false);
-      return;
-    }
-
-    const filtered = clients.filter((client) => {
-      const name = client.name.toLowerCase();
-      const document = client.document.toString();
-
-      return name.includes(value.toLowerCase()) || document.includes(value);
-    });
-    setFilteredItems(filtered);
-    setShowDropdown(filtered.length > 0);
-  };
-
-  const handleSelect = (client: Client) => {
-    setSearchTerm(`${client.name} - ${client.document}`);
-    setClient({ ...client, document: client.document.toString() });
-    setShowDropdown(false);
-  };
 
   const handleDeletePaymentMethod = (id: string) => {
     const newPaymentMethods = paymentMethods.filter(
@@ -194,29 +164,11 @@ const NewBudget = () => {
           <form noValidate onSubmit={handleSubmit}>
             <h4 className="text-lg font-semibold mb-4">Datos del cliente</h4>
 
-            <div className="mb-4 relative">
-              <Label htmlFor="clientSearchId">Buscar cliente</Label>
-              <Input
-                id="clientSearchId"
-                type="text"
-                placeholder="Escriba el CUIT o nombre del cliente (al menos 3 caracteres)"
-                value={searchTerm}
-                autoComplete="off"
-                onChange={handleInputChange}
-                className="mt-1"
-              />
-
-              <Dropdown.Menu show={showDropdown} className="mt-1">
-                {filteredItems.map((client) => (
-                  <Dropdown.Item
-                    key={client.document}
-                    onClick={() => handleSelect(client)}
-                  >
-                    {client.name} - {client.document}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </div>
+            <ClientSearch
+              value={searchTerm}
+              onValueChange={setSearchTerm}
+              onSelect={setClient}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>

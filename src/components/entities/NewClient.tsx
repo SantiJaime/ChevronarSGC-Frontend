@@ -8,21 +8,12 @@ import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { Select } from "../ui/Select";
+import { DOCUMENT_TYPES, IVA_CONDITIONS } from "../../constants/const";
 import CitySearch from "./CitySearch";
 
 const NewClient = () => {
   const { setClients } = useClients();
   const { cities } = useCities();
-  const IVA_CONDITIONS = [
-    "IVA Sujeto exento",
-    "IVA Responsable inscripto",
-    "Iva No alcanzado",
-    "Monotributista",
-    "Consumidor Final",
-  ];
-
-  const DOCUMENT_TYPES = ["DNI", "CUIT", "CUIL"];
-
   const newClient = (values: Client) => {
     const promise = createClient(values).then(
       (res) => {
@@ -44,8 +35,8 @@ const NewClient = () => {
       onSubmit={(values) =>
         newClient({
           ...values,
-          name: values.name.trim(),
-          address: values.address.trim(),
+          name: values.name.trim().toUpperCase(),
+          address: values.address.trim().toUpperCase(),
         })
       }
       initialValues={{
