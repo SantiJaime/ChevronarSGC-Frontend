@@ -1,5 +1,6 @@
 import NewClient from "../entities/NewClient";
 import NewInvoice from "../invoices/NewInvoice";
+import UpdateClient from "../entities/UpdateClient";
 import NewCity from "../entities/NewCity";
 import Invoices from "../invoices/Invoices";
 import NewBudget from "../budgets/NewBudget";
@@ -23,7 +24,12 @@ const Tabs: React.FC<Props> = ({ activeTab }) => {
     "Creación de presupuestos": <NewBudget />,
     "Historial de facturas": <Invoices />,
     Ciudades: <NewCity />,
-    Clientes: <NewClient />,
+    Clientes: (
+      <>
+        <NewClient />
+        <UpdateClient />
+      </>
+    ),
     "Historial de presupuestos": <Budgets />,
     "Creación de presupuesto de ventas": <NewSale />,
     "Historial de presupuestos de ventas": <Sales />,

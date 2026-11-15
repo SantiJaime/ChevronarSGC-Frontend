@@ -1,17 +1,16 @@
 import { Formik } from "formik";
 import { openInNewTab } from "../../utils/openInNewTab";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createInvoiceSchema } from "../../utils/validationSchemas";
 import { createInvoice } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProduct from "../products/AddProduct";
 import { getLineKey } from "../../utils/productLines";
-import useClients from "../../hooks/useClients";
+import ClientSearch from "../entities/ClientSearch";
 import {
   CREDIT_CARDS,
   CUIT_MAP,
   DEBIT_CARDS,
-  normalizeText,
   SALE_CONDITIONS,
   SALE_POINTS,
 } from "../../constants/const";
@@ -34,12 +33,10 @@ import {
   TableCell,
   TableHeaderCell,
 } from "../ui/Table";
-import { Dropdown } from "../ui/Dropdown";
 import { Check, Trash2 } from "lucide-react";
 import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";
 
 const NewInvoice = () => {
-  const { clients } = useClients();
   const { products, setProducts } = useInvoiceProducts();
 
   const [loading, setLoading] = useState(false);
@@ -52,23 +49,6 @@ const NewInvoice = () => {
   const [paymentsLeftValue, setPaymentsLeftValue] = useState(0);
   const [client, setClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const filteredClients = useMemo(() => {
-    const query = searchTerm.trim();
-    if (query.length < 3) return [];
-    const normalizedSearch = normalizeText(query);
-
-    return clients.filter((c) => {
-      const normalizedName = normalizeText(c.name);
-      const documentString = c.document.toString();
-
-      return (
-        normalizedName.includes(normalizedSearch) ||
-        documentString.includes(normalizedSearch)
-      );
-    });
-  }, [clients, searchTerm]);
 
   useEffect(() => {
     const total = products.reduce(
@@ -82,21 +62,6 @@ const NewInvoice = () => {
     setProductsTotal({ total, iva, precioSinIva });
     setPaymentsLeftValue(total);
   }, [products]);
-
-  const handleInputChange = (value: string) => {
-    setSearchTerm(value);
-    setClient(null);
-    setIsDropdownOpen(true);
-  };
-
-  const handleSelect = (selectedClient: Client) => {
-    setClient({
-      ...selectedClient,
-      document: selectedClient.document.toString(),
-    });
-    setSearchTerm(`${selectedClient.name} - ${selectedClient.document}`);
-    setIsDropdownOpen(false);
-  };
 
   const newInvoice = (values: InvoiceData, resetForm: () => void) => {
     const error = validateInvoice(values, client, products, paymentsLeftValue);
@@ -202,32 +167,11 @@ const NewInvoice = () => {
           <form noValidate onSubmit={handleSubmit}>
             <h4 className="text-lg font-semibold mb-4">Datos del cliente</h4>
 
-            <div className="mb-4 relative">
-              <Label htmlFor="clientSearchId">Buscar cliente</Label>
-              <Input
-                id="clientSearchId"
-                type="text"
-                placeholder="Escriba el CUIT o nombre del cliente (al menos 3 caracteres)"
-                value={searchTerm}
-                autoComplete="off"
-                onChange={(ev) => handleInputChange(ev.target.value)}
-                className="mt-1"
-              />
-
-              <Dropdown.Menu
-                show={isDropdownOpen && filteredClients.length > 0}
-                className="mt-1"
-              >
-                {filteredClients.map((client) => (
-                  <Dropdown.Item
-                    key={client.document}
-                    onClick={() => handleSelect(client)}
-                  >
-                    {client.name} - {client.document}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </div>
+            <ClientSearch
+              value={searchTerm}
+              onValueChange={setSearchTerm}
+              onSelect={setClient}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
