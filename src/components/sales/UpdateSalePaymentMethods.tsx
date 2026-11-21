@@ -20,16 +20,13 @@ import {
   SALE_CONDITIONS,
 } from "../../constants/const";
 import { NumericFormat } from "react-number-format";
-import {
-  IUpdateSalePaymentMethod,
-  updateSalePaymentMethodSchema,
-} from "../../utils/validationSchemas";
+import { IUpdateSalePaymentMethod, updateSalePaymentMethodSchema } from "../../validators/sale.validators";
 import { TAX_CONFIG, TaxTable } from "../../constants/card_tax";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import { formatPrice } from "../../utils/utils";
 import useSales from "../../hooks/useSales";
-import { validateAuthorizeSale } from "../../utils/validationFunctions";
+import { validateAuthorizeSale } from "../../validators/sale.validators";
 
 interface FormValues {
   total: number;

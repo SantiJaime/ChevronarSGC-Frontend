@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Formik } from "formik";
-import { addProductSchema } from "../../utils/validationSchemas";
+import { addProductSchema } from "../../validators/product.validators";
 import { NumericFormat } from "react-number-format";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";

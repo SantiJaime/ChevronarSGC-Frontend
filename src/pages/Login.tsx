@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import { loginSchema } from "../utils/validationSchemas";
+import { loginSchema } from "../validators/auth.validators";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";

@@ -1,4 +1,4 @@
-import { ICreateProduct, IGetProductSales } from "../utils/validationSchemas";
+import { ICreateProduct, IGetProductSales } from "../validators/product.validators";
 import { apiRequest } from "./authQueries";
 
 interface GetAllProductsResponse {

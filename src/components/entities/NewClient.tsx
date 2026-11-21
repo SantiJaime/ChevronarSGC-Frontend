@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import { createClientSchema } from "../../utils/validationSchemas";
+import { createClientSchema } from "../../validators/client.validators";
 import { createClient } from "../../helpers/clientsQueries";
 import { toast } from "sonner";
 import useClients from "../../hooks/useClients";

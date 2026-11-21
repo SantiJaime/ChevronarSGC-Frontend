@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ICreateProduct } from "../utils/validationSchemas";
+import { ICreateProduct } from "../validators/product.validators";
 import {
   addBarcodeToProduct,
   createProduct,

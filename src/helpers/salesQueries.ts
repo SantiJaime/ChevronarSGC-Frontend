@@ -1,4 +1,4 @@
-import { type IAuthorizeSale } from "../utils/validationSchemas";
+import { type IAuthorizeSale } from "../validators/sale.validators";
 import { apiRequest } from "./authQueries";
 
 interface FullPaymentsInfo extends IAuthorizeSale {

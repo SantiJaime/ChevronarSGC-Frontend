@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import { NumericFormat } from "react-number-format";
-import { createNewProduct } from "../../utils/validationSchemas";
+import { createNewProduct } from "../../validators/product.validators";
 import useProducts from "../../hooks/useProducts";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";

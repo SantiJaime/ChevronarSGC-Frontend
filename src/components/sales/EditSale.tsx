@@ -4,7 +4,7 @@ import AddProduct from "../products/AddProduct";
 import { getLineKey, withLineIds } from "../../utils/productLines";
 import { useMemo } from "react";
 import { formatPrice } from "../../utils/utils";
-import { newSaleSchema } from "../../utils/validationSchemas";
+import { newSaleSchema } from "../../validators/sale.validators";
 import Swal from "sweetalert2";
 import useSales from "../../hooks/useSales";
 import { toast } from "sonner";

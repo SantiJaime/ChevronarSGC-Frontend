@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
 import { openInNewTab } from "../../utils/openInNewTab";
 import { useState } from "react";
-import { salesAmountsSchema } from "../../utils/validationSchemas";
+import { salesAmountsSchema } from "../../validators/sale.validators";
 import { formatPrice } from "../../utils/utils";
 import useSales from "../../hooks/useSales";
 import { NUMBER_STRING_PAYMENTS } from "../../constants/const";

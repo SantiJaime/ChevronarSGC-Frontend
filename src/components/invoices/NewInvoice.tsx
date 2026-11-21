@@ -1,7 +1,7 @@
 import { Formik } from "formik";
 import { openInNewTab } from "../../utils/openInNewTab";
 import { useEffect, useState } from "react";
-import { createInvoiceSchema } from "../../utils/validationSchemas";
+import { createInvoiceSchema } from "../../validators/invoice.validators";
 import { createInvoice } from "../../helpers/invoicesQueries";
 import { toast } from "sonner";
 import AddProduct from "../products/AddProduct";
@@ -14,7 +14,7 @@ import {
   SALE_CONDITIONS,
   SALE_POINTS,
 } from "../../constants/const";
-import { validateInvoice } from "../../utils/validationFunctions";
+import { validateInvoice } from "../../validators/invoice.validators";
 import AddPaymentMethod from "../payments/AddPaymentMethod";
 import Swal from "sweetalert2";
 import { formatPrice } from "../../utils/utils";
