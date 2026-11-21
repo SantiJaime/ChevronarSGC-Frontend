@@ -47,13 +47,6 @@ export const searchInvoiceSchema = yup.object().shape({
       "El número de factura debe ser un número (sin letras ni símbolos)",
     )
     .optional(),
-  clientName: yup
-    .string()
-    .matches(
-      /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
-      "El nombre del cliente no puede contener números ni símbolos",
-    )
-    .optional(),
   clientDocument: yup
     .string()
     .matches(

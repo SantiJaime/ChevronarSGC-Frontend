@@ -40,7 +40,6 @@ const Invoices = () => {
       fromDate: "",
       toDate: "",
       cuitOption: "",
-      clientName: "",
       clientDocument: "",
       cbteTipo: undefined,
       invoiceNumber: "",
@@ -198,16 +197,10 @@ const Invoices = () => {
             <Label htmlFor="fromDateId">Desde *</Label>
             <Input
               id="fromDateId"
-              type="text"
+              type="date"
               name="fromDate"
               value={values.fromDate}
-              onChange={(ev) => {
-                let value = ev.target.value.replace(/[^0-9]/g, "");
-                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-                setFieldValue("fromDate", value);
-              }}
-              placeholder="YYYY-MM-DD"
+              onChange={(ev) => setFieldValue("fromDate", ev.target.value)}
               error={touched.fromDate && !!errors.fromDate}
               className="mt-1"
             />
@@ -220,16 +213,10 @@ const Invoices = () => {
             <Label htmlFor="toDateId">Hasta *</Label>
             <Input
               id="toDateId"
-              type="text"
+              type="date"
               name="toDate"
               value={values.toDate}
-              onChange={(ev) => {
-                let value = ev.target.value.replace(/[^0-9]/g, "");
-                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-                setFieldValue("toDate", value);
-              }}
-              placeholder="YYYY-MM-DD"
+              onChange={(ev) => setFieldValue("toDate", ev.target.value)}
               error={touched.toDate && !!errors.toDate}
               className="mt-1"
             />
@@ -279,8 +266,8 @@ const Invoices = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4">
+          <div className="md:col-span-4">
             <Label htmlFor="clientDocumentId">Documento del cliente</Label>
             <Input
               id="clientDocumentId"
@@ -295,22 +282,7 @@ const Invoices = () => {
             />
           </div>
           
-          <div>
-            <Label htmlFor="clientNameId">Nombre del cliente</Label>
-            <Input
-              id="clientNameId"
-              type="text"
-              name="clientName"
-              value={values.clientName}
-              onChange={handleChange}
-              placeholder="Ej: Juan Perez"
-              autoComplete="off"
-              error={touched.clientName && !!errors.clientName}
-              className="mt-1"
-            />
-          </div>
-          
-          <div>
+          <div className="md:col-span-4">
             <Label htmlFor="invoiceNumberId">Número de factura</Label>
             <Input
               id="invoiceNumberId"
@@ -325,7 +297,7 @@ const Invoices = () => {
             />
           </div>
           
-          <div>
+          <div className="md:col-span-4">
             <Label htmlFor="invoiceTypeId">Tipo de factura</Label>
             <Select
               id="invoiceTypeId"

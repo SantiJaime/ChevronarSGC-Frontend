@@ -128,7 +128,6 @@ interface InvoiceSearch {
   fromDate: string;
   toDate: string;
   cuitOption: string;
-  clientName?: string;
   clientDocument?: string;
   cbteTipo?: number;
   invoiceNumber?: string;
@@ -142,7 +141,6 @@ interface InvoiceSearch {
 interface BudgetSearch {
   fromDate: string;
   toDate: string;
-  clientName?: string;
   clientDocument?: string;
   budgetNumber?: string;
   salePoint: string;
