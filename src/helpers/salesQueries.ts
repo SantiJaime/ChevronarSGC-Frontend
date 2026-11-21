@@ -1,4 +1,3 @@
-import { URL as URL_API } from "../constants/const";
 import { type IAuthorizeSale } from "../utils/validationSchemas";
 import { apiRequest } from "./authQueries";
 
@@ -25,50 +24,47 @@ export const getSales = (payload: SaleSearch, page: number): Promise<GetSalesRes
     }
   });
 
-  return apiRequest(`${URL_API}/sales?${params}`);
+  return apiRequest("/sales", { params });
 };
 
 export const getSalesAmounts = (date: string): Promise<GetSalesAmountsResponse> =>
-  apiRequest(`${URL_API}/sales/day?${new URLSearchParams({ date })}`);
+  apiRequest("/sales/day", { params: { date } });
 
 export const createSale = (sale: SaleWithProducts): Promise<CreateSaleResponse> =>
-  apiRequest(`${URL_API}/sales`, {
-    method: "POST",
-    body: JSON.stringify(sale),
-  });
+  apiRequest("/sales", { method: "POST", data: sale });
 
 export const authorizeSale = (
   id: string,
   paymentsInfo: FullPaymentsInfo,
 ): Promise<AuthorizeSaleResponse> =>
-  apiRequest(`${URL_API}/sales/${encodeURIComponent(id)}`, {
+  apiRequest(`/sales/${encodeURIComponent(id)}`, {
     method: "PATCH",
-    body: JSON.stringify(paymentsInfo),
+    data: paymentsInfo,
   });
 
 export const updateSalePaymentMethod = (
   id: string,
   paymentsInfo: UpdateSalePayments,
 ): Promise<AuthorizeSaleResponse> =>
-  apiRequest(`${URL_API}/sales/${encodeURIComponent(id)}/payment-method`, {
+  apiRequest(`/sales/${encodeURIComponent(id)}/payment-method`, {
     method: "PATCH",
-    body: JSON.stringify(paymentsInfo),
+    data: paymentsInfo,
   });
 
 export const editSale = (sale: FullSale, newTotal: number): Promise<EditSaleResponse> =>
-  apiRequest(`${URL_API}/sales/${encodeURIComponent(sale._id)}`, {
+  apiRequest(`/sales/${encodeURIComponent(sale._id)}`, {
     method: "PUT",
-    body: JSON.stringify({ ...sale, totalWithInterest: newTotal }),
+    data: { ...sale, totalWithInterest: newTotal },
   });
 
 export const printSale = (id: string): Promise<PrintInvoiceResponse> =>
-  apiRequest(`${URL_API}/sales/print/${encodeURIComponent(id)}`);
+  apiRequest(`/sales/print/${encodeURIComponent(id)}`);
 
 export const deleteSale = (id: string): Promise<{ msg: string }> =>
-  apiRequest(`${URL_API}/sales/${encodeURIComponent(id)}`, { method: "DELETE" });
+  apiRequest(`/sales/${encodeURIComponent(id)}`, { method: "DELETE" });
 
 export const exportToSheets = (date: string): Promise<ExportToSheetsResponse> =>
-  apiRequest(`${URL_API}/sales/spreadsheet?${new URLSearchParams({ date })}`);
+  apiRequest("/sales/spreadsheet", { params: { date } });
 
 export const getGoogleSheet = (date: string): Promise<ExportToSheetsResponse> =>
-  apiRequest(`${URL_API}/sales/spreadsheet/view?${new URLSearchParams({ date })}`);
+  apiRequest("/sales/spreadsheet/view", { params: { date } });

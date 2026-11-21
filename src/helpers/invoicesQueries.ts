@@ -1,4 +1,3 @@
-import { URL as URL_API } from "../constants/const";
 import { apiRequest } from "./authQueries";
 
 interface PaginationInfo {
@@ -57,45 +56,40 @@ export const getInvoices = (
   payload: InvoiceSearch,
   page: number,
 ): Promise<GetInvoicesResponse> =>
-  apiRequest(`${URL_API}/invoices?${buildSearchParams(payload, page)}`);
+  apiRequest("/invoices", { params: buildSearchParams(payload, page) });
 
 export const getBudgets = (
   payload: BudgetSearch,
   page: number,
 ): Promise<GetBudgetsResponse> =>
-  apiRequest(`${URL_API}/budgets?${buildSearchParams(payload, page)}`);
+  apiRequest("/budgets", { params: buildSearchParams(payload, page) });
 
 export const createBudget = (payload: NewBudget): Promise<CreateInvoiceResponse> =>
-  apiRequest(`${URL_API}/budgets`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  apiRequest("/budgets", { method: "POST", data: payload });
 
 export const createInvoice = (payload: NewInvoice): Promise<CreateInvoiceResponse> => {
   const { cuitOption, ...rest } = payload;
-  const params = new URLSearchParams({ cuitOption: String(cuitOption) });
-  return apiRequest(`${URL_API}/invoices/new-invoice?${params}`, {
+  return apiRequest("/invoices/new-invoice", {
     method: "POST",
-    body: JSON.stringify(rest),
+    params: { cuitOption: String(cuitOption) },
+    data: rest,
   });
 };
 
 export const cancelInvoice = (
   cuitOption: string,
   assocInvoiceId: string,
-): Promise<CancelInvoiceResponse> => {
-  const params = new URLSearchParams({ cuitOption });
-  return apiRequest(
-    `${URL_API}/invoices/new-credit-note/${encodeURIComponent(assocInvoiceId)}?${params}`,
-    { method: "POST" },
-  );
-};
+): Promise<CancelInvoiceResponse> =>
+  apiRequest(`/invoices/new-credit-note/${encodeURIComponent(assocInvoiceId)}`, {
+    method: "POST",
+    params: { cuitOption },
+  });
 
 export const printInvoice = (id: string): Promise<PrintInvoiceResponse> =>
-  apiRequest(`${URL_API}/invoices/print/${encodeURIComponent(id)}`);
+  apiRequest(`/invoices/print/${encodeURIComponent(id)}`);
 
 export const printBudget = (id: string): Promise<PrintInvoiceResponse> =>
-  apiRequest(`${URL_API}/budgets/print/${encodeURIComponent(id)}`);
+  apiRequest(`/budgets/print/${encodeURIComponent(id)}`);
 
 export const deleteBudget = (id: string): Promise<DeleteBudgetResponse> =>
-  apiRequest(`${URL_API}/budgets/${encodeURIComponent(id)}`, { method: "DELETE" });
+  apiRequest(`/budgets/${encodeURIComponent(id)}`, { method: "DELETE" });

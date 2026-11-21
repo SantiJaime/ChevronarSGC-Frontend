@@ -198,7 +198,7 @@ export const SELLERS = [
   },
   {
     value: 6,
-    label: "Facundo",
+    label: "Ezequiel",
   },
 ];
 
@@ -233,3 +233,13 @@ export const NUMBER_STRING_PAYMENTS: Record<number, string> = {
   5: "Múltiples métodos de pago",
   6: "Gastos",
 };
+
+export const IVA_CONDITIONS = [
+  "IVA Sujeto exento",
+  "IVA Responsable inscripto",
+  "Iva No alcanzado",
+  "Monotributista",
+  "Consumidor Final",
+];
+
+export const DOCUMENT_TYPES = ["DNI", "CUIT", "CUIL"];

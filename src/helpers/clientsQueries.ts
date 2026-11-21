@@ -1,4 +1,3 @@
-import { URL } from "../constants/const";
 import { apiRequest } from "./authQueries";
 
 interface GetClientResponse {
@@ -10,12 +9,14 @@ interface CreateClientResponse {
   msg: string;
 }
 
-export const getClients = (): Promise<GetClientResponse> =>
-  apiRequest(`${URL}/clients`);
+export const getClients = (): Promise<GetClientResponse> => apiRequest("/clients");
 
 // El backend ya devuelve un mensaje legible si el documento está repetido
 export const createClient = (client: Client): Promise<CreateClientResponse> =>
-  apiRequest(`${URL}/clients`, {
-    method: "POST",
-    body: JSON.stringify(client),
-  });
+  apiRequest("/clients", { method: "POST", data: client });
+
+export const updateClient = (
+  id: string,
+  client: Omit<Client, "_id">,
+): Promise<CreateClientResponse> =>
+  apiRequest(`/clients/${encodeURIComponent(id)}`, { method: "PUT", data: client });

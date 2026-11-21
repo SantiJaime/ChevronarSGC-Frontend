@@ -168,10 +168,12 @@ export const createClientSchema = yup.object().shape({
     .max(11, "El documento debe tener 11 caracteres"),
   name: yup
     .string()
+    .trim()
     .required("El nombre | razón social es requerido")
     .min(3, "El nombre | razón social debe tener al menos 3 caracteres"),
   address: yup
     .string()
+    .trim()
     .required("El domicilio es requerido")
     .min(3, "El domicilio debe tener al menos 3 caracteres"),
   city: yup.string().required("La localidad es requerida"),
