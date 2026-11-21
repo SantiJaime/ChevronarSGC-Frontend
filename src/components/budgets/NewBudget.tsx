@@ -12,10 +12,10 @@ import {
   DEBIT_CARDS,
   SALE_CONDITIONS,
 } from "../../constants/const";
-import { validateInvoice } from "../../utils/validationFunctions";
+import { validateInvoice } from "../../validators/invoice.validators";
 import AddPaymentMethod from "../payments/AddPaymentMethod";
 import Swal from "sweetalert2";
-import { createBudgetSchema } from "../../utils/validationSchemas";
+import { createBudgetSchema } from "../../validators/budget.validators";
 import { formatPrice } from "../../utils/utils";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";
 import NewProduct from "../products/NewProduct";

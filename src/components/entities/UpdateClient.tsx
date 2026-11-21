@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Formik } from "formik";
 import { toast } from "sonner";
-import { createClientSchema } from "../../utils/validationSchemas";
+import { createClientSchema } from "../../validators/client.validators";
 import { updateClient } from "../../helpers/clientsQueries";
 import { DOCUMENT_TYPES, IVA_CONDITIONS, Role } from "../../constants/const";
 import useClients from "../../hooks/useClients";

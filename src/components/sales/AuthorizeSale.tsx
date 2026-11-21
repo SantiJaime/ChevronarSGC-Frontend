@@ -1,14 +1,11 @@
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
 import { CREDIT_CARDS, DEBIT_CARDS, SALE_CONDITIONS } from "../../constants/const";
-import {
-  authorizeSaleSchema,
-  IAuthorizeSale,
-} from "../../utils/validationSchemas";
+import { authorizeSaleSchema, IAuthorizeSale } from "../../validators/sale.validators";
 import { TAX_CONFIG, TaxTable } from "../../constants/card_tax";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
-import { validateAuthorizeSale } from "../../utils/validationFunctions";
+import { validateAuthorizeSale } from "../../validators/sale.validators";
 import { formatPrice } from "../../utils/utils";
 import AddPaymentMethod from "../payments/AddPaymentMethod";
 import MultiplePaymentsTable from "../payments/MultiplePaymentsTable";

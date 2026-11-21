@@ -11,7 +11,8 @@ import {
   updateSalePaymentMethod,
 } from "../helpers/salesQueries";
 import { toast } from "sonner";
-import { IAuthorizeSale, IGetProductSales } from "../utils/validationSchemas";
+import { IAuthorizeSale } from "../validators/sale.validators";
+import { IGetProductSales } from "../validators/product.validators";
 import { getProductSales } from "../helpers/productsQueries";
 
 interface FullPaymentsInfo extends IAuthorizeSale {

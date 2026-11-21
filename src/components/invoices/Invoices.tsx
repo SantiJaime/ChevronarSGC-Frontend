@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import { openInNewTab } from "../../utils/openInNewTab";
-import { searchInvoiceSchema } from "../../utils/validationSchemas";
+import { searchInvoiceSchema } from "../../validators/invoice.validators";
 import { useRef, useState } from "react";
 import {
   cancelInvoice,
@@ -17,7 +17,7 @@ import {
   SALE_POINTS,
 } from "../../constants/const";
 import InvoiceDetails from "./InvoiceDetails";
-import { validateSearchInvoice } from "../../utils/validationFunctions";
+import { validateSearchInvoice } from "../../validators/invoice.validators";
 import { formatPrice } from "../../utils/utils";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";

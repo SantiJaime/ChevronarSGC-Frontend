@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Formik } from "formik";
-import { addPaymentMethodSchema } from "../../utils/validationSchemas";
+import { addPaymentMethodSchema } from "../../validators/payment.validators";
 import {
   CREDIT_CARDS,
   DEBIT_CARDS,

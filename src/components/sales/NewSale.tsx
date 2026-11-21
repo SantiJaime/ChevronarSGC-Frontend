@@ -5,7 +5,7 @@ import { getLineKey } from "../../utils/productLines";
 import { formatPrice } from "../../utils/utils";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { type NewSale as NewSaleFormValues, newSaleSchema } from "../../utils/validationSchemas";
+import { type NewSale as NewSaleFormValues, newSaleSchema } from "../../validators/sale.validators";
 import { toast } from "sonner";
 import useSales from "../../hooks/useSales";
 import useInvoiceProducts from "../../hooks/useInvoiceProducts";

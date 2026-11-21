@@ -3,10 +3,7 @@ import { SELLERS, SELLERS_MAP } from "../../constants/const";
 import { useEffect, useRef, useState } from "react";
 import useProducts from "../../hooks/useProducts";
 import useBarcodeScanner from "../../hooks/useBarcodeScanner";
-import {
-  getProductSalesSchema,
-  type IGetProductSales,
-} from "../../utils/validationSchemas";
+import { getProductSalesSchema, type IGetProductSales } from "../../validators/product.validators";
 import { toast } from "sonner";
 import useSales from "../../hooks/useSales";
 import { Button } from "../ui/Button";

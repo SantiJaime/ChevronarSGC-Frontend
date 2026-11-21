@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
-import { addProductSchema, IAddProduct } from "../../utils/validationSchemas";
+import { addProductSchema, IAddProduct } from "../../validators/product.validators";
 import { toast } from "sonner";
 import { NumericFormat } from "react-number-format";
 import useProducts from "../../hooks/useProducts";

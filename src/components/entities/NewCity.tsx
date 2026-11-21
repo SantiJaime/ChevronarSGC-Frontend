@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import { createCitySchema } from "../../utils/validationSchemas";
+import { createCitySchema } from "../../validators/city.validators";
 import { toast } from "sonner";
 import { createCity } from "../../helpers/citiesQueries";
 import { ARG_PROVINCES } from "../../constants/const";

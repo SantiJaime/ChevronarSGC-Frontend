@@ -1,15 +1,12 @@
 import { useFormik } from "formik";
 import { openInNewTab } from "../../utils/openInNewTab";
-import {
-  type IAuthorizeSale,
-  searchSalesValidatorSchema,
-} from "../../utils/validationSchemas";
+import { type IAuthorizeSale, searchSalesValidatorSchema } from "../../validators/sale.validators";
 import { Role, SELLERS, SELLERS_MAP } from "../../constants/const";
 import Swal from "sweetalert2";
 import { formatPrice } from "../../utils/utils";
 import useSales from "../../hooks/useSales";
 import { useRef, useState } from "react";
-import { validateSearchSale } from "../../utils/validationFunctions";
+import { validateSearchSale } from "../../validators/sale.validators";
 import { toast } from "sonner";
 import { deleteSale, printSale } from "../../helpers/salesQueries";
 import EditSale from "./EditSale";

@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import { openInNewTab } from "../../utils/openInNewTab";
-import { searchBudgetSchema } from "../../utils/validationSchemas";
+import { searchBudgetSchema } from "../../validators/budget.validators";
 import { useRef, useState } from "react";
 import {
   deleteBudget,
@@ -14,7 +14,7 @@ import {
   DEBIT_CARDS,
   SALE_CONDITIONS,
 } from "../../constants/const";
-import { validateSearchInvoice } from "../../utils/validationFunctions";
+import { validateSearchInvoice } from "../../validators/invoice.validators";
 import Swal from "sweetalert2";
 import { formatPrice } from "../../utils/utils";
 import { Button } from "../ui/Button";
