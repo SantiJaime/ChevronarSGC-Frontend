@@ -30,7 +30,6 @@ const Budgets = () => {
     initialValues: {
       fromDate: "",
       toDate: "",
-      clientName: "",
       clientDocument: "",
       budgetNumber: "",
       salePoint: "",
@@ -166,16 +165,10 @@ const Budgets = () => {
             <Label htmlFor="budgetFromDateId">Desde *</Label>
             <Input
               id="budgetFromDateId"
-              type="text"
+              type="date"
               name="fromDate"
               value={values.fromDate}
-              onChange={(ev) => {
-                let value = ev.target.value.replace(/[^0-9]/g, "");
-                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-                setFieldValue("fromDate", value);
-              }}
-              placeholder="YYYY-MM-DD"
+              onChange={(ev) => setFieldValue("fromDate", ev.target.value)}
               error={touched.fromDate && !!errors.fromDate}
               className="mt-1"
             />
@@ -188,16 +181,10 @@ const Budgets = () => {
             <Label htmlFor="budgetToDateId">Hasta *</Label>
             <Input
               id="budgetToDateId"
-              type="text"
+              type="date"
               name="toDate"
               value={values.toDate}
-              onChange={(ev) => {
-                let value = ev.target.value.replace(/[^0-9]/g, "");
-                if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
-                if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7, 9)}`;
-                setFieldValue("toDate", value);
-              }}
-              placeholder="YYYY-MM-DD"
+              onChange={(ev) => setFieldValue("toDate", ev.target.value)}
               error={touched.toDate && !!errors.toDate}
               className="mt-1"
             />
@@ -241,22 +228,8 @@ const Budgets = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <Label htmlFor="budgetClientNameId">Nombre del cliente</Label>
-            <Input
-              id="budgetClientNameId"
-              type="text"
-              name="clientName"
-              value={values.clientName}
-              onChange={handleChange}
-              placeholder="Ej: Juan Perez"
-              autoComplete="off"
-              className="mt-1"
-            />
-          </div>
-          
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-16 gap-4 mb-4">
+          <div className="md:col-span-4">
             <Label htmlFor="budgetNumberId">Número de presupuesto</Label>
             <Input
               id="budgetNumberId"
@@ -269,10 +242,8 @@ const Budgets = () => {
               className="mt-1"
             />
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div>
+
+          <div className="md:col-span-4">
             <Label htmlFor="budgetSaleConditionId">Condición de venta</Label>
             <Select
               id="budgetSaleConditionId"
@@ -290,7 +261,7 @@ const Budgets = () => {
           
           {values.saleCond === "Crédito" && (
             <>
-              <div>
+              <div className="md:col-span-4">
                 <Label htmlFor="budgetCreditCardId">Tarjeta de crédito</Label>
                 <Select
                   id="budgetCreditCardId"
@@ -305,7 +276,7 @@ const Budgets = () => {
                   ))}
                 </Select>
               </div>
-              <div>
+              <div className="md:col-span-4">
                 <Label htmlFor="budgetCreditPaymentsQuantityId">Cantidad de cuotas</Label>
                 <Input
                   id="budgetCreditPaymentsQuantityId"
@@ -323,7 +294,7 @@ const Budgets = () => {
           
           {values.saleCond === "Débito" && (
             <>
-              <div>
+              <div className="md:col-span-4">
                 <Label htmlFor="budgetDebitCardId">Tarjeta de débito</Label>
                 <Select
                   id="budgetDebitCardId"
@@ -338,7 +309,7 @@ const Budgets = () => {
                   ))}
                 </Select>
               </div>
-              <div>
+              <div className="md:col-span-4">
                 <Label htmlFor="budgetDebitPaymentsQuantityId">Cantidad de cuotas</Label>
                 <Input
                   id="budgetDebitPaymentsQuantityId"
